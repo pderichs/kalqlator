@@ -1,0 +1,31 @@
+// KalQlator - Cell.h
+// Copyright (C) 2026  pderichs
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+#pragma once
+
+#include "../../lisp/object.h"
+#include "../../lisp/tools.h"
+#include "../../lisp/ArgumentError.h"
+
+const lisp::NativeFn FnCell = lisp::NativeFn{
+    [](const lisp::LispObjectPtr &args, const std::any&) -> lisp::LispObjectPtr {
+        if (countListElements(args) != 1) {
+            throw lisp::ArgumentError("Cell requires one argument");
+        }
+
+        return args->car();
+    }
+};
