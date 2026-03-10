@@ -10,8 +10,22 @@ I created a similar project before using wxWidgets. You can find it here: https:
 
 ## How to build
 
-Qt 5 development libraries are required to build this project.
+### Prerequisites
 
+Qt 6 development libraries are required to build this project.
+
+For e.g. Debian based systems you can use
+
+```bash
+sudo apt install \                                                                                                                           2 ↵
+  qt6-base-dev \
+  qt6-base-dev-tools \
+  qt6-tools-dev \
+  qt6-tools-dev-tools \
+  libqt6test6 
+```
+
+### Build
 
 ```bash
 mise install # optional - tools can be installed manually as well
@@ -31,7 +45,7 @@ ctest --output-on-failure
 
 KalQlator uses Open Source Software:
 
-- **[Qt Version 5](https://www.qt.io/)** – Cross-platform Application Framework
+- **[Qt](https://www.qt.io/)** – Cross-platform Application Framework
 - **[Material Icons Font](https://fonts.google.com/icons)** – Icons
 
 Please see their respective Licenses for more information.

@@ -19,6 +19,7 @@
 #include <fstream>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QStringLiteral>
 
 #define KALQLATOR_VERSION "0.0.1"
 
@@ -146,7 +147,7 @@ void DocumentJsonSerializer::setSheetSizes(
     const QString &sizeKey,
     std::function<void(size_t, size_t)> setter) const {
     for (const auto &item: array) {
-        setter(item["index"].toInt(), item[sizeKey].toInt());
+        setter(item[QStringLiteral("index")].toInt(), item[sizeKey].toInt());
     }
 }
 

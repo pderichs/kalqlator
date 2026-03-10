@@ -9,7 +9,7 @@ set(CMAKE_AUTOUIC ON)
 enable_testing()
 add_subdirectory(tests)
 
-find_package(Qt5 COMPONENTS
+find_package(Qt6 COMPONENTS
         Core
         Gui
         Widgets
@@ -113,9 +113,9 @@ add_executable(kalqlator src/main.cpp
 
 target_link_libraries(kalqlator
         PRIVATE
-        Qt5::Core
-        Qt5::Gui
-        Qt5::Widgets
+        Qt6::Core
+        Qt6::Gui
+        Qt6::Widgets
 )
 
 

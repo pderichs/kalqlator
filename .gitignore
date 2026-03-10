@@ -35,3 +35,4 @@ tests/test_lisp_tokenizer
 tests/test_lisp_tokenizer_autogen/
 tests/test_location
 tests/test_location_autogen/
+*.cmake
