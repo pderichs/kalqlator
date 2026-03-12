@@ -425,7 +425,8 @@ void MainWindow::createDockWidget() {
 void MainWindow::updateSheetsList() const {
     m_listWidget->clear();
 
-    for (const auto &sheet: document_->sheets()) {
+    for (size_t i = 0; i < document_->sheet_count(); i++) {
+        auto sheet = document_->sheet_by_index(i);
         m_listWidget->addItem(tr(sheet->name().c_str()));
     }
 
@@ -437,7 +438,7 @@ void MainWindow::createNewDocument() {
     document_ = std::make_shared<Document>();
     document_->initialize();
     m_tableWidget->setDisabled(false);
-    document_->update_all_cells(); // hack?
+    document_->update_all_cells();
 }
 
 void MainWindow::onCellSelectionChanged(const SelectedCellChangedEvent &cell_selection_changed_event) const {
@@ -525,7 +526,7 @@ void MainWindow::openFile() {
         return;
     }
 
-    DocumentJsonSerializer serializer(document_, fileName.toStdString(), document_->get_sheet_registry_weak_ptr());
+    DocumentJsonSerializer serializer(document_, fileName.toStdString());
     if (!serializer.open()) {
         QMessageBox::critical(this, tr("Error opening the file"), tr("Load file operation failed."));
         return;
@@ -561,7 +562,7 @@ void MainWindow::saveFile() {
         }
     }
 
-    DocumentJsonSerializer serializer(document_, fileName.toStdString(), document_->get_sheet_registry_weak_ptr());
+    DocumentJsonSerializer serializer(document_, fileName.toStdString());
     if (!serializer.save()) {
         QMessageBox::critical(this, tr("Error saving file"), tr("Save operation failed."));
         return;

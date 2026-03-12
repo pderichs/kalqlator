@@ -27,10 +27,10 @@
 #include "triggers.h"
 #include "search/SearchResultItem.h"
 
-typedef std::vector<SheetPtr> SheetVector;
+typedef std::vector<std::unique_ptr<Sheet>> SheetVector;
 typedef std::map<std::string, std::string> MacroMap;
 
-class Document : public SheetRegistry, public std::enable_shared_from_this<Document> {
+class Document : public SheetRegistry {
 public:
     Document();
 
@@ -46,22 +46,22 @@ public:
     void set_changed_flag(bool changed) { changed_ = changed; }
     [[nodiscard]] bool changed() const { return changed_; }
 
-    void add_sheet(const SheetPtr &sheet);
+    size_t add_sheet(std::string id, std::string name);
 
     void remove_sheet(size_t index);
 
     template<typename Predicate>
-    std::optional<SheetPtr> find_sheet(Predicate pred) const;
+    Sheet* find_sheet(Predicate pred) const;
 
-    [[nodiscard]] std::optional<SheetPtr> get_sheet_by_name(const std::string &name) const;
+    [[nodiscard]] Sheet* get_sheet_by_name(const std::string &name) const;
 
-    [[nodiscard]] std::optional<SheetPtr> get_sheet_by_id(const std::string &name) const;
+    [[nodiscard]] Sheet* get_sheet_by_id(const std::string &name) const;
 
-    [[nodiscard]] SheetVector sheets() const {
-        return sheets_;
+    [[nodiscard]] size_t sheet_count() const {
+        return sheets_.size();
     }
 
-    [[nodiscard]] SheetPtr current_sheet() const;
+    [[nodiscard]] Sheet* current_sheet() const;
 
     void set_cell_content(int row, int column, const std::string &string);
 
@@ -82,7 +82,7 @@ public:
 
     void set_selected_cells(const LocationSet &set);
 
-    void set_cell_content(const SheetPtr &sheet, int row, int column, const std::string &content);
+    void set_cell_content(Sheet* sheet, int row, int column, const std::string &content);
 
     void set_current_cell(const Location &location);
 
@@ -101,25 +101,25 @@ public:
     std::unordered_map<size_t, size_t> sheet_column_widths() const;
 
     // Implementing SheetRegistry
-    std::optional<SheetPtr> sheet_by_index(size_t index) override {
+    Sheet* sheet_by_index(size_t index) override {
         if (index >= sheets_.size()) {
-            return std::nullopt;
+            return nullptr;
         }
 
-        return sheets_[index];
+        return sheets_[index].get();
     }
 
-    std::optional<SheetPtr> sheet_by_name(const std::string &name) override {
+    Sheet* sheet_by_name(const std::string &name) override {
         return get_sheet_by_name(name);
     }
 
-    std::optional<SheetPtr> sheet_by_id(const std::string &id) override {
+    Sheet* sheet_by_id(const std::string &id) override {
         return get_sheet_by_id(id);
     }
 
     SearchResultItems search(const SearchOptions &options) const;
 
-    int get_sheet_index(const std::shared_ptr<Sheet> & sheet);
+    int get_sheet_index(const Sheet *sheet) const;
 
     void select_sheet_and_cell(const std::string& table_name, const Location& cell_location);
 

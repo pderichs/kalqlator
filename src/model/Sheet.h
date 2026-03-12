@@ -29,7 +29,7 @@
 
 struct SearchOptions;
 class SheetRegistry;
-typedef std::map<Location, CellPtr> CellMap;
+typedef std::map<Location, std::unique_ptr<Cell>> CellMap;
 
 struct FormulaResult {
     lisp::LispTokens tokens;
@@ -39,21 +39,21 @@ struct FormulaResult {
 
 class Sheet {
 public:
-    explicit Sheet(std::string id, std::string name, const std::weak_ptr<SheetRegistry> &sheet_registry);
+    explicit Sheet(std::string id, std::string name, SheetRegistry *sheet_registry);
 
     [[nodiscard]] std::string name() { return name_; }
 
     [[nodiscard]] std::string id() const { return id_; }
 
-    std::optional<CellPtr> get_cell(const Location &location);
+    Cell* get_cell(const Location &location);
 
-    std::optional<CellPtr> get_cell(int row, int column);
+    Cell* get_cell(int row, int column);
 
-    std::optional<CellPtr> get_cell_by_name(const std::string &name);
+    Cell* get_cell_by_name(const std::string &name);
 
-    CellPtr create_cell_model(const Location &location);
+    Cell* create_cell_model(const Location &location);
 
-    CellPtr get_or_create_cell_by_pos(int row, int column);
+    Cell* get_or_create_cell_by_pos(int row, int column);
 
     /**
      * Update cells from UI event handler.
@@ -64,7 +64,7 @@ public:
      */
     void update_cell(int row, int column, const std::string &cell_name, const std::string &content);
 
-    void set_cell_content(const CellPtr &cell, const std::string &content);
+    void set_cell_content(const Cell* cell, const std::string &content);
 
     void set_cell_content(int row, int column, const std::string &content);
 
@@ -73,7 +73,7 @@ public:
     template<typename Func>
     void for_each_cell(Func &&func) {
         for (auto &val: cells_ | std::views::values) {
-            func(val);
+            func(val.get());
         }
     }
 
@@ -115,7 +115,7 @@ public:
 
     static bool field_matches_search(const SearchOptions & options, const std::string & field_content, std::string * out_complete_match);
 
-    static bool matches_search(const SearchOptions &options, const CellPtr &cell, std::string *out_complete_match);
+    static bool matches_search(const SearchOptions &options, const Cell *cell, std::string *out_complete_match);
 
     SearchResultItems search(const SearchOptions &options) const;
 
@@ -124,12 +124,13 @@ private:
                                    const lisp::EnvironmentPtr &env,
                                    const std::string &cell_name) const;
 
+
     /**
      * Update content by cell data itself.
      *
      * @param cell Cell to be updated
      */
-    void refresh_cell(const CellPtr &cell) const;
+    void refresh_cell(Cell* cell) const;
 
     /**
      * Update cell content with explicit arguments. Used for updates
@@ -142,7 +143,7 @@ private:
      * @param cell_p
      */
     static void update_cell_contents(const std::string &content, bool is_func,
-                                     FormulaResult evaluation, const CellPtr &cell_p);
+                                     FormulaResult evaluation, Cell* cell_p);
 
     std::string id_;
     std::string name_;
@@ -150,10 +151,9 @@ private:
     TableLispEnvironmentPtr table_lisp_environment_;
     LocationSet selected_cells_;
     Location current_selected_cell_;
-    std::weak_ptr<SheetRegistry> sheet_registry_;
+    SheetRegistry* sheet_registry_;
 
     std::unordered_map<size_t, size_t> column_widths_;
     std::unordered_map<size_t, size_t> row_heights_;
 };
 
-typedef std::shared_ptr<Sheet> SheetPtr;

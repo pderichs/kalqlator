@@ -31,40 +31,39 @@ struct CellValueTask {
 
 class DocumentJsonSerializer {
 public:
-    DocumentJsonSerializer(DocumentPtr document, std::string filename,
-                           const std::weak_ptr<SheetRegistry> &sheet_registry) : document_(std::move(document)),
-        filename_(std::move(filename)),
-        sheet_registry_(sheet_registry) {
+    DocumentJsonSerializer(DocumentPtr document, std::string filename) : document_(std::move(document)),
+        filename_(std::move(filename)) {
+
     }
 
     virtual ~DocumentJsonSerializer() = default;
 
-    static QJsonArray create_cells_array(const std::shared_ptr<Sheet> &sheet);
+    static QJsonArray create_cells_array(Sheet *sheet);
 
     static QJsonObject location_to_json(Location location);
 
-    QJsonArray convert_selected_cells_to_json_array(const std::shared_ptr<Sheet> &sheet) const;
+    QJsonArray convert_selected_cells_to_json_array(Sheet *sheet) const;
 
-    QJsonArray get_row_heights(const SheetPtr& sheet) const;
+    QJsonArray get_row_heights(Sheet* sheet) const;
 
-    QJsonArray get_column_widths(const SheetPtr& sheet) const;
+    QJsonArray get_column_widths(Sheet* sheet) const;
 
     QJsonObject create_macros_json(const MacroMap & map) const;
 
     [[nodiscard]] bool save() const;
 
-    static void create_cell_by_task(const SheetPtr &sheet, const CellValueTask &task);
+    static void create_cell_by_task(Sheet* sheet, const CellValueTask &task);
 
     void setSheetSizes(
         const QJsonArray& array,
         const QString& sizeKey,
         std::function<void(size_t, size_t)> setter) const;
 
-    void setSheetRowHeights(const SheetPtr & sheet, const QJsonArray & jsons) const;
+    void setSheetRowHeights(Sheet* sheet, const QJsonArray & jsons) const;
 
-    void setSheetColumnWidths(const SheetPtr & sheet, const QJsonArray & jsons) const;
+    void setSheetColumnWidths(Sheet* sheet, const QJsonArray & jsons) const;
 
-    void applySizes(const SheetPtr & sheet, const QJsonObject & json_values) const;
+    void applySizes(Sheet* sheet, const QJsonObject & json_values) const;
 
     void add_sheets(const QJsonObject &workbook) const;
 
@@ -75,5 +74,4 @@ public:
 private:
     DocumentPtr document_;
     std::string filename_;
-    std::weak_ptr<SheetRegistry> sheet_registry_;
 };

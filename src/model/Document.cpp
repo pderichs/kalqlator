@@ -38,8 +38,12 @@ void Document::initialize(const bool add_initial_sheet) {
     filename_.clear();
 }
 
-void Document::add_sheet(const SheetPtr &sheet) {
-    sheets_.push_back(sheet);
+size_t Document::add_sheet(std::string id, std::string name) {
+    const size_t result = sheets_.size();
+
+    auto sheet = std::make_unique<Sheet>(id, name, this);
+    sheets_.push_back(std::move(sheet));
+
     set_changed_flag(true);
 
     if (macros_.contains(Trigger_OnLoad)) {
@@ -50,6 +54,8 @@ void Document::add_sheet(const SheetPtr &sheet) {
 
         sheet->run_macros_by_trigger(Trigger_OnLoad, lisp);
     }
+
+    return result;
 }
 
 void Document::remove_sheet(size_t index) {
@@ -58,45 +64,39 @@ void Document::remove_sheet(size_t index) {
 }
 
 template<typename Predicate>
-std::optional<SheetPtr> Document::find_sheet(Predicate pred) const {
-    auto it = std::ranges::find_if(sheets_, pred);
-    return it != sheets_.end() ? std::optional{*it} : std::nullopt;
+Sheet *Document::find_sheet(Predicate pred) const {
+    auto it = std::ranges::find_if(sheets_, [&](const auto& s) { return pred(s.get()); });
+    return it != sheets_.end() ? it->get() : nullptr;
 }
 
-std::optional<SheetPtr> Document::get_sheet_by_name(const std::string &name) const {
-    return find_sheet([&](const SheetPtr &s) { return s->name() == name; });
+Sheet *Document::get_sheet_by_name(const std::string &name) const {
+    return find_sheet([&](Sheet *s) { return s->name() == name; });
 }
 
-std::optional<SheetPtr> Document::get_sheet_by_id(const std::string &id) const {
-    return find_sheet([&](const SheetPtr &s) { return s->id() == id; });
+Sheet *Document::get_sheet_by_id(const std::string &id) const {
+    return find_sheet([&](Sheet *s) { return s->id() == id; });
 }
 
-SheetPtr Document::current_sheet() const {
-    return sheets_.at(current_sheet_index_);
+Sheet *Document::current_sheet() const {
+    return sheets_.at(current_sheet_index_).get();
 }
 
 void Document::set_cell_content(int row, int column, const std::string &content) {
-    const SheetPtr sheet = current_sheet();
+    Sheet *sheet = current_sheet();
     set_cell_content(sheet, row, column, content);
 
     set_changed_flag(true);
 }
 
 void Document::update_all_cells() {
-    const SheetPtr sheet = current_sheet();
+    Sheet *sheet = current_sheet();
     sheet->update_all_cells();
 }
 
 void Document::refresh_cells(const std::string &name, const lisp::LispObjectPtr &value,
                              const pdtools::StringVector &dependencies) {
-    const SheetPtr sheet = current_sheet();
+    Sheet *sheet = current_sheet();
     sheet->refresh_cells(name, value, dependencies);
-}
-
-std::weak_ptr<SheetRegistry> Document::get_sheet_registry_weak_ptr() {
-    return std::weak_ptr<SheetRegistry>(
-        std::static_pointer_cast<SheetRegistry>(shared_from_this())
-    );
 }
 
 int Document::add_next_sheet() {
@@ -106,9 +106,7 @@ int Document::add_next_sheet() {
     ss << "Table ";
     ss << (next_index + 1);
 
-    auto weak_self = get_sheet_registry_weak_ptr();
-    const auto sheet = std::make_shared<Sheet>(pdtools::generate_uuid(), ss.str(), weak_self);
-    add_sheet(sheet);
+    add_sheet(pdtools::generate_uuid(), ss.str());
 
     set_changed_flag(true);
 
@@ -149,27 +147,27 @@ void Document::rename_current_sheet(const std::string &name) {
         return;
     }
 
-    const SheetPtr sheet = current_sheet();
+    Sheet *sheet = current_sheet();
     sheet->set_name(name);
 
     set_changed_flag(true);
 }
 
 void Document::set_selected_cells(const LocationSet &selected_cells) {
-    const SheetPtr sheet = current_sheet();
+    Sheet *sheet = current_sheet();
     sheet->set_selected_cells(selected_cells);
 
     set_changed_flag(true);
 }
 
-void Document::set_cell_content(const SheetPtr &sheet, int row, int column, const std::string &content) {
+void Document::set_cell_content(Sheet *sheet, int row, int column, const std::string &content) {
     sheet->set_cell_content(row, column, content);
 
     set_changed_flag(true);
 }
 
 void Document::set_current_cell(const Location &location) {
-    const SheetPtr sheet = current_sheet();
+    Sheet *sheet = current_sheet();
     sheet->set_current_cell(location);
 
     set_changed_flag(true);
@@ -182,32 +180,32 @@ void Document::clear(bool add_initial_sheet) {
 }
 
 Location Document::get_current_selected_cell() const {
-    const SheetPtr sheet = current_sheet();
+    Sheet *sheet = current_sheet();
     return sheet->get_current_selected_cell();
 }
 
 LocationSet Document::get_selected_cells() const {
-    const SheetPtr sheet = current_sheet();
+    Sheet *sheet = current_sheet();
     return sheet->get_selected_cells();
 }
 
 void Document::set_row_height(size_t row_index, size_t height) {
-    const SheetPtr sheet = current_sheet();
+    Sheet *sheet = current_sheet();
     sheet->set_row_height(row_index, height);
 }
 
 void Document::set_column_width(size_t column_index, size_t width) {
-    const SheetPtr sheet = current_sheet();
+    Sheet *sheet = current_sheet();
     sheet->set_column_width(column_index, width);
 }
 
 std::unordered_map<size_t, size_t> Document::sheet_row_heights() const {
-    const SheetPtr sheet = current_sheet();
+    Sheet *sheet = current_sheet();
     return sheet->get_row_heights();
 }
 
 std::unordered_map<size_t, size_t> Document::sheet_column_widths() const {
-    const SheetPtr sheet = current_sheet();
+    Sheet *sheet = current_sheet();
     return sheet->get_column_widths();
 }
 
@@ -225,28 +223,18 @@ SearchResultItems Document::search(const SearchOptions &options) const {
     return result;
 }
 
-int Document::get_sheet_index(const std::shared_ptr<Sheet> &sheet) {
-    int i = 0;
-
-    for (const auto &s: sheets_) {
-        if (s == sheet) {
-            return i;
+int Document::get_sheet_index(const Sheet *sheet) const {
+    for (size_t i = 0; i < sheets_.size(); ++i) {
+        if (sheets_[i].get() == sheet) {
+            return static_cast<int>(i);
         }
-
-        i++;
     }
 
     return -1;
 }
 
 void Document::select_sheet_and_cell(const std::string &table_name, const Location &cell_location) {
-    const auto &opt_sheet = get_sheet_by_name(table_name);
-    if (!opt_sheet) {
-        // Something is off.
-        return;
-    }
-
-    const auto &sheet = *opt_sheet;
+    const auto sheet = get_sheet_by_name(table_name);
 
     int index = get_sheet_index(sheet);
     if (index < 0) {
@@ -261,10 +249,10 @@ void Document::select_sheet_and_cell(const std::string &table_name, const Locati
 }
 
 std::string Document::get_cell_raw_content(int row, int col) const {
-    const auto &sheet = current_sheet();
-    const auto &opt_cell = sheet->get_cell(row, col);
-    if (!opt_cell) return "";
-    return (*opt_cell)->raw_content_;
+    const auto sheet = current_sheet();
+    const auto cell = sheet->get_cell(row, col);
+    if (!cell) return "";
+    return cell->raw_content_;
 }
 
 void Document::run_macros_by_trigger(const std::string &trigger) {

@@ -22,7 +22,7 @@ class SheetRegistry {
 public:
     virtual ~SheetRegistry() = default;
 
-    virtual std::optional<SheetPtr> sheet_by_index(size_t index) = 0;
-    virtual std::optional<SheetPtr> sheet_by_name(const std::string& name) = 0;
-    virtual std::optional<SheetPtr> sheet_by_id(const std::string& id) = 0;
+    virtual Sheet* sheet_by_index(size_t index) = 0;
+    virtual Sheet* sheet_by_name(const std::string& name) = 0;
+    virtual Sheet* sheet_by_id(const std::string& id) = 0;
 };

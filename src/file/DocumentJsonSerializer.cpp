@@ -23,10 +23,10 @@
 
 #define KALQLATOR_VERSION "0.0.1"
 
-QJsonArray DocumentJsonSerializer::create_cells_array(const std::shared_ptr<Sheet> &sheet) {
+QJsonArray DocumentJsonSerializer::create_cells_array(Sheet* sheet) {
     QJsonArray cellsArray;
 
-    sheet->for_each_cell([&cellsArray](const CellPtr &cell) {
+    sheet->for_each_cell([&cellsArray](const Cell* cell) {
         if (!cell->empty()) {
             QJsonObject cell1;
 
@@ -49,7 +49,7 @@ QJsonObject DocumentJsonSerializer::location_to_json(Location location) {
     return result;
 }
 
-QJsonArray DocumentJsonSerializer::convert_selected_cells_to_json_array(const std::shared_ptr<Sheet> &sheet) const {
+QJsonArray DocumentJsonSerializer::convert_selected_cells_to_json_array(Sheet* sheet) const {
     QJsonArray selected_cells;
     for (const auto &location: sheet->get_selected_cells()) {
         QJsonObject selected_cell = location_to_json(location);
@@ -58,7 +58,7 @@ QJsonArray DocumentJsonSerializer::convert_selected_cells_to_json_array(const st
     return selected_cells;
 }
 
-QJsonArray DocumentJsonSerializer::get_row_heights(const SheetPtr &sheet) const {
+QJsonArray DocumentJsonSerializer::get_row_heights(Sheet* sheet) const {
     QJsonArray result;
     const auto &row_heights = sheet->get_row_heights();
 
@@ -72,7 +72,7 @@ QJsonArray DocumentJsonSerializer::get_row_heights(const SheetPtr &sheet) const 
     return result;
 }
 
-QJsonArray DocumentJsonSerializer::get_column_widths(const SheetPtr &sheet) const {
+QJsonArray DocumentJsonSerializer::get_column_widths(Sheet* sheet) const {
     QJsonArray result;
     const auto &column_widths = sheet->get_column_widths();
 
@@ -109,7 +109,12 @@ bool DocumentJsonSerializer::save() const {
 
     QJsonArray sheetsArray;
     int index = 0;
-    for (const auto &sheet: document_->sheets()) {
+    for (size_t i = 0; i < document_->sheet_count(); i++) {
+        Sheet* sheet = document_->sheet_by_index(i);
+        if (!sheet) {
+            continue;
+        }
+
         QJsonObject sheetObj;
         sheetObj["index"] = index;
         sheetObj["id"] = QString::fromStdString(sheet->id());
@@ -157,7 +162,7 @@ bool DocumentJsonSerializer::save() const {
     return true;
 }
 
-void DocumentJsonSerializer::create_cell_by_task(const SheetPtr &sheet, const CellValueTask &task) {
+void DocumentJsonSerializer::create_cell_by_task(Sheet* sheet, const CellValueTask &task) {
     const auto cell = sheet->create_cell_model(task.location);
     cell->name_ = task.name;
     cell->raw_content_ = task.content;
@@ -173,15 +178,15 @@ void DocumentJsonSerializer::setSheetSizes(
     }
 }
 
-void DocumentJsonSerializer::setSheetRowHeights(const SheetPtr &sheet, const QJsonArray &heights) const {
+void DocumentJsonSerializer::setSheetRowHeights(Sheet* sheet, const QJsonArray &heights) const {
     setSheetSizes(heights, "height", [&](size_t i, size_t v) { sheet->set_row_height(i, v); });
 }
 
-void DocumentJsonSerializer::setSheetColumnWidths(const SheetPtr &sheet, const QJsonArray &widths) const {
+void DocumentJsonSerializer::setSheetColumnWidths(Sheet* sheet, const QJsonArray &widths) const {
     setSheetSizes(widths, "width", [&](size_t i, size_t v) { sheet->set_column_width(i, v); });
 }
 
-void DocumentJsonSerializer::applySizes(const SheetPtr &sheet, const QJsonObject &json_values) const {
+void DocumentJsonSerializer::applySizes(Sheet* sheet, const QJsonObject &json_values) const {
     const auto &row_array = json_values["row_heights"].toArray();
     const auto &col_array = json_values["column_widths"].toArray();
 
@@ -198,9 +203,9 @@ void DocumentJsonSerializer::add_sheets(const QJsonObject &workbook) const {
     QJsonArray sheets = workbook["sheets"].toArray();
     for (const auto &item: sheets) {
         QJsonObject jsonSheet = item.toObject();
-        SheetPtr sheet = std::make_shared<Sheet>(jsonSheet["id"].toString().toStdString(),
-                                                 jsonSheet["name"].toString().toStdString(),
-                                                 sheet_registry_);
+        size_t sheet_index = document_->add_sheet(jsonSheet["id"].toString().toStdString(),
+                                                 jsonSheet["name"].toString().toStdString());
+        auto sheet = document_->sheet_by_index(sheet_index);
 
         QJsonArray cellsArray = jsonSheet["cells"].toArray();
         for (const auto &cellItem: cellsArray) {
@@ -244,15 +249,12 @@ void DocumentJsonSerializer::add_sheets(const QJsonObject &workbook) const {
         // TODO Sizes
         applySizes(sheet, jsonSheet);
 
-        document_->add_sheet(sheet);
         document_->set_active_sheet(index);
 
         for (const auto &task: values) {
             create_cell_by_task(sheet, task);
         }
         for (const auto &task: formulas) {
-            qDebug() << "Updating formula: Setting current cell selection to " << task.location.y() << ", " << task.
-                    location.x();
             create_cell_by_task(sheet, task);
         }
 

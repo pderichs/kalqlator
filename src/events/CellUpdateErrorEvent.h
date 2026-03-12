@@ -18,7 +18,7 @@
 #include "../model/Cell.h"
 
 struct CellUpdateErrorEvent {
-    CellPtr cell;
+    Cell* cell;
     std::string content;
     std::string error_message;
     CellErrorType error_type;

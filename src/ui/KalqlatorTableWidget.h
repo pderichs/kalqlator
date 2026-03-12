@@ -30,7 +30,7 @@ public:
 
     QTableWidgetItem* query_item_or_create(int row, int col);
 
-    void update_cell(const CellPtr& cell);
+    void update_cell(Cell* cell);
 
     void clearCell(const QModelIndex &index);
 

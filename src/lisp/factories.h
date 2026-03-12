@@ -22,30 +22,32 @@
 
 namespace lisp {
     inline LispObjectPtr make_double(double value) {
-        LispObjectPtr result = std::make_shared<LispObject>();
+        auto result = std::make_shared<LispObject>();
         result->data = value;
         return result;
     }
 
     inline LispObjectPtr make_int(int64_t value) {
-        LispObjectPtr result = std::make_shared<LispObject>();
+        auto result = std::make_shared<LispObject>();
         result->data = value;
         return result;
     }
 
-    inline LispObjectPtr make_nil() {
-        LispObjectPtr result = std::make_shared<LispObject>();
-        result->data = Nil{};
-        return result;
+    template<typename T>
+    LispObjectPtr make_singleton() {
+        static LispObjectPtr instance = [](){
+            auto p = std::make_shared<LispObject>();
+            p->data = T{};
+            return p;
+        }();
+        return instance;
     }
 
-    inline LispObjectPtr make_true() {
-        LispObjectPtr result = std::make_shared<LispObject>();
-        result->data = True{};
-        return result;
-    }
+    inline LispObjectPtr make_nil()  { return make_singleton<Nil>();  }
 
-    inline LispObjectPtr make_bool(bool value) {
+    inline LispObjectPtr make_true() { return make_singleton<True>(); }
+
+    inline LispObjectPtr make_bool(const bool value) {
         if (value) {
             return make_true();
         }
@@ -54,31 +56,31 @@ namespace lisp {
     }
 
     inline LispObjectPtr make_string(std::string value) {
-        LispObjectPtr result = std::make_shared<LispObject>();
+        auto result = std::make_shared<LispObject>();
         result->data = std::move(value);
         return result;
     }
 
     inline LispObjectPtr make_symbol(std::string value) {
-        LispObjectPtr result = std::make_shared<LispObject>();
+        auto result = std::make_shared<LispObject>();
         result->data = Symbol(std::move(value));
         return result;
     }
 
     inline LispObjectPtr make_cons(LispObjectPtr car, LispObjectPtr cdr) {
-        LispObjectPtr result = std::make_shared<LispObject>();
+        auto result = std::make_shared<LispObject>();
         result->data = Cons(std::move(car), std::move(cdr));
         return result;
     }
 
     inline LispObjectPtr make_lambda(LispObjectPtr args, LispObjectPtr body, EnvironmentPtr env) {
-        LispObjectPtr result = std::make_shared<LispObject>();
+        auto result = std::make_shared<LispObject>();
         result->data = LambdaFunction{ std::move(args), std::move(body), std::move(env) };
         return result;
     }
 
     inline LispObjectPtr make_native_fn(NativeFn fn) {
-        LispObjectPtr result = std::make_shared<LispObject>();
+        auto result = std::make_shared<LispObject>();
         result->data = std::move(fn);
         return result;
     }

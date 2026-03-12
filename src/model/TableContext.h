@@ -21,5 +21,5 @@
 
 struct TableContext {
     std::string source_cell;
-    std::weak_ptr<SheetRegistry> sheet_registry;
+    SheetRegistry* sheet_registry;
 };

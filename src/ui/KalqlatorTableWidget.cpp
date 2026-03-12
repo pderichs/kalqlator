@@ -61,7 +61,7 @@ QTableWidgetItem *KalqlatorTableWidget::query_item_or_create(int row, int col) {
 }
 
 // Handling cell update from model
-void KalqlatorTableWidget::update_cell(const CellPtr &cell) {
+void KalqlatorTableWidget::update_cell(Cell* cell) {
     FlagScope fs(&internal_cell_update_flag_);
     QTableWidgetItem *item = this->query_item_or_create(cell->row_, cell->column_);
     if (cell->has_errors()) {

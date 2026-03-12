@@ -27,13 +27,12 @@
 #include "../events/SelectedCellChangedEvent.h"
 #include "../events/CellUpdateErrorEvent.h"
 #include "LispObjectStringConverter.h"
-#include "SheetRegistry.h"
 #include "TableContext.h"
 #include "../messagebus/event_dispatcher.h"
 #include "../tools/tools.h"
 #include "search/SearchOptions.h"
 
-Sheet::Sheet(std::string id, std::string name, const std::weak_ptr<SheetRegistry> &sheet_registry) : id_(std::move(id)),
+Sheet::Sheet(std::string id, std::string name, SheetRegistry *sheet_registry) : id_(std::move(id)),
     name_(std::move(name)), sheet_registry_(sheet_registry) {
     table_lisp_environment_ = std::make_shared<TableLispEnvironment>();
     table_lisp_environment_->initialize();
@@ -42,20 +41,20 @@ Sheet::Sheet(std::string id, std::string name, const std::weak_ptr<SheetRegistry
     selected_cells_.insert(current_selected_cell_);
 }
 
-std::optional<CellPtr> Sheet::get_cell(const Location &location) {
+Cell* Sheet::get_cell(const Location &location) {
     const auto it = cells_.find(location);
     if (it != cells_.end()) {
-        return it->second;
+        return it->second.get();
     }
 
-    return std::nullopt;
+    return nullptr;
 }
 
-std::optional<CellPtr> Sheet::get_cell(int row, int column) {
+Cell* Sheet::get_cell(int row, int column) {
     return get_cell(Location(column, row));
 }
 
-std::optional<CellPtr> Sheet::get_cell_by_name(const std::string &name) {
+Cell* Sheet::get_cell_by_name(const std::string &name) {
     const auto &location = get_cell_location_by_name(name);
     return get_cell(location);
 }
@@ -117,7 +116,7 @@ bool Sheet::field_matches_search(const SearchOptions &options, const std::string
     return false;
 }
 
-bool Sheet::matches_search(const SearchOptions &options, const CellPtr &cell, std::string *out_complete_match) {
+bool Sheet::matches_search(const SearchOptions &options, const Cell* cell, std::string *out_complete_match) {
     bool match = false;
 
     // TODO Refactor to own class.
@@ -140,7 +139,7 @@ SearchResultItems Sheet::search(const SearchOptions &options) const {
 
     for (const auto &cell_item: cells_) {
         const auto &location = cell_item.first;
-        const auto &cell = cell_item.second;
+        const auto cell = cell_item.second.get();
 
         std::string complete_match;
         if (matches_search(options, cell, &complete_match)) {
@@ -169,26 +168,23 @@ FormulaResult Sheet::evaluate_formula(const std::string &formula_text,
     return {std::move(tokens), std::move(formula), std::move(result)};
 }
 
-CellPtr Sheet::create_cell_model(const Location &location) {
-    auto cell = std::make_shared<Cell>(location.y(), location.x(), get_cell_name_by_coordinates(location));
-    cells_[location] = cell;
+Cell* Sheet::create_cell_model(const Location& location) {
+    cells_[location] = std::make_unique<Cell>(location.row(), location.column(), get_cell_name_by_coordinates(location));
+    return cells_[location].get();
+}
+
+Cell *Sheet::get_or_create_cell_by_pos(int row, int column) {
+    auto cell = get_cell(row, column);
+    if (!cell) {
+        auto location = Location(column, row);
+        return create_cell_model(location);
+    }
+
     return cell;
 }
 
-CellPtr Sheet::get_or_create_cell_by_pos(int row, int column) {
-    CellPtr cell_p;
-    auto cell = get_cell(row, column);
-    if (!cell) {
-        cell_p = create_cell_model(Location(column, row));
-        cells_[Location(column, row)] = cell_p;
-    } else {
-        cell_p = *cell;
-    }
-    return cell_p;
-}
 
-
-void Sheet::refresh_cell(const CellPtr &cell) const {
+void Sheet::refresh_cell(Cell* cell) const {
     const std::string content = cell->raw_content_;
     const bool is_func = is_function(content);
     const std::string formula_text = is_func ? content.substr(1) : content;
@@ -205,7 +201,7 @@ void Sheet::update_cell_contents(
     const std::string &content,
     const bool is_func,
     FormulaResult evaluation,
-    const CellPtr &cell_p) {
+    Cell* cell_p) {
     cell_p->raw_content_ = content;
     cell_p->tokens_ = std::move(evaluation.tokens);
     cell_p->formula_ = std::move(evaluation.formula);
@@ -231,9 +227,8 @@ void Sheet::refresh_cells(const std::string &name, const lisp::LispObjectPtr &,
         }
 
         auto location = get_cell_location_by_name(dependency_cell_name);
-        auto opt_cell = get_cell(location.y(), location.x());
-        if (opt_cell) {
-            auto cell = *opt_cell;
+        auto cell = get_cell(location.y(), location.x());
+        if (cell) {
             refresh_cell(cell);
 
             events.push_back(CellUpdateDoneEvent{{cell->row_, cell->column_}, cell});
@@ -267,7 +262,7 @@ void Sheet::update_cell(int row, int column, const std::string &cell_name, const
 
     const std::string formula_text = modify_user_entry(content, is_func, is_number);
 
-    const CellPtr cell_p = get_or_create_cell_by_pos(row, column);
+    Cell* cell_p = get_or_create_cell_by_pos(row, column);
 
     try {
         cell_p->clear_errors();
@@ -300,7 +295,7 @@ void Sheet::update_cell(int row, int column, const std::string &cell_name, const
     EventDispatcher::dispatch("model:cell_update_done", CellUpdateDoneEvent{{row, column}, cell_p});
 }
 
-void Sheet::set_cell_content(const CellPtr &cell, const std::string &content) {
+void Sheet::set_cell_content(const Cell* cell, const std::string &content) {
     set_cell_content(cell->row_, cell->column_, content);
 }
 

@@ -17,7 +17,6 @@
 #pragma once
 
 
-#include <memory>
 #include <utility>
 #include <vector>
 
@@ -27,8 +26,7 @@
 
 struct Cell;
 
-typedef std::shared_ptr<Cell> CellPtr;
-typedef std::vector<CellPtr> CellVector;
+typedef std::vector<Cell*> CellVector;
 
 struct Cell {
     explicit Cell(const int row, const int column, std::string name) : row_(row), column_(column), name_(std::move(name)) {

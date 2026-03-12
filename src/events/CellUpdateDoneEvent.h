@@ -19,5 +19,5 @@
 #include "../model/Cell.h"
 
 struct CellUpdateDoneEvent: CellEvent {
-    CellPtr cell;
+    Cell* cell;
 };
