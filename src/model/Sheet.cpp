@@ -35,8 +35,8 @@
 
 Sheet::Sheet(std::string id, std::string name, const std::weak_ptr<SheetRegistry> &sheet_registry) : id_(std::move(id)),
     name_(std::move(name)), sheet_registry_(sheet_registry) {
-    tableLispEnvironment_ = std::make_shared<TableLispEnvironment>();
-    tableLispEnvironment_->initialize();
+    table_lisp_environment_ = std::make_shared<TableLispEnvironment>();
+    table_lisp_environment_->initialize();
 
     current_selected_cell_ = Location(0, 0);
     selected_cells_.insert(current_selected_cell_);
@@ -76,6 +76,11 @@ Location Sheet::get_max_cell_locations() const {
     }
 
     return Location(max_x, max_y);
+}
+
+void Sheet::run_macros_by_trigger(const std::string &, const lisp::LispObjectPtrVector &lisp) {
+    lisp::Evaluator evaluator(table_lisp_environment_, {});
+    auto result = evaluator.evaluate(lisp);
 }
 
 bool Sheet::field_matches_search(const SearchOptions &options, const std::string &field_content,
@@ -188,12 +193,12 @@ void Sheet::refresh_cell(const CellPtr &cell) const {
     const bool is_func = is_function(content);
     const std::string formula_text = is_func ? content.substr(1) : content;
 
-    tableLispEnvironment_->remove_references(cell->name_);
+    table_lisp_environment_->remove_references(cell->name_);
 
-    const auto evaluation = evaluate_formula(formula_text, tableLispEnvironment_, cell->name_);
+    const auto evaluation = evaluate_formula(formula_text, table_lisp_environment_, cell->name_);
     update_cell_contents(cell->raw_content_, cell->contains_formula(), evaluation, cell);
 
-    tableLispEnvironment_->define(cell->name_, evaluation.result); // TODO Fires event in model - required?
+    table_lisp_environment_->define(cell->name_, evaluation.result); // TODO Fires event in model - required?
 }
 
 void Sheet::update_cell_contents(
@@ -268,11 +273,11 @@ void Sheet::update_cell(int row, int column, const std::string &cell_name, const
         cell_p->clear_errors();
         cell_p->raw_content_ = content;
 
-        tableLispEnvironment_->remove_references(cell_name);
+        table_lisp_environment_->remove_references(cell_name);
 
-        const auto evaluation = evaluate_formula(formula_text, tableLispEnvironment_, cell_name);
+        const auto evaluation = evaluate_formula(formula_text, table_lisp_environment_, cell_name);
         update_cell_contents(content, is_func, evaluation, cell_p);
-        tableLispEnvironment_->define(cell_name, evaluation.result);
+        table_lisp_environment_->define(cell_name, evaluation.result);
     } catch (const CircularReferenceError &circular_reference_error) {
         cell_p->add_error(CellError{ERROR_CIRCREF, circular_reference_error.what()});
         cell_p->raw_formula_ = "";

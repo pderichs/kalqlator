@@ -29,6 +29,7 @@ QJsonArray DocumentJsonSerializer::create_cells_array(const std::shared_ptr<Shee
     sheet->for_each_cell([&cellsArray](const CellPtr &cell) {
         if (!cell->empty()) {
             QJsonObject cell1;
+
             cell1["name"] = QString::fromStdString(cell->name_);
             cell1["content"] = QString::fromStdString(cell->raw_content_);
 
@@ -85,6 +86,21 @@ QJsonArray DocumentJsonSerializer::get_column_widths(const SheetPtr &sheet) cons
     return result;
 }
 
+QJsonObject DocumentJsonSerializer::create_macros_json(const MacroMap &map) const {
+    QJsonObject result;
+
+    for (const auto& macro: map) {
+        const auto& trigger = macro.first;
+        const auto& definition = macro.second;
+
+        if (!trigger.empty() && !definition.empty()) {
+            result[QString::fromStdString(trigger)] = QString::fromStdString(definition);
+        }
+    }
+
+    return result;
+}
+
 bool DocumentJsonSerializer::save() const {
     QJsonObject metaObj;
     metaObj["version"] = KALQLATOR_VERSION;
@@ -116,6 +132,12 @@ bool DocumentJsonSerializer::save() const {
     }
 
     workbookObj["sheets"] = sheetsArray;
+
+
+    MacroMap macros = document_->macro_map();
+    if (!macros.empty()) {
+        workbookObj["macros"] = create_macros_json(macros);
+    }
 
     QJsonObject rootObj;
     rootObj["meta"] = metaObj;
@@ -238,6 +260,21 @@ void DocumentJsonSerializer::add_sheets(const QJsonObject &workbook) const {
     }
 }
 
+void DocumentJsonSerializer::add_macros(const QJsonObject &workbook) const {
+    MacroMap macro_map;
+
+    if (workbook.contains("macros")) {
+        QJsonObject macros = workbook["macros"].toObject();
+
+        for (const auto& trigger: macros.keys()) {
+            const auto & def = macros[trigger];
+            macro_map[trigger.toStdString()] = def.toString().toStdString();
+        }
+    }
+
+    document_->set_macro_map(macro_map);
+}
+
 bool DocumentJsonSerializer::open() const {
     document_->clear(false); // Do not initialize with sheet
 
@@ -275,6 +312,8 @@ bool DocumentJsonSerializer::open() const {
     QJsonObject workbook = rootObj["workbook"].toObject();
 
     add_sheets(workbook);
+
+    add_macros(workbook);
 
     int active_sheet_index = workbook["active_sheet_index"].toInt();
     document_->set_active_sheet(active_sheet_index);

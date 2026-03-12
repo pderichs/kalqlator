@@ -20,6 +20,9 @@
 #include "object.h"
 #include "TypeError.h"
 
+#include "tokenizer/lisp_tokenizer.h"
+#include "parser/parser.h"
+
 namespace lisp {
     using NumericValue = std::variant<Int64Type, DoubleType>;
 
@@ -76,4 +79,12 @@ namespace lisp {
             return false;
         }, a->data, b->data);
     }
+
+    inline LispObjectPtrVector parse_all_string(const std::string &input) {
+        Tokenizer tokenizer(input);
+        LispTokens tokens = tokenizer.scan();
+        Parser parser(tokens);
+        return parser.parse_all();
+    }
+
 }

@@ -49,6 +49,8 @@ public:
 
     QJsonArray get_column_widths(const SheetPtr& sheet) const;
 
+    QJsonObject create_macros_json(const MacroMap & map) const;
+
     [[nodiscard]] bool save() const;
 
     static void create_cell_by_task(const SheetPtr &sheet, const CellValueTask &task);
@@ -65,6 +67,8 @@ public:
     void applySizes(const SheetPtr & sheet, const QJsonObject & json_values) const;
 
     void add_sheets(const QJsonObject &workbook) const;
+
+    void add_macros(const QJsonObject & workbook) const;
 
     [[nodiscard]] bool open() const;
 

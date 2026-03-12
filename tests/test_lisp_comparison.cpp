@@ -21,6 +21,7 @@
 #include "../src/lisp/Evaluator.h"
 #include "../src/tools/tools.h"
 #include "../src/lisp/DefaultEnvironment.h"
+#include "../src/lisp/tools.h"
 
 using namespace lisp;
 
@@ -32,7 +33,7 @@ private:
     std::unique_ptr<Evaluator> evaluator;
 
     bool eval_bool(const std::string &expr) {
-        auto lisp = parseAllString(expr);
+        auto lisp = parse_all_string(expr);
         return evaluator->evaluate(lisp)->is_true();
     }
 

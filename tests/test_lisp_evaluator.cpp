@@ -24,6 +24,7 @@
 #include "../src/lisp/Evaluator.h"
 #include "../src/lisp/factories.h"
 #include "../src/tools/tools.h"
+#include "../src/lisp/tools.h"
 
 using namespace lisp;
 
@@ -63,7 +64,7 @@ private slots:
 };
 
 void LispEvaluatorTests::simple_int_atom1() {
-    LispObjectPtrVector lisp = parseAllString("42");
+    LispObjectPtrVector lisp = parse_all_string("42");
 
     EnvironmentPtr env = std::make_shared<Environment>(nullptr);
     Evaluator evaluator(env, {});
@@ -75,7 +76,7 @@ void LispEvaluatorTests::simple_int_atom1() {
 }
 
 void LispEvaluatorTests::defined_symbol1() {
-    LispObjectPtrVector lisp = parseAllString("foo");
+    LispObjectPtrVector lisp = parse_all_string("foo");
 
     EnvironmentPtr env = std::make_shared<Environment>(nullptr);
     env->define("foo", make_int(14));
@@ -89,7 +90,7 @@ void LispEvaluatorTests::defined_symbol1() {
 
 void LispEvaluatorTests::defined_symbol2() {
     // Parent env will be used if symbol cannot be found
-    LispObjectPtrVector lisp = parseAllString("foo");
+    LispObjectPtrVector lisp = parse_all_string("foo");
 
     EnvironmentPtr env = std::make_shared<Environment>(nullptr);
     env->define("foo", make_int(1981));
@@ -105,7 +106,7 @@ void LispEvaluatorTests::defined_symbol2() {
 
 void LispEvaluatorTests::defined_symbol3() {
     // Sub env can override parent env
-    LispObjectPtrVector lisp = parseAllString("foo");
+    LispObjectPtrVector lisp = parse_all_string("foo");
 
     EnvironmentPtr env = std::make_shared<Environment>(nullptr);
     env->define("foo", make_int(1981));
@@ -121,7 +122,7 @@ void LispEvaluatorTests::defined_symbol3() {
 }
 
 void LispEvaluatorTests::addition1() {
-    LispObjectPtrVector lisp = parseAllString("(+ 42 5)");
+    LispObjectPtrVector lisp = parse_all_string("(+ 42 5)");
     EnvironmentPtr env = std::make_shared<DefaultEnvironment>();
     Evaluator evaluator(env, {});
     auto result = evaluator.evaluate(lisp);
@@ -130,7 +131,7 @@ void LispEvaluatorTests::addition1() {
 }
 
 void LispEvaluatorTests::addition2() {
-    LispObjectPtrVector lisp = parseAllString("(+ 42 5 200 1000 -2)");
+    LispObjectPtrVector lisp = parse_all_string("(+ 42 5 200 1000 -2)");
     EnvironmentPtr env = std::make_shared<DefaultEnvironment>();
     Evaluator evaluator(env, {});
     auto result = evaluator.evaluate(lisp);
@@ -139,7 +140,7 @@ void LispEvaluatorTests::addition2() {
 }
 
 void LispEvaluatorTests::addition3() {
-    LispObjectPtrVector lisp = parseAllString("(+ 3)");
+    LispObjectPtrVector lisp = parse_all_string("(+ 3)");
     EnvironmentPtr env = std::make_shared<DefaultEnvironment>();
     Evaluator evaluator(env, {});
     auto result = evaluator.evaluate(lisp);
@@ -148,7 +149,7 @@ void LispEvaluatorTests::addition3() {
 }
 
 void LispEvaluatorTests::addition4() {
-    LispObjectPtrVector lisp = parseAllString("(+ 3 (+ 1 (+ 66 1)))");
+    LispObjectPtrVector lisp = parse_all_string("(+ 3 (+ 1 (+ 66 1)))");
     EnvironmentPtr env = std::make_shared<DefaultEnvironment>();
     Evaluator evaluator(env, {});
     auto result = evaluator.evaluate(lisp);
@@ -157,7 +158,7 @@ void LispEvaluatorTests::addition4() {
 }
 
 void LispEvaluatorTests::subtraction1() {
-    LispObjectPtrVector lisp = parseAllString("(- 42 5)");
+    LispObjectPtrVector lisp = parse_all_string("(- 42 5)");
     EnvironmentPtr env = std::make_shared<DefaultEnvironment>();
     Evaluator evaluator(env, {});
     auto result = evaluator.evaluate(lisp);
@@ -166,7 +167,7 @@ void LispEvaluatorTests::subtraction1() {
 }
 
 void LispEvaluatorTests::subtraction2() {
-    LispObjectPtrVector lisp = parseAllString("(- 42 5 2 1 -2)");
+    LispObjectPtrVector lisp = parse_all_string("(- 42 5 2 1 -2)");
     EnvironmentPtr env = std::make_shared<DefaultEnvironment>();
     Evaluator evaluator(env, {});
     auto result = evaluator.evaluate(lisp);
@@ -175,7 +176,7 @@ void LispEvaluatorTests::subtraction2() {
 }
 
 void LispEvaluatorTests::subtraction3() {
-    LispObjectPtrVector lisp = parseAllString("(- 3)");
+    LispObjectPtrVector lisp = parse_all_string("(- 3)");
     EnvironmentPtr env = std::make_shared<DefaultEnvironment>();
     Evaluator evaluator(env, {});
     auto result = evaluator.evaluate(lisp);
@@ -184,7 +185,7 @@ void LispEvaluatorTests::subtraction3() {
 }
 
 void LispEvaluatorTests::subtraction4() {
-    LispObjectPtrVector lisp = parseAllString("(- 3 (- 1 (- 66 1)))");
+    LispObjectPtrVector lisp = parse_all_string("(- 3 (- 1 (- 66 1)))");
     EnvironmentPtr env = std::make_shared<DefaultEnvironment>();
     Evaluator evaluator(env, {});
     auto result = evaluator.evaluate(lisp);
@@ -193,7 +194,7 @@ void LispEvaluatorTests::subtraction4() {
 }
 
 void LispEvaluatorTests::multiplication1() {
-    LispObjectPtrVector lisp = parseAllString("(* 4 2)");
+    LispObjectPtrVector lisp = parse_all_string("(* 4 2)");
     EnvironmentPtr env = std::make_shared<DefaultEnvironment>();
     Evaluator evaluator(env, {});
     auto result = evaluator.evaluate(lisp);
@@ -202,7 +203,7 @@ void LispEvaluatorTests::multiplication1() {
 }
 
 void LispEvaluatorTests::multiplication2() {
-    LispObjectPtrVector lisp = parseAllString("(* 4 2 (* 5 10))");
+    LispObjectPtrVector lisp = parse_all_string("(* 4 2 (* 5 10))");
     EnvironmentPtr env = std::make_shared<DefaultEnvironment>();
     Evaluator evaluator(env, {});
     auto result = evaluator.evaluate(lisp);
@@ -211,7 +212,7 @@ void LispEvaluatorTests::multiplication2() {
 }
 
 void LispEvaluatorTests::division1() {
-    LispObjectPtrVector lisp = parseAllString("(/ 10 5)");
+    LispObjectPtrVector lisp = parse_all_string("(/ 10 5)");
     EnvironmentPtr env = std::make_shared<DefaultEnvironment>();
     Evaluator evaluator(env, {});
     auto result = evaluator.evaluate(lisp);
@@ -220,7 +221,7 @@ void LispEvaluatorTests::division1() {
 }
 
 void LispEvaluatorTests::division2() {
-    LispObjectPtrVector lisp = parseAllString("(/ 100 5 (/ 2 1))");
+    LispObjectPtrVector lisp = parse_all_string("(/ 100 5 (/ 2 1))");
     EnvironmentPtr env = std::make_shared<DefaultEnvironment>();
     Evaluator evaluator(env, {});
     auto result = evaluator.evaluate(lisp);
@@ -229,7 +230,7 @@ void LispEvaluatorTests::division2() {
 }
 
 void LispEvaluatorTests::adding_nils_1() {
-    LispObjectPtrVector lisp = parseAllString("(+ nil nil)");
+    LispObjectPtrVector lisp = parse_all_string("(+ nil nil)");
     EnvironmentPtr env = std::make_shared<DefaultEnvironment>();
     Evaluator evaluator(env, {});
     auto result = evaluator.evaluate(lisp);
@@ -238,7 +239,7 @@ void LispEvaluatorTests::adding_nils_1() {
 }
 
 void LispEvaluatorTests::adding_nils_2() {
-    LispObjectPtrVector lisp = parseAllString("(+ nil 2)");
+    LispObjectPtrVector lisp = parse_all_string("(+ nil 2)");
     EnvironmentPtr env = std::make_shared<DefaultEnvironment>();
     Evaluator evaluator(env, {});
     auto result = evaluator.evaluate(lisp);

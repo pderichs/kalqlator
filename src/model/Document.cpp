@@ -16,9 +16,14 @@
 
 #include "Document.h"
 
+#include "triggers.h"
+#include "../events/MacroErrorEvent.h"
 #include "../ui/user_interface_tools.h"
 #include "../messagebus/event_dispatcher.h"
-#include "../events/CellEvent.h"
+#include "../lisp/tokenizer/lisp_tokenizer.h"
+#include "../lisp/parser/parser.h"
+#include "../lisp/Evaluator.h"
+#include "../lisp/tools.h"
 
 Document::Document() : current_sheet_index_(0), changed_(false) {
 }
@@ -36,6 +41,15 @@ void Document::initialize(const bool add_initial_sheet) {
 void Document::add_sheet(const SheetPtr &sheet) {
     sheets_.push_back(sheet);
     set_changed_flag(true);
+
+    if (macros_.contains(Trigger_OnLoad)) {
+        if (!parsed_macro_cache_.contains(Trigger_OnLoad)) {
+            parsed_macro_cache_[Trigger_OnLoad] = lisp::parse_all_string(macros_.at(Trigger_OnLoad));
+        }
+        const auto &lisp = parsed_macro_cache_.at(Trigger_OnLoad);
+
+        sheet->run_macros_by_trigger(Trigger_OnLoad, lisp);
+    }
 }
 
 void Document::remove_sheet(size_t index) {
@@ -43,7 +57,7 @@ void Document::remove_sheet(size_t index) {
     set_changed_flag(true);
 }
 
-template <typename Predicate>
+template<typename Predicate>
 std::optional<SheetPtr> Document::find_sheet(Predicate pred) const {
     auto it = std::ranges::find_if(sheets_, pred);
     return it != sheets_.end() ? std::optional{*it} : std::nullopt;
@@ -163,6 +177,7 @@ void Document::set_current_cell(const Location &location) {
 
 void Document::clear(bool add_initial_sheet) {
     sheets_.clear();
+    macros_.clear();
     initialize(add_initial_sheet);
 }
 
@@ -199,7 +214,7 @@ std::unordered_map<size_t, size_t> Document::sheet_column_widths() const {
 SearchResultItems Document::search(const SearchOptions &options) const {
     SearchResultItems result;
 
-    for (const auto &sheet : sheets_) {
+    for (const auto &sheet: sheets_) {
         const auto sheet_result = sheet->search(options);
         if (!sheet_result.empty()) {
             result.reserve(result.size() + sheet_result.size());
@@ -213,7 +228,7 @@ SearchResultItems Document::search(const SearchOptions &options) const {
 int Document::get_sheet_index(const std::shared_ptr<Sheet> &sheet) {
     int i = 0;
 
-    for (const auto& s : sheets_) {
+    for (const auto &s: sheets_) {
         if (s == sheet) {
             return i;
         }
@@ -225,13 +240,13 @@ int Document::get_sheet_index(const std::shared_ptr<Sheet> &sheet) {
 }
 
 void Document::select_sheet_and_cell(const std::string &table_name, const Location &cell_location) {
-    const auto& opt_sheet = get_sheet_by_name(table_name);
+    const auto &opt_sheet = get_sheet_by_name(table_name);
     if (!opt_sheet) {
         // Something is off.
         return;
     }
 
-    const auto& sheet = *opt_sheet;
+    const auto &sheet = *opt_sheet;
 
     int index = get_sheet_index(sheet);
     if (index < 0) {
@@ -250,4 +265,25 @@ std::string Document::get_cell_raw_content(int row, int col) const {
     const auto &opt_cell = sheet->get_cell(row, col);
     if (!opt_cell) return "";
     return (*opt_cell)->raw_content_;
+}
+
+void Document::run_macros_by_trigger(const std::string &trigger) {
+    if (!macros_.contains(trigger)) {
+        return;
+    }
+
+    const auto &def = macros_.at(trigger);
+    if (def.empty()) {
+        return;
+    }
+
+    try {
+        lisp::LispObjectPtrVector lisp = lisp::parse_all_string(def);
+
+        for (const auto &sheet: sheets_) {
+            sheet->run_macros_by_trigger(trigger, lisp);
+        }
+    } catch (const std::runtime_error &e) {
+        EventDispatcher::dispatch("model:macro-error", MacroErrorEvent{trigger, def, e.what()});
+    }
 }

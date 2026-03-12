@@ -39,6 +39,7 @@
 #include <QClipboard>
 
 #include "CellChangeCommand.h"
+#include "MacroEditorDialog.h"
 #include "../events/CellChangedEvent.h"
 #include "../file/DocumentJsonSerializer.h"
 #include "../events/DocumentLoadedEvent.h"
@@ -50,8 +51,11 @@
 #include "../events/SheetSelectionChangedEvent.h"
 #include "../events/TableEnvironmentUpdateEvent.h"
 #include "../events/TablePropertyResizedEvent.h"
+#include "../events/MacroErrorEvent.h"
+#include "../events/MacroEditorErrorEvent.h"
 #include "../messagebus/event_dispatcher.h"
 #include "../tools/FlagScope.h"
+#include "../model/triggers.h"
 
 void MainWindow::registerEventHandlers() {
     on<CellChangedEvent>("ui:cell_changed", [this](const auto &event) {
@@ -94,6 +98,7 @@ void MainWindow::registerEventHandlers() {
         updateSheetsList();
         updateCellSelectionByDocument();
         updateSheetSizesByDocument();
+        document_->run_macros_by_trigger(Trigger_OnLoad);
         document_->update_all_cells();
     });
 
@@ -179,6 +184,24 @@ void MainWindow::registerEventHandlers() {
         document_->select_sheet_and_cell(event.table_name, event.cell_location);
         updateSheetsList();
     });
+
+    on<MacroErrorEvent>("model:macro-error", [this](const auto &event) {
+        std::stringstream ss;
+        ss << "Error in macro: \"" << event.macro << "\".\n"
+        << "Message: " << event.message << ".\n\n"
+        << "Please fix it.";
+
+        QMessageBox::warning(this, "Macro Error", QString::fromStdString(ss.str()));
+    });
+
+    on<MacroEditorErrorEvent>("ui:macro_editor_error", [this](const auto &event) {
+        std::stringstream ss;
+        ss << "Error in macro: \"" << event.macro << "\".\n"
+        << "Message: " << event.message << ".\n\n"
+        << "Please fix it.";
+
+        QMessageBox::warning(this, "Macro Error", QString::fromStdString(ss.str()));
+    });
 }
 
 MainWindow::MainWindow(QWidget *parent)
@@ -217,6 +240,7 @@ void MainWindow::createActions() {
     const QString cut("\ue14e");
     const QString exit("\ue879");
     const QString paste("\ue14f");
+    const QString code("\uf84d");
 
     // File actions
     m_newAction = new QAction(tr("&New"), this);
@@ -236,6 +260,11 @@ void MainWindow::createActions() {
     m_saveAction->setIcon(iconFromFont(newDocument, 24, Qt::black));
     m_saveAction->setStatusTip(tr("Save file"));
     connect(m_saveAction, &QAction::triggered, this, &MainWindow::saveFile);
+
+    m_editMacros = new QAction(tr("Open Macro Editor..."), this);
+    m_editMacros->setIcon(iconFromFont(code));
+    m_editMacros->setStatusTip(tr("Open the macro editor."));
+    connect(m_editMacros, &QAction::triggered, this, &MainWindow::openMacroEditor);
 
     m_exitAction = new QAction(tr("&Quit"), this);
     m_exitAction->setShortcut(QKeySequence::Quit);
@@ -297,6 +326,8 @@ void MainWindow::createMenus() {
     m_editMenu->addAction(m_cutAction);
     m_editMenu->addAction(m_copyAction);
     m_editMenu->addAction(m_pasteAction);
+    m_editMenu->addSeparator();
+    m_editMenu->addAction(m_editMacros);
 
     // View
     m_viewMenu = menuBar()->addMenu(tr("&View"));
@@ -592,7 +623,7 @@ void MainWindow::paste() {
             const int targetRow = startRow + r;
             const int targetCol = startCol + c;
 
-            // Tabelle bei Bedarf vergrößern
+            // Grow table if required
             if (targetRow >= m_tableWidget->rowCount()) {
                 m_tableWidget->setRowCount(targetRow + 1);
             }
@@ -611,6 +642,16 @@ void MainWindow::paste() {
     }
 
     statusBar()->showMessage(tr("Successfully pasted content."), 2000);
+}
+
+void MainWindow::openMacroEditor() {
+    MacroMap map = document_->macro_map(); // copy intentional
+    MacroEditorDialog dlg(&map, this);
+
+    if (dlg.exec() == QDialog::Accepted) {
+        document_->set_macro_map(map);
+        document_->set_changed_flag(true);
+    }
 }
 
 void MainWindow::about() {

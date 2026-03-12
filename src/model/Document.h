@@ -24,11 +24,11 @@
 #include "MoveSheetDirection.h"
 #include "Sheet.h"
 #include "SheetRegistry.h"
-#include "../messagebus/event_dispatcher.h"
-#include "search/SearchOptions.h"
+#include "triggers.h"
 #include "search/SearchResultItem.h"
 
 typedef std::vector<SheetPtr> SheetVector;
+typedef std::map<std::string, std::string> MacroMap;
 
 class Document : public SheetRegistry, public std::enable_shared_from_this<Document> {
 public:
@@ -125,11 +125,24 @@ public:
 
     std::string get_cell_raw_content(int row, int col) const;
 
+    MacroMap macro_map() const  { return macros_; }
+    void set_macro_map(const MacroMap& map) {
+        parsed_macro_cache_.clear();
+        macros_ = map;
+
+        run_macros_by_trigger(Trigger_OnLoad);
+    }
+
+    void run_macros_by_trigger(const std::string & trigger);
+
 private:
     std::string filename_;
     SheetVector sheets_;
     size_t current_sheet_index_;
     bool changed_;
+
+    MacroMap macros_;
+    std::unordered_map<std::string, lisp::LispObjectPtrVector> parsed_macro_cache_;
 };
 
 typedef std::shared_ptr<Document> DocumentPtr;

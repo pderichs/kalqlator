@@ -25,7 +25,7 @@
 #include "../src/lisp/object.h"
 
 namespace lisp {
-    // Enum für die erwarteten Typen
+    // Enum for expected types
     enum class ExpectedType {
         t_symbol,
         t_integer,
@@ -62,7 +62,7 @@ namespace lisp {
 
             LispObjectPtr element = current->car();
 
-            // Wert prüfen je nach Typ
+            // Check value for type
             switch (type) {
                 case ExpectedType::t_symbol:
                     QVERIFY(element->is_symbol());

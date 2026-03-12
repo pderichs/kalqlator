@@ -32,13 +32,6 @@ namespace lisp {
             return parser.parse();
         }
 
-        LispObjectPtrVector parseAllString(const std::string &input) {
-            Tokenizer tokenizer(input);
-            LispTokens tokens = tokenizer.scan();
-            Parser parser(tokens);
-            return parser.parse_all();
-        }
-
         template<typename ExceptionType>
         void expectParseError(const std::string &input) {
             bool exceptionThrown = false;

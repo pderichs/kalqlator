@@ -21,6 +21,7 @@
 #include "../src/lisp/Evaluator.h"
 #include "../src/tools/tools.h"
 #include "../src/lisp/DefaultEnvironment.h"
+#include "../src/lisp/tools.h"
 
 using namespace lisp;
 class LispQuoteTests : public TestBase {
@@ -32,7 +33,7 @@ private slots:
 
 void LispQuoteTests::quote_symbol() {
     // 5 and 5.0 should be identical
-    LispObjectPtrVector lisp = parseAllString("(quote foo)");
+    LispObjectPtrVector lisp = parse_all_string("(quote foo)");
     EnvironmentPtr env = std::make_shared<DefaultEnvironment>();
     Evaluator evaluator(env, {});
     auto result = evaluator.evaluate(lisp);
@@ -42,7 +43,7 @@ void LispQuoteTests::quote_symbol() {
 
 void LispQuoteTests::quote_list() {
     // 5 and 5.0 should be identical
-    LispObjectPtrVector lisp = parseAllString("(quote (1 \"Hello\" 3 5))");
+    LispObjectPtrVector lisp = parse_all_string("(quote (1 \"Hello\" 3 5))");
     EnvironmentPtr env = std::make_shared<DefaultEnvironment>();
     Evaluator evaluator(env, {});
     auto result = evaluator.evaluate(lisp);

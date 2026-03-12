@@ -64,7 +64,7 @@ private slots:
 };
 
 void LispLambdaTests::simple_lambda() {
-    LispObjectPtrVector lisp = parseAllString("(define hello (lambda () \"Hello\")) (setq a (hello)) a");
+    LispObjectPtrVector lisp = parse_all_string("(define hello (lambda () \"Hello\")) (setq a (hello)) a");
     EnvironmentPtr env = std::make_shared<DefaultEnvironment>();
     Evaluator evaluator(env, {});
     auto result = evaluator.evaluate(lisp);
@@ -73,7 +73,7 @@ void LispLambdaTests::simple_lambda() {
 }
 
 void LispLambdaTests::lambda_with_single_parameter() {
-    LispObjectPtrVector lisp = parseAllString("(define double (lambda (x) (* x 2))) (double 5)");
+    LispObjectPtrVector lisp = parse_all_string("(define double (lambda (x) (* x 2))) (double 5)");
     EnvironmentPtr env = std::make_shared<DefaultEnvironment>();
     Evaluator evaluator(env, {});
     auto result = evaluator.evaluate(lisp);
@@ -82,7 +82,7 @@ void LispLambdaTests::lambda_with_single_parameter() {
 }
 
 void LispLambdaTests::lambda_with_multiple_parameters() {
-    LispObjectPtrVector lisp = parseAllString("(define add (lambda (a b c) (+ a b c))) (add 1 2 3)");
+    LispObjectPtrVector lisp = parse_all_string("(define add (lambda (a b c) (+ a b c))) (add 1 2 3)");
     EnvironmentPtr env = std::make_shared<DefaultEnvironment>();
     Evaluator evaluator(env, {});
     auto result = evaluator.evaluate(lisp);
@@ -91,7 +91,7 @@ void LispLambdaTests::lambda_with_multiple_parameters() {
 }
 
 void LispLambdaTests::lambda_returns_number() {
-    LispObjectPtrVector lisp = parseAllString("(define answer (lambda () 42)) (answer)");
+    LispObjectPtrVector lisp = parse_all_string("(define answer (lambda () 42)) (answer)");
     EnvironmentPtr env = std::make_shared<DefaultEnvironment>();
     Evaluator evaluator(env, {});
     auto result = evaluator.evaluate(lisp);
@@ -100,7 +100,7 @@ void LispLambdaTests::lambda_returns_number() {
 }
 
 void LispLambdaTests::lambda_returns_list() {
-    LispObjectPtrVector lisp = parseAllString("(define make-pair (lambda (a b) (list a b))) (make-pair 1 2)");
+    LispObjectPtrVector lisp = parse_all_string("(define make-pair (lambda (a b) (list a b))) (make-pair 1 2)");
     EnvironmentPtr env = std::make_shared<DefaultEnvironment>();
     Evaluator evaluator(env, {});
     auto result = evaluator.evaluate(lisp);
@@ -109,7 +109,7 @@ void LispLambdaTests::lambda_returns_list() {
 }
 
 void LispLambdaTests::lambda_returns_nil() {
-    LispObjectPtrVector lisp = parseAllString("(define nothing (lambda () nil)) (nothing)");
+    LispObjectPtrVector lisp = parse_all_string("(define nothing (lambda () nil)) (nothing)");
     EnvironmentPtr env = std::make_shared<DefaultEnvironment>();
     Evaluator evaluator(env, {});
     auto result = evaluator.evaluate(lisp);
@@ -118,7 +118,7 @@ void LispLambdaTests::lambda_returns_nil() {
 
 void LispLambdaTests::lambda_with_multiple_body_expressions() {
     // Der letzte Ausdruck im Body ist der Rückgabewert
-    LispObjectPtrVector lisp = parseAllString(R"(
+    LispObjectPtrVector lisp = parse_all_string(R"(
         (define side-effect-fn (lambda (x)
             (setq temp x)
             (+ temp 10)))
@@ -132,7 +132,7 @@ void LispLambdaTests::lambda_with_multiple_body_expressions() {
 }
 
 void LispLambdaTests::lambda_captures_outer_variable() {
-    LispObjectPtrVector lisp = parseAllString(R"(
+    LispObjectPtrVector lisp = parse_all_string(R"(
         (setq multiplier 10)
         (define scale (lambda (x) (* x multiplier)))
         (scale 5)
@@ -146,7 +146,7 @@ void LispLambdaTests::lambda_captures_outer_variable() {
 
 void LispLambdaTests::lambda_closure_preserves_value() {
     // Closure sollte den Wert zum Zeitpunkt der Definition bewahren
-    LispObjectPtrVector lisp = parseAllString(R"(
+    LispObjectPtrVector lisp = parse_all_string(R"(
         (setq x 10)
         (define get-x (lambda () x))
         (setq x 20)
@@ -162,7 +162,7 @@ void LispLambdaTests::lambda_closure_preserves_value() {
 }
 
 void LispLambdaTests::nested_lambda() {
-    LispObjectPtrVector lisp = parseAllString(R"(
+    LispObjectPtrVector lisp = parse_all_string(R"(
         (define outer (lambda (x)
             (define inner (lambda (y) (+ x y)))
             (inner 5)))
@@ -176,7 +176,7 @@ void LispLambdaTests::nested_lambda() {
 }
 
 void LispLambdaTests::lambda_as_argument() {
-    LispObjectPtrVector lisp = parseAllString(R"(
+    LispObjectPtrVector lisp = parse_all_string(R"(
         (define apply-twice (lambda (f x) (f (f x))))
         (define increment (lambda (n) (+ n 1)))
         (apply-twice increment 5)
@@ -189,7 +189,7 @@ void LispLambdaTests::lambda_as_argument() {
 }
 
 void LispLambdaTests::lambda_returns_lambda() {
-    LispObjectPtrVector lisp = parseAllString(R"(
+    LispObjectPtrVector lisp = parse_all_string(R"(
         (define make-adder (lambda (n)
             (lambda (x) (+ x n))))
         (define add5 (make-adder 5))
@@ -203,7 +203,7 @@ void LispLambdaTests::lambda_returns_lambda() {
 }
 
 void LispLambdaTests::recursive_lambda_with_define() {
-    LispObjectPtrVector lisp = parseAllString(R"(
+    LispObjectPtrVector lisp = parse_all_string(R"(
         (define factorial (lambda (n)
             (if (<= n 1)
                 1
@@ -218,7 +218,7 @@ void LispLambdaTests::recursive_lambda_with_define() {
 }
 
 void LispLambdaTests::lambda_with_arithmetic() {
-    LispObjectPtrVector lisp = parseAllString(R"(
+    LispObjectPtrVector lisp = parse_all_string(R"(
         (define quadratic (lambda (a b c x)
             (+ (* a (* x x)) (* b x) c)))
         (quadratic 1 2 1 3)
@@ -232,7 +232,7 @@ void LispLambdaTests::lambda_with_arithmetic() {
 }
 
 void LispLambdaTests::lambda_with_conditional() {
-    LispObjectPtrVector lisp = parseAllString(R"(
+    LispObjectPtrVector lisp = parse_all_string(R"(
         (define abs (lambda (x)
             (if (< x 0) (- 0 x) x)))
         (abs -42)
@@ -245,7 +245,7 @@ void LispLambdaTests::lambda_with_conditional() {
 }
 
 void LispLambdaTests::lambda_wrong_argument_count() {
-    LispObjectPtrVector lisp = parseAllString(R"(
+    LispObjectPtrVector lisp = parse_all_string(R"(
         (define needs-two (lambda (a b) (+ a b)))
         (needs-two 1)
     )");

@@ -93,7 +93,7 @@ public:
 
     [[nodiscard]] lisp::EnvironmentPtr environment() const {
         // TODO: Read only env wrapper?
-        return tableLispEnvironment_;
+        return table_lisp_environment_;
     }
 
     Location get_max_cell_locations() const;
@@ -109,6 +109,8 @@ public:
 
     std::unordered_map<size_t, size_t> get_column_widths() const { return column_widths_; }
     std::unordered_map<size_t, size_t> get_row_heights() const { return row_heights_; }
+
+    void run_macros_by_trigger(const std::string & string, const lisp::LispObjectPtrVector & lisp);
 
 
     static bool field_matches_search(const SearchOptions & options, const std::string & field_content, std::string * out_complete_match);
@@ -145,7 +147,7 @@ private:
     std::string id_;
     std::string name_;
     CellMap cells_;
-    TableLispEnvironmentPtr tableLispEnvironment_;
+    TableLispEnvironmentPtr table_lisp_environment_;
     LocationSet selected_cells_;
     Location current_selected_cell_;
     std::weak_ptr<SheetRegistry> sheet_registry_;

@@ -33,6 +33,6 @@ bool CellChangeCommand::mergeWith(const QUndoCommand *other) {
     auto* cmd = dynamic_cast<const CellChangeCommand*>(other);
     if (!cmd || cmd->m_row != m_row || cmd->m_col != m_col)
         return false;
-    m_newValue = cmd->m_newValue; // neuesten Wert übernehmen
+    m_newValue = cmd->m_newValue;
     return true;
 }

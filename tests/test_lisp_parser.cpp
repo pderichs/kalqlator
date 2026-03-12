@@ -647,7 +647,7 @@ void LispParserTests::multiple_top_level_atoms() {
 }
 
 void LispParserTests::multiple_top_level_atoms_parse_all() {
-    LispObjectPtrVector result = parseAllString("1 2 3");
+    LispObjectPtrVector result = parse_all_string("1 2 3");
     QVERIFY(result.size() == 3);
 
     auto item = result.front();
@@ -671,7 +671,7 @@ void LispParserTests::multiple_top_level_lists() {
 }
 
 void LispParserTests::multiple_top_level_lists_parse_all() {
-    LispObjectPtrVector result = parseAllString("(+ 1 2) (- 3 4)");
+    LispObjectPtrVector result = parse_all_string("(+ 1 2) (- 3 4)");
     QVERIFY(result.size() == 2);
 
     auto item = result.front();

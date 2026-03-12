@@ -109,6 +109,11 @@ add_executable(kalqlator src/main.cpp
         src/events/SelectSheetAndCellEvent.h
         src/ui/CellChangeCommand.cpp
         src/ui/CellChangeCommand.h
+        src/ui/MacroEditorDialog.cpp
+        src/ui/MacroEditorDialog.h
+        src/model/triggers.h
+        src/events/MacroErrorEvent.h
+        src/events/MacroEditorErrorEvent.h
 )
 
 target_link_libraries(kalqlator

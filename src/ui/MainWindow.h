@@ -66,6 +66,9 @@ private slots:
     void cut();
     void copy();
     void paste();
+
+    void openMacroEditor();
+
     void about();
 
     // Formula bar slots
@@ -133,6 +136,7 @@ private:
     QAction *m_pasteAction;
     QAction *m_toggleDockAction;
     QAction *m_aboutAction;
+    QAction *m_editMacros;
 
     // Event handling
     using EventHandler = std::function<void(const std::any&)>;
