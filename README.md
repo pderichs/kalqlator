@@ -58,7 +58,7 @@ mise run lint
 
 ```bash
 mise run build-setup
-mise run lint
+mise run lint-fix
 ```
 
 ## Built With
