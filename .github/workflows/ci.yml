@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    name: Build, Lint & Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y \
+            cmake ninja-build \
+            qt6-base-dev qt6-base-dev-tools \
+            qt6-tools-dev \
+            qt6-tools-dev-tools \
+            libqt6test6 
+            clang \
+            clang-tidy
+
+      - name: Configure (CMake)
+        run: |
+          cmake -B build -G Ninja \
+            -DCMAKE_BUILD_TYPE=Debug \
+            -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+
+      - name: Build
+        run: cmake --build build --parallel
+
+      - name: Run clang-tidy
+        run: |
+          run-clang-tidy -p build \
+            -header-filter=".*" \
+            $(find src -name "*.cpp" | tr '\n' ' ')
+
+      - name: Run tests (CTest)
+        working-directory: build
+        run: ctest --output-on-failure --parallel 4
