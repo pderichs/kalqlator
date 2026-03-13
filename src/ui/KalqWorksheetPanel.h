@@ -32,11 +32,11 @@ public:
     [[nodiscard]] QListWidget *listWidget() const;
 
 private slots:
-    void onAddClicked();
-    void onRemoveClicked();
-    void onMoveUpClicked();
-    void onMoveDownClicked();
-    void onRenameClicked();
+    static void onAddClicked();
+    static void onRemoveClicked();
+    static void onMoveUpClicked();
+    static void onMoveDownClicked();
+    static void onRenameClicked();
 
 private:
     void setupUi();

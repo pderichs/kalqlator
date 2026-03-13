@@ -2,3 +2,34 @@
 cmake = "4.2.3"
 clang = "21.1.8"
 
+[tasks.setup]
+description = "Install system dependencies"
+run = "sudo apt install -y clang-tidy cppcheck"
+
+[tasks.build-setup]
+description = "Configure CMake and generate compile_commands.json"
+run = "cmake -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=ON"
+
+[tasks.lint]
+description = "Run clang-tidy on all source files"
+run = """
+find src tests -name '*.cpp' \
+  | xargs clang-tidy -p build \
+    --header-filter='^.*(src|tests)/.*\\.(h|hpp)$'
+"""
+
+[tasks.lint-fix]
+description = "Run clang-tidy with auto-fix"
+run = """
+find src tests -name '*.cpp' \
+  | xargs clang-tidy -p build --fix --fix-errors \
+    --header-filter='^.*(src|tests)/.*\\.(h|hpp)$'
+"""
+
+[tasks.cppcheck]
+description = "Run cppcheck on all source files"
+run = "cppcheck --enable=all --error-exitcode=1 --suppress=missingIncludeSystem src/"
+
+[tasks.check]
+description = "Run all linters (clang-tidy + cppcheck)"
+depends = ["lint", "cppcheck"]

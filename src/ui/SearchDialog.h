@@ -32,7 +32,7 @@ public:
 
     explicit SearchDialog(const SearchOptions &initialOptions, QWidget *parent = nullptr);
 
-    SearchOptions searchOptions() const;
+    [[nodiscard]] SearchOptions searchOptions() const;
 
 private slots:
     void onUseRegexToggled(bool checked);

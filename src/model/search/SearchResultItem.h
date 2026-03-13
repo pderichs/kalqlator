@@ -29,4 +29,4 @@ struct SearchResultItem {
 };
 
 using SearchResultItemPtr = std::shared_ptr<SearchResultItem>;
-typedef std::vector<SearchResultItemPtr> SearchResultItems;
+using SearchResultItems = std::vector<SearchResultItemPtr>;

@@ -22,7 +22,7 @@
 
 class CellChangeCommand: public QUndoCommand {
 public:
-    CellChangeCommand(const DocumentPtr &document, int row, int col, const std::string &oldValue, const std::string &newValue);
+    CellChangeCommand(DocumentPtr document, int row, int col, std::string oldValue, std::string newValue);
 
     void redo() override;
     void undo() override;
@@ -30,7 +30,7 @@ public:
     // Merge changes
     bool mergeWith(const QUndoCommand* other) override;
 
-    int id() const override { return 1; } // required for mergeWith
+    [[nodiscard]] int id() const override { return 1; } // required for mergeWith
 
 private:
     DocumentPtr m_document;

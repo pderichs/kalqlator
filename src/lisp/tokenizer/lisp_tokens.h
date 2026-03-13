@@ -51,6 +51,6 @@ namespace lisp {
     [[nodiscard]] bool is_closed_bracket() const { return id == CLOSE_BRACKET; }
   };
 
-  typedef std::vector<LispToken> LispTokens;
+  using LispTokens = std::vector<LispToken>;
 }
 

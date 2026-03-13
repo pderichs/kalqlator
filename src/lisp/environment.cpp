@@ -42,9 +42,9 @@ bool Environment::is_defined(const std::string &name) const {
 }
 
 LispObjectPtr Environment::lookup(const std::string &name) {
-    auto it = definitions_.find(name);
-    if (it != definitions_.end()) {
-        return it->second;
+    auto iterator = definitions_.find(name);
+    if (iterator != definitions_.end()) {
+        return iterator->second;
     }
 
     if (parent_) {

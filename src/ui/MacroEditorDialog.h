@@ -20,7 +20,7 @@ public:
     MacroMap macros();
 
 private slots:
-    void accept();
+    void accept() override;
 
 private:
     void setupUi();

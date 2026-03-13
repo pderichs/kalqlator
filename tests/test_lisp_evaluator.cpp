@@ -32,35 +32,35 @@ class LispEvaluatorTests : public TestBase {
     Q_OBJECT
 
 private slots:
-    void simple_int_atom1();
+    static void simple_int_atom1();
 
-    void defined_symbol1();
-    void defined_symbol2();
-    void defined_symbol3();
+    static void defined_symbol1();
+    static void defined_symbol2();
+    static void defined_symbol3();
 
-    void addition1();
-    void addition2();
-    void addition3();
-    void addition4();
+    static void addition1();
+    static void addition2();
+    static void addition3();
+    static void addition4();
 
-    void subtraction1();
+    static void subtraction1();
 
-    void subtraction2();
+    static void subtraction2();
 
-    void subtraction3();
+    static void subtraction3();
 
-    void subtraction4();
+    static void subtraction4();
 
-    void multiplication1();
+    static void multiplication1();
 
-    void multiplication2();
+    static void multiplication2();
 
-    void division1();
+    static void division1();
 
-    void division2();
+    static void division2();
 
-    void adding_nils_1();
-    void adding_nils_2();
+    static void adding_nils_1();
+    static void adding_nils_2();
 };
 
 void LispEvaluatorTests::simple_int_atom1() {

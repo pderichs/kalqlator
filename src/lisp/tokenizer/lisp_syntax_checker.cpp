@@ -14,12 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+#include <sstream>
+
 #include "lisp_syntax_checker.h"
 #include "lisp_parser_error.h"
-#include <sstream>
-#include <utility>
 
-using namespace lisp;
+using lisp::LispSyntaxChecker;
 
 LispSyntaxChecker::LispSyntaxChecker(LispTokens tokens)
     : tokens_(std::move(tokens)) {}
@@ -53,10 +53,10 @@ void LispSyntaxChecker::check_matching_brackets() const {
   }
 
   if (open_brackets != closed_brackets) {
-    std::stringstream ss;
-    ss << "Brackets count mismatch: " << open_brackets << "/"
+    std::stringstream error_message;
+    error_message << "Brackets count mismatch: " << open_brackets << "/"
        << closed_brackets;
-    throw LispParserError(ss.str());
+    throw LispParserError(error_message.str());
   }
 
   // if (open_brackets == 0 || closed_brackets == 0) {

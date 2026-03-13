@@ -19,8 +19,7 @@
 #include "../lisp/object.h"
 
 
-LispObjectStringConverter::LispObjectStringConverter(const lisp::LispObjectPtr &object): object_(object) {
-
+LispObjectStringConverter::LispObjectStringConverter(lisp::LispObjectPtr object) : object_(std::move(object)) {
 }
 
 std::string LispObjectStringConverter::to_str() const {

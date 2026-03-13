@@ -22,102 +22,102 @@ class LocationTests : public QObject
     Q_OBJECT
 
 private slots:
-    void initialLocationIsAtX0Y0()
+    static void initialLocationIsAtX0Y0()
     {
-        Location location;
+        const Location location;
         QCOMPARE(location.x(), 0);
         QCOMPARE(location.y(), 0);
     }
 
-    void locationAcceptsCoordinates()
+    static void locationAcceptsCoordinates()
     {
-        Location location(10, 42);
+        const Location location(10, 42);
         QCOMPARE(location.x(), 10);
         QCOMPARE(location.y(), 42);
     }
 
-    void locationLowerThanRespectsX()
+    static void locationLowerThanRespectsX()
     {
-        Location location1(9, 42);
-        Location location2(10, 42);
+        const Location location1(9, 42);
+        const Location location2(10, 42);
         QVERIFY(location1 < location2);
     }
 
-    void locationLowerThanRespectsY()
+    static void locationLowerThanRespectsY()
     {
-        Location location1(10, 42);
-        Location location2(10, 43);
+        const Location location1(10, 42);
+        const Location location2(10, 43);
         QVERIFY(location1 < location2);
     }
 
-    void locationLowerThanEquality()
+    static void locationLowerThanEquality()
     {
-        Location location1(10, 42);
-        Location location2(10, 42);
+        const Location location1(10, 42);
+        const Location location2(10, 42);
         QVERIFY(!(location1 < location2));
     }
 
-    void locationLowerThanMismatchX()
+    static void locationLowerThanMismatchX()
     {
-        Location location1(11, 42);
-        Location location2(10, 42);
+        const Location location1(11, 42);
+        const Location location2(10, 42);
         QVERIFY(!(location1 < location2));
     }
 
-    void locationLowerThanMismatchY()
+    static void locationLowerThanMismatchY()
     {
-        Location location1(10, 43);
-        Location location2(10, 42);
+        const Location location1(10, 43);
+        const Location location2(10, 42);
         QVERIFY(!(location1 < location2));
     }
 
-    void locationEqualityNotEqualX()
+    static void locationEqualityNotEqualX()
     {
-        Location location1(10, 42);
-        Location location2(11, 42);
-        QVERIFY(!(location1 == location2));
+        const Location location1(10, 42);
+        const Location location2(11, 42);
+        QVERIFY(location1 != location2);
     }
 
-    void locationEqualityNotEqualY()
+    static void locationEqualityNotEqualY()
     {
-        Location location1(10, 43);
-        Location location2(10, 42);
-        QVERIFY(!(location1 == location2));
+        const Location location1(10, 43);
+        const Location location2(10, 42);
+        QVERIFY(location1 != location2);
     }
 
-    void locationEqualityEqual()
+    static void locationEqualityEqual()
     {
-        Location location1(10, 42);
-        Location location2(10, 42);
+        const Location location1(10, 42);
+        const Location location2(10, 42);
         QVERIFY(location1 == location2);
     }
 
-    void locationInEqualityNotEqualX()
+    static void locationInEqualityNotEqualX()
     {
-        Location location1(10, 42);
-        Location location2(11, 42);
+        const Location location1(10, 42);
+        const Location location2(11, 42);
         QVERIFY(location1 != location2);
     }
 
-    void locationInEqualityNotEqualY()
+    static void locationInEqualityNotEqualY()
     {
-        Location location1(10, 43);
-        Location location2(10, 42);
+        const Location location1(10, 43);
+        const Location location2(10, 42);
         QVERIFY(location1 != location2);
     }
 
-    void locationInEqualityEqual()
+    static void locationInEqualityEqual()
     {
-        Location location1(10, 42);
-        Location location2(10, 42);
-        QVERIFY(!(location1 != location2));
+        const Location location1(10, 42);
+        const Location location2(10, 42);
+        QVERIFY(location1 == location2);
     }
 
-    void addition()
+    static void addition()
     {
-        Location location1(10, 42);
-        Location location2(1, 2);
-        auto result = location1 + location2;
+        const Location location1(10, 42);
+        const Location location2(1, 2);
+        const auto result = location1 + location2;
         QCOMPARE(result, Location(11, 44));
     }
 };

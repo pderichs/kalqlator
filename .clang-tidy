@@ -1,0 +1,11 @@
+Checks: >
+  clang-diagnostic-*,
+  clang-analyzer-*,
+  modernize-*,
+  readability-*,
+  -modernize-use-trailing-return-type,
+  -llvmlibc-*,
+  -readability-redundant-access-specifiers,
+  -readability-function-cognitive-complexity,
+  -readability-static-accessed-through-instance,
+  -readability-magic-numbers

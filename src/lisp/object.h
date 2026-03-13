@@ -39,7 +39,7 @@ namespace lisp {
         }
     };
 
-    typedef std::vector<LispObjectPtr> LispObjectPtrVector;
+    using LispObjectPtrVector = std::vector<LispObjectPtr>;
 
     /**
      * Native defined functions inside the executable.

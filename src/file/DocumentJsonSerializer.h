@@ -42,28 +42,28 @@ public:
 
     static QJsonObject location_to_json(Location location);
 
-    QJsonArray convert_selected_cells_to_json_array(Sheet *sheet) const;
+    static QJsonArray convert_selected_cells_to_json_array(Sheet *sheet) ;
 
-    QJsonArray get_row_heights(Sheet* sheet) const;
+    static QJsonArray get_row_heights(Sheet* sheet) ;
 
-    QJsonArray get_column_widths(Sheet* sheet) const;
+    static QJsonArray get_column_widths(Sheet* sheet) ;
 
-    QJsonObject create_macros_json(const MacroMap & map) const;
+    static QJsonObject create_macros_json(const MacroMap & map) ;
 
     [[nodiscard]] bool save() const;
 
     static void create_cell_by_task(Sheet* sheet, const CellValueTask &task);
 
-    void setSheetSizes(
+    static void setSheetSizes(
         const QJsonArray& array,
         const QString& sizeKey,
-        std::function<void(size_t, size_t)> setter) const;
+        std::function<void(size_t, size_t)> setter) ;
 
-    void setSheetRowHeights(Sheet* sheet, const QJsonArray & jsons) const;
+    static void setSheetRowHeights(Sheet* sheet, const QJsonArray & heights) ;
 
-    void setSheetColumnWidths(Sheet* sheet, const QJsonArray & jsons) const;
+    static void setSheetColumnWidths(Sheet* sheet, const QJsonArray & widths) ;
 
-    void applySizes(Sheet* sheet, const QJsonObject & json_values) const;
+    static void applySizes(Sheet* sheet, const QJsonObject & json_values);
 
     void add_sheets(const QJsonObject &workbook) const;
 
@@ -72,6 +72,8 @@ public:
     [[nodiscard]] bool open() const;
 
 private:
+    bool write_to_file(QString json) const;
+
     DocumentPtr document_;
     std::string filename_;
 };

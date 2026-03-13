@@ -12,7 +12,7 @@ I created a similar project before using wxWidgets. You can find it here: https:
 
 ### Prerequisites
 
-Qt 6 development libraries are required to build this project.
+Qt 6 development libraries are required to build this project. For lint jobs you also need `clang-tidy` and `cppcheck`.
 
 For e.g. Debian based systems you can use
 
@@ -23,6 +23,12 @@ sudo apt install \                                                              
   qt6-tools-dev \
   qt6-tools-dev-tools \
   libqt6test6 
+```
+
+Lint tools:
+
+```bash
+  sudo apt install clang-tidy cppcheck
 ```
 
 ### Build
@@ -39,6 +45,20 @@ make -j$(nproc)
 ```bash
 cd build
 ctest --output-on-failure
+```
+
+## Run Linter
+
+```bash
+mise run build-setup
+mise run lint
+```
+
+## Run Linter and automatically fix issues
+
+```bash
+mise run build-setup
+mise run lint
 ```
 
 ## Built With

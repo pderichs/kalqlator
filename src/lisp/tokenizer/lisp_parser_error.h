@@ -17,6 +17,7 @@
 #pragma once
 
 #include <stdexcept>
+#include <utility>
 
 namespace lisp {
     /**
@@ -25,9 +26,9 @@ namespace lisp {
     class LispParserError : public std::runtime_error {
     public:
         explicit LispParserError(const std::string &msg)
-            : std::runtime_error(msg), item_() {}
-        LispParserError(const std::string &msg, const std::string &item)
-            : std::runtime_error(msg), item_(item) {}
+            : std::runtime_error(msg) {}
+        LispParserError(const std::string &msg, std::string item)
+            : std::runtime_error(msg), item_(std::move(item)) {}
 
         [[nodiscard]] std::string item() const { return item_; }
 

@@ -22,11 +22,7 @@
 #include "../messagebus/event_dispatcher.h"
 #include "../lisp/tokenizer/lisp_tokenizer.h"
 #include "../lisp/parser/parser.h"
-#include "../lisp/Evaluator.h"
 #include "../lisp/tools.h"
-
-Document::Document() : current_sheet_index_(0), changed_(false) {
-}
 
 void Document::initialize(const bool add_initial_sheet) {
     if (add_initial_sheet) {
@@ -38,10 +34,10 @@ void Document::initialize(const bool add_initial_sheet) {
     filename_.clear();
 }
 
-size_t Document::add_sheet(std::string id, std::string name) {
+size_t Document::add_sheet(std::string identifier, std::string name) {
     const size_t result = sheets_.size();
 
-    auto sheet = std::make_unique<Sheet>(id, name, this);
+    auto sheet = std::make_unique<Sheet>(identifier, name, this);
     sheets_.push_back(std::move(sheet));
 
     set_changed_flag(true);
@@ -65,16 +61,16 @@ void Document::remove_sheet(size_t index) {
 
 template<typename Predicate>
 Sheet *Document::find_sheet(Predicate pred) const {
-    auto it = std::ranges::find_if(sheets_, [&](const auto& s) { return pred(s.get()); });
-    return it != sheets_.end() ? it->get() : nullptr;
+    auto iterator = std::ranges::find_if(sheets_, [&](const auto &sheet) { return pred(sheet.get()); });
+    return iterator != sheets_.end() ? iterator->get() : nullptr;
 }
 
 Sheet *Document::get_sheet_by_name(const std::string &name) const {
-    return find_sheet([&](Sheet *s) { return s->name() == name; });
+    return find_sheet([&](Sheet *sheet) { return sheet->name() == name; });
 }
 
-Sheet *Document::get_sheet_by_id(const std::string &id) const {
-    return find_sheet([&](Sheet *s) { return s->id() == id; });
+Sheet *Document::get_sheet_by_id(const std::string &identifier) const {
+    return find_sheet([&](const Sheet *sheet) { return sheet->id() == identifier; });
 }
 
 Sheet *Document::current_sheet() const {
@@ -88,13 +84,13 @@ void Document::set_cell_content(int row, int column, const std::string &content)
     set_changed_flag(true);
 }
 
-void Document::update_all_cells() {
+void Document::update_all_cells() const {
     Sheet *sheet = current_sheet();
     sheet->update_all_cells();
 }
 
 void Document::refresh_cells(const std::string &name, const lisp::LispObjectPtr &value,
-                             const pdtools::StringVector &dependencies) {
+                             const pdtools::StringVector &dependencies) const {
     Sheet *sheet = current_sheet();
     sheet->refresh_cells(name, value, dependencies);
 }
@@ -102,11 +98,11 @@ void Document::refresh_cells(const std::string &name, const lisp::LispObjectPtr 
 int Document::add_next_sheet() {
     const int next_index = sheets_.size();
 
-    std::stringstream ss;
-    ss << "Table ";
-    ss << (next_index + 1);
+    std::stringstream sheet_name;
+    sheet_name << "Table ";
+    sheet_name << (next_index + 1);
 
-    add_sheet(pdtools::generate_uuid(), ss.str());
+    add_sheet(pdtools::generate_uuid(), sheet_name.str());
 
     set_changed_flag(true);
 
@@ -189,12 +185,12 @@ LocationSet Document::get_selected_cells() const {
     return sheet->get_selected_cells();
 }
 
-void Document::set_row_height(size_t row_index, size_t height) {
+void Document::set_row_height(size_t row_index, size_t height) const {
     Sheet *sheet = current_sheet();
     sheet->set_row_height(row_index, height);
 }
 
-void Document::set_column_width(size_t column_index, size_t width) {
+void Document::set_column_width(size_t column_index, size_t width) const {
     Sheet *sheet = current_sheet();
     sheet->set_column_width(column_index, width);
 }
@@ -234,7 +230,7 @@ int Document::get_sheet_index(const Sheet *sheet) const {
 }
 
 void Document::select_sheet_and_cell(const std::string &table_name, const Location &cell_location) {
-    const auto sheet = get_sheet_by_name(table_name);
+    auto *const sheet = get_sheet_by_name(table_name);
 
     int index = get_sheet_index(sheet);
     if (index < 0) {
@@ -249,9 +245,13 @@ void Document::select_sheet_and_cell(const std::string &table_name, const Locati
 }
 
 std::string Document::get_cell_raw_content(int row, int col) const {
-    const auto sheet = current_sheet();
-    const auto cell = sheet->get_cell(row, col);
-    if (!cell) return "";
+    auto *const sheet = current_sheet();
+    auto *const cell = sheet->get_cell(row, col);
+
+    if (cell == nullptr) {
+        return "";
+    }
+
     return cell->raw_content_;
 }
 
@@ -272,6 +272,6 @@ void Document::run_macros_by_trigger(const std::string &trigger) {
             sheet->run_macros_by_trigger(trigger, lisp);
         }
     } catch (const std::runtime_error &e) {
-        EventDispatcher::dispatch("model:macro-error", MacroErrorEvent{trigger, def, e.what()});
+        EventDispatcher::dispatch("model:macro-error", MacroErrorEvent{.macro=trigger, .def=def, .message=e.what()});
     }
 }

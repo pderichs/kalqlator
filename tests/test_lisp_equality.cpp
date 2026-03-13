@@ -27,26 +27,39 @@ class LispEqualityTests : public TestBase {
     Q_OBJECT
 private slots:
     // eql tests
-    void eql_ints_equal();
-    void eql_ints_not_equal();
-    void eql_lists_equal();
-    void eql_lists_different_value();
-    void eql_lists_different_length();
+    static void eql_ints_equal();
+
+    static void eql_ints_not_equal();
+
+    static void eql_lists_equal();
+
+    static void eql_lists_different_value();
+
+    static void eql_lists_different_length();
 
     // eq tests
-    void eq_symbols_same();
-    void eq_symbols_different();
-    void eq_same_variable();
-    void eq_different_lists_same_content();
+    static void eq_symbols_same();
+
+    static void eq_symbols_different();
+
+    static void eq_same_variable();
+
+    static void eq_different_lists_same_content();
 
     // = (numeric equality) tests
-    void numeric_eq_two_equal();
-    void numeric_eq_two_not_equal();
-    void numeric_eq_multiple_all_equal();
-    void numeric_eq_multiple_one_different();
-    void numeric_eq_single_value();
-    void numeric_eq_floats();
-    void numeric_eq_mixed_int_float();
+    static void numeric_eq_two_equal();
+
+    static void numeric_eq_two_not_equal();
+
+    static void numeric_eq_multiple_all_equal();
+
+    static void numeric_eq_multiple_one_different();
+
+    static void numeric_eq_single_value();
+
+    static void numeric_eq_floats();
+
+    static void numeric_eq_mixed_int_float();
 };
 
 // === eql tests ===

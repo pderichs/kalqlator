@@ -19,7 +19,7 @@
 
 class LispObjectStringConverter {
 public:
-    explicit LispObjectStringConverter(const lisp::LispObjectPtr& object);
+    explicit LispObjectStringConverter(lisp::LispObjectPtr object);
 
     [[nodiscard]] std::string to_str() const;
 

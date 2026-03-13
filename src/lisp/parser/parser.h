@@ -38,7 +38,7 @@ namespace lisp {
 
         static LispObjectPtr vector_to_cons(const std::vector<std::shared_ptr<LispObject>> & vector);
 
-        LispTokens read_expression(size_t size, size_t * ignore_token_count) const;
+        LispTokens read_expression(size_t current_token_pos, size_t * ignore_token_count) const;
 
         [[nodiscard]] size_t count_relevant_tokens() const;
     };

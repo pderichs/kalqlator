@@ -28,7 +28,7 @@ public:
     explicit FormulaEditorDialog(QWidget *parent = nullptr);
 
     void setFormula(const QString &formula);
-    QString formula() const;
+    [[nodiscard]] QString formula() const;
 
 private:
     void createWidgets();

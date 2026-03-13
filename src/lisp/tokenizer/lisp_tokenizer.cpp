@@ -24,68 +24,57 @@
 #include "../../tools/tools.h"
 using namespace lisp;
 
-Tokenizer::Tokenizer(std::string lisp) : lisp_(std::move(lisp)), pos_(0) {}
+Tokenizer::Tokenizer(std::string lisp) : lisp_(std::move(lisp)) {}
+
+bool Tokenizer::digit_sequence_is_number() {
+  size_t advanced = 0;
+  bool result = true;
+
+  while (walk()) {
+    advanced++;
+    const char current = current_char();
+
+    if (std::isspace(static_cast<unsigned char>(current)) != 0 || current == ')' || current == '\0') {
+      break;
+    }
+    if (std::isdigit(current) == 0 && current != '.') {
+      result = false;
+      break;
+    }
+  }
+
+  pos_ -= advanced;
+  return result;
+}
 
 LispTokens Tokenizer::scan() {
   LispTokens result;
-
   pos_ = 0;
 
   do {
-    char c = current_char();
+    char current = current_char();
 
-    if (c == '"') {
-      result.push_back(read_string());
-    } else if (c == '\'') {
-      // Quote identifier
-      result.push_back(create_identifier_token("'"));
-    } else if (c == ';') {
-      // Advance to newline
-      read_comment();
-    } else if (c == '-' || c == '+' || c == '.') {
-      // Looking forward to check whether we have
-      // a negative/positive number or an identifier here.
-      char next = peek(1);
-      bool is_number = std::isdigit(next);
+    switch (current) {
+      case '"':  result.push_back(read_string());                       break;
+      case '\'': result.push_back(create_identifier_token("'"));    break;
+      case ';':  read_comment();                                          break;
+      case '(':  result.push_back(create_open_bracket_token());         break;
+      case ')':  result.push_back(create_close_bracket_token());        break;
 
-      if (is_number) {
-        result.push_back(read_number());
-      } else {
-        result.push_back(read_identifier());
-      }
-    } else if (std::isdigit(current_char())) {
-      // We might have a symbol which just starts with a number.
-      // Look ahead and decide:
-      bool is_number = true;
-      size_t advanced = 0;
-      while (walk()) {
-        advanced++;
+      case '-': case '+': case '.':
+        result.push_back(std::isdigit(peek(1)) != 0 ? read_number() : read_identifier());
+        break;
 
-        if (std::isspace(static_cast<unsigned char>(current_char())) || current_char() == ')' || current_char() == '\0') {
-          break;
+      default:
+        if (std::isdigit(current) != 0) {
+          result.push_back(digit_sequence_is_number() ? read_number() : read_identifier());
+        } else if (std::isspace(current) != 0) {
+          result.push_back(create_space_token());
+        } else if (std::isprint(current) != 0) {
+          result.push_back(read_identifier());
         }
 
-        if (!std::isdigit(current_char()) && current_char() != '.') {
-          is_number = false;
-          break;
-        }
-      }
-
-      pos_ -= advanced;
-
-      if (is_number) {
-        result.push_back(read_number());
-      } else {
-        result.push_back(read_identifier());
-      }
-    } else if (std::isspace(current_char())) {
-      result.push_back(create_space_token());
-    } else if (c == '(') {
-      result.push_back(create_open_bracket_token());
-    } else if (c == ')') {
-      result.push_back(create_close_bracket_token());
-    } else if (std::isprint(c)) {
-      result.push_back(read_identifier());
+        break;
     }
   } while (walk());
 
@@ -94,8 +83,8 @@ LispTokens Tokenizer::scan() {
 
 void Tokenizer::read_comment() {
   while (walk()) {
-    auto c = current_char();
-    if (c == '\n') {
+    auto current = current_char();
+    if (current == '\n') {
       // New line delimits comment
       break;
     }
@@ -103,111 +92,111 @@ void Tokenizer::read_comment() {
 }
 
 LispToken Tokenizer::create_double_token(DoubleType number) {
-  return LispToken{DOUBLE, number};
+  return LispToken{.id=DOUBLE, .content=number};
 }
 
 LispToken Tokenizer::create_integer_token(Int64Type number) {
-  return LispToken{INTEGER, number};
+  return LispToken{.id=INTEGER, .content=number};
 }
 
-LispToken Tokenizer::create_string_token(const std::string &s) {
-  return LispToken{STRING, s};
+LispToken Tokenizer::create_string_token(const std::string &value) {
+  return LispToken{.id=STRING, .content=value};
 }
 
-LispToken Tokenizer::create_identifier_token(const std::string &s) {
-  return LispToken{IDENTIFIER, s};
+LispToken Tokenizer::create_identifier_token(const std::string &value) {
+  return LispToken{.id=IDENTIFIER, .content = value};
 }
 
 LispToken Tokenizer::create_open_bracket_token() {
-  return LispToken{OPEN_BRACKET, {}};
+  return LispToken{.id=OPEN_BRACKET, .content={}};
 }
 
 LispToken Tokenizer::create_close_bracket_token() {
-  return LispToken{CLOSE_BRACKET, {}};
+  return LispToken{.id=CLOSE_BRACKET, .content={}};
 }
 
-LispToken Tokenizer::create_space_token() { return LispToken{SPACE, {}}; }
+LispToken Tokenizer::create_space_token() { return LispToken{.id=SPACE, .content={}}; }
 
 LispToken Tokenizer::read_string() {
-  std::string s;
+  std::string string;
   bool found_end = false;
 
   while (walk()) {
-    char c = current_char();
+    const char current = current_char();
 
-    if (c == '\\') {
+    if (current == '\\') {
       if (!walk()) {
-        throw LispParserError("Syntax error: Unexpected end after escape", s);
+        throw LispParserError("Syntax error: Unexpected end after escape", string);
       }
       char escaped = current_char();
       switch (escaped) {
-        case 'n':  s += '\n'; break;
-        case 't':  s += '\t'; break;
-        case 'r':  s += '\r'; break;
-        case '\\': s += '\\'; break;
-        case '"':  s += '"';  break;
+        case 'n':  string += '\n'; break;
+        case 't':  string += '\t'; break;
+        case 'r':  string += '\r'; break;
+        case '\\': string += '\\'; break;
+        case '"':  string += '"';  break;
         default:
           // Unknown escape sequence - add it nevertheless(?)
-          s += escaped;
+          string += escaped;
           break;
       }
-    } else if (c == '"') {
+    } else if (current == '"') {
       found_end = true;
       break;
     } else {
-      s += c;
+      string += current;
     }
   }
 
   if (!found_end) {
-    throw LispParserError("Syntax error: String is not terminated", s);
+    throw LispParserError("Syntax error: String is not terminated", string);
   }
 
-  return create_string_token(s);
+  return create_string_token(string);
 }
 
 LispToken Tokenizer::read_number() {
-  std::string s;
+  std::string number_string;
   bool dot = false;
 
   do {
-    char c = current_char();
+    const char current = current_char();
 
-    if (std::isdigit(c)) {
-      s += c;
-    } else if (c == '-') {
-      if (!s.empty()) {
-        throw LispParserError("Unexpected dash while parsing number", s);
+    if (std::isdigit(current) != 0) {
+      number_string += current;
+    } else if (current == '-') {
+      if (!number_string.empty()) {
+        throw LispParserError("Unexpected dash while parsing number", number_string);
       }
 
-      s += c;
-    } else if (c == '.') {
+      number_string += current;
+    } else if (current == '.') {
       if (dot) {
-        throw LispParserError("Second dot while parsing number", s);
+        throw LispParserError("Second dot while parsing number", number_string);
       }
 
-      s += c;
+      number_string += current;
       dot = true;
-    } else if (std::isspace(c) || c == ')') {
+    } else if (std::isspace(current) != 0 || current == ')') {
       pos_--;
       break;
     }
   } while (walk());
 
-  auto opt_int = pdtools::convert_string_to_number<Int64Type>(s);
+  const auto opt_int = pdtools::convert_string_to_number<Int64Type>(number_string);
   if (opt_int) {
     return create_integer_token(*opt_int);
   }
 
-  auto opt_double = pdtools::convert_string_to_number<DoubleType>(s);
+  const auto opt_double = pdtools::convert_string_to_number<DoubleType>(number_string);
   if (opt_double) {
     return create_double_token(*opt_double);
   }
 
-  std::stringstream ss;
-  ss << "Unable to convert string to number: \"";
-  ss << s << "\"";
-  throw LispParserError(ss.str());
+  std::stringstream error_message;
+  error_message << "Unable to convert string to number: \"";
+  error_message << number_string << "\"";
+  throw LispParserError(error_message.str());
 }
 
 bool Tokenizer::walk() {
@@ -223,29 +212,29 @@ bool Tokenizer::walk() {
 char Tokenizer::current_char() const { return lisp_[pos_]; }
 
 LispToken Tokenizer::read_identifier() {
-  std::string s;
+  std::string identifier;
 
   do {
-    char c = current_char();
+    const char current = current_char();
 
-    if (std::isspace(c) || c == ')') {
+    if (std::isspace(current) != 0 || current == ')') {
       pos_--;
       break;
     }
 
-    if (std::isprint(c)) {
-      s += c;
-    } else if (c == 0) {
+    if (std::isprint(current) != 0) {
+      identifier += current;
+    } else if (current == 0) {
       break;
     } else {
       throw LispParserError("Not supported: Unprintable char detected.");
     }
   } while (walk());
 
-  return create_identifier_token(s);
+  return create_identifier_token(identifier);
 }
 
-char Tokenizer::peek(int offset) const {
+char Tokenizer::peek(const int offset) const {
   if (pos_ + offset >= lisp_.size()) {
     return '\0';
   }

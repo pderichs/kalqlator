@@ -28,7 +28,7 @@ public:
     explicit FormulaBar(QWidget *parent = nullptr);
 
     void setFormula(const QString &formula);
-    QString formula() const;
+    [[nodiscard]] QString formula() const;
 
     void setCellReference(const QString &ref);
 

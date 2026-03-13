@@ -26,25 +26,25 @@
 #include <vector>
 
 namespace pdtools {
-    typedef std::vector<std::string> StringVector;
-    typedef std::set<std::string> StringSet;
-    typedef std::deque<std::string> StringDeque;
+    using StringVector = std::vector<std::string>;
+    using StringSet = std::set<std::string>;
+    using StringDeque = std::deque<std::string>;
 
-    typedef std::vector<int> IntVector;
-    typedef std::vector<bool> BoolVector;
-    typedef std::vector<unsigned char> UnsignedCharVector;
+    using IntVector = std::vector<int>;
+    using BoolVector = std::vector<bool>;
+    using UnsignedCharVector = std::vector<unsigned char>;
 
-    std::string ltrim(const std::string &s);
-    std::string rtrim(const std::string &s);
-    std::string trim(const std::string &s);
+    std::string ltrim(const std::string &string);
+    std::string rtrim(const std::string &string);
+    std::string trim(const std::string &string);
 
-    std::vector<std::string> split(const std::string &s, char delim);
+    std::vector<std::string> split(const std::string &string, char delimiter);
 
-    std::string stringVectorToString(const StringVector &v);
+    std::string stringVectorToString(const StringVector &strings);
 
-    std::string intVectorToString(const IntVector &v);
+    std::string intVectorToString(const IntVector &int_vector);
 
-    std::string locationToString(const Location &l);
+    std::string locationToString(const Location &location);
 
     int generate_random_int_in_range(int min, int max);
 
@@ -61,9 +61,9 @@ namespace pdtools {
         return value;
     }
 
-    bool double_nearly_eq(double a, double b, double epsilon);
+    bool double_nearly_eq(double value, double other, double epsilon);
 
-    bool is_number(const std::string &s);
+    bool is_number(const std::string &string_to_check);
 
     std::string generate_uuid();
 }; // namespace pdtools

@@ -62,7 +62,9 @@ void MainWindow::registerEventHandlers() {
         // User changed cell in UI
         auto old_content = document_->get_cell_raw_content(event.row, event.col);
 
-        if (old_content == event.content) return;
+        if (old_content == event.content) {
+            return;
+        }
 
         m_undoStack->push(
             new CellChangeCommand(document_, event.row, event.col, old_content, event.content)
@@ -128,11 +130,11 @@ void MainWindow::registerEventHandlers() {
     });
 
     on("ui:sheet_rename", [this]() {
-        const std::string s(getNewSheetName());
-        if (s.empty()) {
+        const std::string new_sheet_name(getNewSheetName());
+        if (new_sheet_name.empty()) {
             return;
         }
-        document_->rename_current_sheet(s);
+        document_->rename_current_sheet(new_sheet_name);
         EventDispatcher::dispatch("ui:sheet_list_update");
     });
 
@@ -169,13 +171,10 @@ void MainWindow::registerEventHandlers() {
 
 
         for (auto item: result) {
-            std::stringstream ss;
-            ss << item->cell;
-
             m_sidePanel->addSearchResult(
                 QString::fromStdString(item->complete_match),
                 QString::fromStdString(item->table_name),
-                QString::fromStdString(ss.str()),
+                QString::fromStdString(item->cell.to_string()),
                 item);
         }
     });
@@ -186,21 +185,21 @@ void MainWindow::registerEventHandlers() {
     });
 
     on<MacroErrorEvent>("model:macro-error", [this](const auto &event) {
-        std::stringstream ss;
-        ss << "Error in macro: \"" << event.macro << "\".\n"
+        std::stringstream message;
+        message << "Error in macro: \"" << event.macro << "\".\n"
         << "Message: " << event.message << ".\n\n"
         << "Please fix it.";
 
-        QMessageBox::warning(this, "Macro Error", QString::fromStdString(ss.str()));
+        QMessageBox::warning(this, "Macro Error", QString::fromStdString(message.str()));
     });
 
     on<MacroEditorErrorEvent>("ui:macro_editor_error", [this](const auto &event) {
-        std::stringstream ss;
-        ss << "Error in macro: \"" << event.macro << "\".\n"
+        std::stringstream message;
+        message << "Error in macro: \"" << event.macro << "\".\n"
         << "Message: " << event.message << ".\n\n"
         << "Please fix it.";
 
-        QMessageBox::warning(this, "Macro Error", QString::fromStdString(ss.str()));
+        QMessageBox::warning(this, "Macro Error", QString::fromStdString(message.str()));
     });
 }
 
@@ -365,8 +364,8 @@ void MainWindow::createCentralWidget() {
 
     // Column headers
     QStringList headers;
-    for (char c = 'A'; c <= 'Z'; ++c) {
-        headers << QString(c);
+    for (char header_label = 'A'; header_label <= 'Z'; ++header_label) {
+        headers << QString(header_label);
     }
     m_tableWidget->setHorizontalHeaderLabels(headers);
 
@@ -426,7 +425,7 @@ void MainWindow::updateSheetsList() const {
     m_listWidget->clear();
 
     for (size_t i = 0; i < document_->sheet_count(); i++) {
-        auto sheet = document_->sheet_by_index(i);
+        auto* const sheet = document_->sheet_by_index(i);
         m_listWidget->addItem(tr(sheet->name().c_str()));
     }
 
@@ -444,7 +443,7 @@ void MainWindow::createNewDocument() {
 void MainWindow::onCellSelectionChanged(const SelectedCellChangedEvent &cell_selection_changed_event) const {
     const auto &cell = cell_selection_changed_event.cell;
 
-    if (cell) {
+    if (cell != nullptr) {
         m_formulaBar->setCellReference(QString::fromStdString(cell->name_));
 
         if (cell->contains_formula()) {
@@ -581,13 +580,18 @@ void MainWindow::cut() {
     statusBar()->showMessage(tr("Successfully cut content."), 2000);
 }
 
-void MainWindow::copy() {
+void MainWindow::copy() const {
     auto selected = m_tableWidget->selectedItems();
-    if (selected.isEmpty()) return;
+    if (selected.isEmpty()) {
+        return;
+    }
 
     // Find bounding box of selection
-    int minRow = INT_MAX, maxRow = 0;
-    int minCol = INT_MAX, maxCol = 0;
+    int minRow = INT_MAX;
+    int maxRow = 0;
+    int minCol = INT_MAX;
+    int maxCol = 0;
+
     for (const auto *item: selected) {
         minRow = std::min(minRow, item->row());
         maxRow = std::max(maxRow, item->row());
@@ -599,10 +603,16 @@ void MainWindow::copy() {
     for (int row = minRow; row <= maxRow; ++row) {
         for (int col = minCol; col <= maxCol; ++col) {
             const auto *item = m_tableWidget->item(row, col);
-            result += item ? item->text() : "";
-            if (col < maxCol) result += "\t";
+            result += item != nullptr ? item->text() : "";
+
+            if (col < maxCol) {
+                result += "\t";
+            }
         }
-        if (row < maxRow) result += "\n";
+
+        if (row < maxRow) {
+            result += "\n";
+        }
     }
 
     QApplication::clipboard()->setText(result);
@@ -610,19 +620,21 @@ void MainWindow::copy() {
     statusBar()->showMessage(tr("Successfully copied cells."), 2000);
 }
 
-void MainWindow::paste() {
+void MainWindow::paste() const {
     QString text = QApplication::clipboard()->text();
-    if (text.isEmpty()) return;
+    if (text.isEmpty()) {
+        return;
+    }
 
     int startRow = m_tableWidget->currentRow();
     int startCol = m_tableWidget->currentColumn();
 
     QStringList rows = text.split("\n");
-    for (int r = 0; r < rows.size(); ++r) {
-        QStringList cols = rows[r].split("\t");
-        for (int c = 0; c < cols.size(); ++c) {
-            const int targetRow = startRow + r;
-            const int targetCol = startCol + c;
+    for (int row_index = 0; row_index < rows.size(); ++row_index) {
+        QStringList cols = rows[row_index].split("\t");
+        for (int col_index = 0; col_index < cols.size(); ++col_index) {
+            const int targetRow = startRow + row_index;
+            const int targetCol = startCol + col_index;
 
             // Grow table if required
             if (targetRow >= m_tableWidget->rowCount()) {
@@ -633,12 +645,12 @@ void MainWindow::paste() {
                 m_tableWidget->setColumnCount(targetCol + 1);
             }
 
-            if (!m_tableWidget->item(targetRow, targetCol)) {
+            if (m_tableWidget->item(targetRow, targetCol) == nullptr) {
                 m_tableWidget->setItem(targetRow, targetCol,
                                        new QTableWidgetItem());
             }
 
-            document_->set_cell_content(targetRow, targetCol, cols[c].toStdString());
+            document_->set_cell_content(targetRow, targetCol, cols[col_index].toStdString());
         }
     }
 
@@ -663,17 +675,18 @@ void MainWindow::about() {
 
 std::string MainWindow::getNewSheetName() {
     QListWidgetItem *item = m_listWidget->currentItem();
-    if (!item)
+    if (item == nullptr) {
         return "";
+}
 
-    bool ok;
+    bool dialog_result;
     QString newName = QInputDialog::getText(
         this,
-        tr("Rename Sheet"), // Titel
-        tr("New name:"), // Label
+        tr("Rename Sheet"), // title
+        tr("New name:"), // label
         QLineEdit::Normal,
         item->text(), // old name
-        &ok
+        &dialog_result
     );
 
     return newName.toStdString();
@@ -690,8 +703,8 @@ void MainWindow::updateCellSelectionByDocument() {
 }
 
 void MainWindow::onEvent(const std::string &name, const std::any &param) {
-    if (const auto it = m_handlers.find(name); it != m_handlers.end()) {
-        it->second(param);
+    if (const auto iterator = m_handlers.find(name); iterator != m_handlers.end()) {
+        iterator->second(param);
     } else {
         // log unknown flag
         qDebug() << "Attention. No handler for: " << QString::fromStdString(name);

@@ -46,9 +46,9 @@ private slots:
 
     void onSelectionChanged() const;
 
-    void onColumnResized(int logicalIndex, int oldSize, int newSize) const;
+    static void onColumnResized(int logicalIndex, int oldSize, int newSize);
 
-    void onRowResized(int logicalIndex, int oldSize, int newSize) const;
+    static void onRowResized(int logicalIndex, int oldSize, int newSize);
 
 private:
     bool internal_cell_update_flag_;

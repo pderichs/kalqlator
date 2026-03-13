@@ -75,7 +75,7 @@ namespace lisp {
 
     inline LispObjectPtr make_lambda(LispObjectPtr args, LispObjectPtr body, EnvironmentPtr env) {
         auto result = std::make_shared<LispObject>();
-        result->data = LambdaFunction{ std::move(args), std::move(body), std::move(env) };
+        result->data = LambdaFunction{ .args=std::move(args), .body=std::move(body), .env=std::move(env) };
         return result;
     }
 

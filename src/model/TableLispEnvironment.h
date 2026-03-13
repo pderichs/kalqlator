@@ -19,7 +19,7 @@
 #include "../lisp/DefaultEnvironment.h"
 #include "../tools/tools.h"
 
-typedef std::map<std::string, pdtools::StringSet> NameReferencesMap;
+using NameReferencesMap = std::map<std::string, pdtools::StringSet>;
 
 /**
  * This stores the cell values with their respective lisp values.
@@ -28,13 +28,11 @@ class TableLispEnvironment : public lisp::DefaultEnvironment {
 public:
     void initialize();
 
-    TableLispEnvironment();
-
-    ~TableLispEnvironment() override = default;
+    TableLispEnvironment() = default;
 
     void define(const std::string &name, lisp::LispObjectPtr value) override;
 
-    void remove_references(const std::string & name);
+    void remove_references(const std::string &name);
 
     void set(const std::string &name, const lisp::LispObjectPtr &value) override;
 
@@ -44,15 +42,18 @@ public:
     /**
      * This is called before function arguments are evaluated.
      *
-     * @param string Function name
+     * @param function_name Function name
      * @param args Function arguments about to be evaluated
      * @param context_param Context specific parameter from Evaluator
      */
-    void on_pre_function_eval_args(const std::string & string, const lisp::LispObjectPtr & args, const std::any &context_param) override;
+    void on_pre_function_eval_args(const std::string &function_name, const lisp::LispObjectPtr &args,
+                                   const std::any &context_param) override;
 
 private:
     void dfs(const std::string &cell, pdtools::StringSet &visited, pdtools::StringVector &result);
+
     pdtools::StringVector dependency_chain_in_topological_order(const std::string &cell);
+
     bool is_reachable(const std::string &start, const std::string &target);
 
     void signal_environment_update(const std::string &name, lisp::LispObjectPtr value);
@@ -78,4 +79,4 @@ private:
     bool initializing_;
 };
 
-typedef std::shared_ptr<TableLispEnvironment> TableLispEnvironmentPtr;
+using TableLispEnvironmentPtr = std::shared_ptr<TableLispEnvironment>;

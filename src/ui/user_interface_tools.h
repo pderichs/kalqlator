@@ -38,7 +38,7 @@ inline std::string get_cell_name_by_coordinates(size_t col, size_t row) {
 
     while (c > 0) {
         c--;  // adjust since A=0, not A=1
-        colName = char('A' + c % 26) + colName;
+        colName = char('A' + (c % 26)) + colName;
         c /= 26;
     }
 

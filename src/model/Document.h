@@ -16,7 +16,6 @@
 
 #pragma once
 
-#include <optional>
 #include <string>
 #include <vector>
 #include <memory>
@@ -27,12 +26,12 @@
 #include "triggers.h"
 #include "search/SearchResultItem.h"
 
-typedef std::vector<std::unique_ptr<Sheet>> SheetVector;
-typedef std::map<std::string, std::string> MacroMap;
+using SheetVector = std::vector<std::unique_ptr<Sheet>>;
+using MacroMap = std::map<std::string, std::string>;
 
 class Document : public SheetRegistry {
 public:
-    Document();
+    Document() = default;
 
     void initialize(bool add_initial_sheet = true);
 
@@ -46,7 +45,7 @@ public:
     void set_changed_flag(bool changed) { changed_ = changed; }
     [[nodiscard]] bool changed() const { return changed_; }
 
-    size_t add_sheet(std::string id, std::string name);
+    size_t add_sheet(std::string identifier, std::string name);
 
     void remove_sheet(size_t index);
 
@@ -55,7 +54,7 @@ public:
 
     [[nodiscard]] Sheet* get_sheet_by_name(const std::string &name) const;
 
-    [[nodiscard]] Sheet* get_sheet_by_id(const std::string &name) const;
+    [[nodiscard]] Sheet* get_sheet_by_id(const std::string &identifier) const;
 
     [[nodiscard]] size_t sheet_count() const {
         return sheets_.size();
@@ -63,12 +62,12 @@ public:
 
     [[nodiscard]] Sheet* current_sheet() const;
 
-    void set_cell_content(int row, int column, const std::string &string);
+    void set_cell_content(int row, int column, const std::string &content);
 
-    void update_all_cells();
+    void update_all_cells() const;
 
     void refresh_cells(const std::string &name, const lisp::LispObjectPtr &value,
-                       const pdtools::StringVector &dependencies);
+                       const pdtools::StringVector &dependencies) const;
 
     std::weak_ptr<SheetRegistry> get_sheet_registry_weak_ptr();
 
@@ -80,7 +79,7 @@ public:
 
     void rename_current_sheet(const std::string &name);
 
-    void set_selected_cells(const LocationSet &set);
+    void set_selected_cells(const LocationSet &selected_cells);
 
     void set_cell_content(Sheet* sheet, int row, int column, const std::string &content);
 
@@ -93,9 +92,9 @@ public:
     [[nodiscard]] LocationSet get_selected_cells() const;
 
 
-    void set_row_height(size_t row_index, size_t height);
+    void set_row_height(size_t row_index, size_t height) const;
 
-    void set_column_width(size_t column_index, size_t width);
+    void set_column_width(size_t column_index, size_t width) const;
 
     std::unordered_map<size_t, size_t> sheet_row_heights() const;
     std::unordered_map<size_t, size_t> sheet_column_widths() const;
@@ -138,11 +137,11 @@ public:
 private:
     std::string filename_;
     SheetVector sheets_;
-    size_t current_sheet_index_;
-    bool changed_;
+    size_t current_sheet_index_{0};
+    bool changed_{false};
 
     MacroMap macros_;
     std::unordered_map<std::string, lisp::LispObjectPtrVector> parsed_macro_cache_;
 };
 
-typedef std::shared_ptr<Document> DocumentPtr;
+using DocumentPtr = std::shared_ptr<Document>;

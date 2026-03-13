@@ -17,6 +17,7 @@
 #pragma once
 
 #include <QObject>
+
 #include "../src/lisp/types.h"
 #include "../src/lisp/object.h"
 #include "../src/lisp/tokenizer/lisp_tokenizer.h"
@@ -25,7 +26,7 @@
 namespace lisp {
     class TestBase: public QObject {
     protected:
-        LispObjectPtr parseString(const std::string &input) {
+        static LispObjectPtr parseString(const std::string &input) {
             Tokenizer tokenizer(input);
             LispTokens tokens = tokenizer.scan();
             Parser parser(tokens);
@@ -33,7 +34,7 @@ namespace lisp {
         }
 
         template<typename ExceptionType>
-        void expectParseError(const std::string &input) {
+        static void expectParseError(const std::string &input) {
             bool exceptionThrown = false;
             try {
                 parseString(input);

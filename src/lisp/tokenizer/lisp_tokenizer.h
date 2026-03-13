@@ -29,18 +29,21 @@ namespace lisp {
   class Tokenizer {
   public:
     explicit Tokenizer(std::string lisp);
+
     LispTokens scan();
 
   private:
+    bool digit_sequence_is_number();
+
     void read_comment();
 
-    static LispToken create_double_token(DoubleType d);
+    static LispToken create_double_token(DoubleType number);
 
-    static LispToken create_integer_token(Int64Type d);
+    static LispToken create_integer_token(Int64Type number);
 
-    static LispToken create_string_token(const std::string &s);
+    static LispToken create_string_token(const std::string &value);
 
-    static LispToken create_identifier_token(const std::string &s);
+    static LispToken create_identifier_token(const std::string &value);
 
     static LispToken create_open_bracket_token();
 
@@ -55,7 +58,7 @@ namespace lisp {
     bool walk();
     [[nodiscard]] char current_char() const;
 
-    char peek(int offset) const;
+    [[nodiscard]] char peek(int offset) const;
 
   private:
     std::string lisp_;

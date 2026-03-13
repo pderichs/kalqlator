@@ -26,8 +26,9 @@ public:
     static void registerSink(EventSink* sink) { instance() = sink; }
 
     static void dispatch(const std::string& name, std::any payload = {}) {
-        if (auto* sink = instance())
+        if (auto* sink = instance()) {
             sink->onEvent(name, std::move(payload));
+}
     }
 
 private:

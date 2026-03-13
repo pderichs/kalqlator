@@ -31,119 +31,121 @@ class LispParserTests : public TestBase {
 
 private slots:
     // === atoms ===
-    void atom_integer();
-    void atom_negative_integer();
-    void atom_double();
-    void atom_negative_double();
-    void atom_string();
-    void atom_string_with_spaces();
-    void atom_symbol();
-    void atom_nil();
-    void atom_true();
-    void empty_list_is_nil1();
-    void empty_list_is_nil2();
+    static void atom_integer();
+
+    static void atom_negative_integer();
+    static void atom_double();
+    static void atom_negative_double();
+    static void atom_string();
+    static void atom_string_with_spaces();
+    static void atom_symbol();
+    static void atom_nil();
+    static void atom_true();
+    static void empty_list_is_nil1();
+    static void empty_list_is_nil2();
 
     // === simple lists ===
-    void simple_list();
-    void empty_list();
-    void single_element_list();
+    static void simple_list();
+
+    static void empty_list();
+    static void single_element_list();
 
     // === nested lists ===
-    void nested_list();
-    void deeply_nested_list();
+    static void nested_list();
+    static void deeply_nested_list();
 
     // === quoted expressions ===
-    void quoted_symbol();
-    void quoted_list();
+    static void quoted_symbol();
+    static void quoted_list();
 
     // === edge cases ===
-    void whitespace_handling();
-    void multiple_spaces();
+    static void whitespace_handling();
+    static void multiple_spaces();
 
     // === complex expressions ===
-    void arithmetic_expression();
-    void function_call_with_nested_args();
-    void list_with_mixed_types();
+    static void arithmetic_expression();
+    static void function_call_with_nested_args();
+    static void list_with_mixed_types();
 
     // === error handling ===
-    void error_unmatched_open_paren();
-    void error_unmatched_close_paren();
-    void error_extra_close_paren();
-    void error_unterminated_string();
-    void error_empty_input();
-    void error_only_whitespace();
+    static void error_unmatched_open_paren();
+    static void error_unmatched_close_paren();
+    static void error_extra_close_paren();
+    static void error_unterminated_string();
+    static void error_empty_input();
+    static void error_only_whitespace();
 
     // === edge cases: numbers ===
-    void number_zero();
-    void number_negative_zero();
-    void number_leading_plus();
-    void number_very_large_integer();
-    void number_very_small_double();
-    void number_double_without_leading_digit();  // ".5"
-    void symbol_with_two_dots_at_the_start();
-    void number_double_without_trailing_digit(); // "5."
+    static void number_zero();
+    static void number_negative_zero();
+    static void number_leading_plus();
+    static void number_very_large_integer();
+    static void number_very_small_double();
+    static void number_double_without_leading_digit();  // ".5"
+    static void symbol_with_two_dots_at_the_start();
+    static void number_double_without_trailing_digit(); // "5."
 
     // === string edge cases ===
-    void string_empty();
-    void string_with_escaped_quote();
-    void string_with_newline();
-    void string_with_special_chars();
+    static void string_empty();
+    static void string_with_escaped_quote();
+    static void string_with_newline();
+    static void string_with_special_chars();
 
     // === symbol edge cases ===
-    void symbol_with_numbers();
-    void symbol_starting_with_number_like();
-    void symbol_special_chars();
-    void symbol_plus_minus_star_slash();
-    void symbol_question_mark();
-    void symbol_exclamation_mark();
-    void symbol_comparison_operators();
-    void symbol_uppercase();
-    void symbol_mixed_case();
+    static void symbol_with_numbers();
+    static void symbol_starting_with_number_like();
+    static void symbol_special_chars();
+    static void symbol_plus_minus_star_slash();
+    static void symbol_question_mark();
+    static void symbol_exclamation_mark();
+    static void symbol_comparison_operators();
+    static void symbol_uppercase();
+    static void symbol_mixed_case();
 
     // === dotted pairs ===
-    void dotted_pair_simple();
-    void dotted_pair_with_lists();
-    void improper_list();
-    void error_dot_at_start();
-    void error_dot_without_cdr();
-    void error_multiple_dots();
+    static void dotted_pair_simple();
+    static void dotted_pair_with_lists();
+    static void improper_list();
+    static void error_dot_at_start();
+    static void error_dot_without_cdr();
+    static void error_multiple_dots();
 
     // === multiple expressions ===
-    void multiple_top_level_atoms();
-    void multiple_top_level_atoms_parse_all();
+    static void multiple_top_level_atoms();
+    static void multiple_top_level_atoms_parse_all();
 
-    void multiple_top_level_lists();
+    static void multiple_top_level_lists();
 
-    void multiple_top_level_lists_parse_all();
+    static void multiple_top_level_lists_parse_all();
 
-    void parse_all_expressions();
+    static void parse_all_expressions();
 
-    void parse_all_expressions_parse_all();
+    static void parse_all_expressions_parse_all();
 
     // === quoting variants ===
-    void nested_quotes();
-    void quoted_empty_list();
-    void quoted_nil();
-    void quote_at_end_of_list();
+    static void nested_quotes();
+    static void quoted_empty_list();
+    static void quoted_nil();
+    static void quote_at_end_of_list();
 
     // === comments ===
-    void comment_line();
-    void comment_at_end_of_line();
-    void comment_between_expressions();
-    void comment_inside_list();
+    static void comment_line();
+    static void comment_at_end_of_line();
+    static void comment_between_expressions();
+    static void comment_inside_list();
 
     // === complex structures ===
-    void lambda_expression();
-    void let_binding();
-    void cond_expression();
-    void deeply_nested_arithmetic();
-    void list_of_lists();
+    static void lambda_expression();
+    static void let_binding();
+    static void cond_expression();
+    static void deeply_nested_arithmetic();
+    static void list_of_lists();
 
     // === boundary conditions ===
-    void very_long_list();
-    void very_deep_nesting();
-    void very_long_symbol();
-    void very_long_string();
+    static void very_long_list();
+    static void very_deep_nesting();
+    static void very_long_symbol();
+    static void very_long_string();
 };
 
 void LispParserTests::atom_integer() {
@@ -470,21 +472,21 @@ void LispParserTests::string_empty() {
 }
 
 void LispParserTests::string_with_escaped_quote() {
-    LispObjectPtr result = parseString("\"hello\\\"world\"");
+    LispObjectPtr result = parseString(R"("hello\"world")");
     QVERIFY(result);
     QVERIFY(result->is_string());
     QCOMPARE(result->as_string(), "hello\"world");
 }
 
 void LispParserTests::string_with_newline() {
-    LispObjectPtr result = parseString("\"line1\\nline2\"");
+    LispObjectPtr result = parseString(R"("line1\nline2")");
     QVERIFY(result);
     QVERIFY(result->is_string());
     QCOMPARE(result->as_string(), "line1\nline2");
 }
 
 void LispParserTests::string_with_special_chars() {
-    LispObjectPtr result = parseString("\"tab:\\there\\\\backslash\"");
+    LispObjectPtr result = parseString(R"("tab:\there\\backslash")");
     QVERIFY(result);
     QVERIFY(result->is_string());
     QCOMPARE(result->as_string(), "tab:\there\\backslash");
@@ -544,25 +546,25 @@ void LispParserTests::symbol_exclamation_mark() {
 }
 
 void LispParserTests::symbol_comparison_operators() {
-    LispObjectPtr lt = parseString("<");
-    QVERIFY(lt && lt->is_symbol());
-    QCOMPARE(lt->as_symbol_name(), "<");
+    LispObjectPtr lower_than = parseString("<");
+    QVERIFY(lower_than && lower_than->is_symbol());
+    QCOMPARE(lower_than->as_symbol_name(), "<");
 
-    LispObjectPtr lte = parseString("<=");
-    QVERIFY(lte && lte->is_symbol());
-    QCOMPARE(lte->as_symbol_name(), "<=");
+    LispObjectPtr lower_than_equal = parseString("<=");
+    QVERIFY(lower_than_equal && lower_than_equal->is_symbol());
+    QCOMPARE(lower_than_equal->as_symbol_name(), "<=");
 
-    LispObjectPtr gt = parseString(">");
-    QVERIFY(gt && gt->is_symbol());
-    QCOMPARE(gt->as_symbol_name(), ">");
+    LispObjectPtr greater_than = parseString(">");
+    QVERIFY(greater_than && greater_than->is_symbol());
+    QCOMPARE(greater_than->as_symbol_name(), ">");
 
-    LispObjectPtr gte = parseString(">=");
-    QVERIFY(gte && gte->is_symbol());
-    QCOMPARE(gte->as_symbol_name(), ">=");
+    LispObjectPtr greater_than_equal = parseString(">=");
+    QVERIFY(greater_than_equal && greater_than_equal->is_symbol());
+    QCOMPARE(greater_than_equal->as_symbol_name(), ">=");
 
-    LispObjectPtr eq = parseString("=");
-    QVERIFY(eq && eq->is_symbol());
-    QCOMPARE(eq->as_symbol_name(), "=");
+    LispObjectPtr equal = parseString("=");
+    QVERIFY(equal && equal->is_symbol());
+    QCOMPARE(equal->as_symbol_name(), "=");
 }
 
 void LispParserTests::symbol_uppercase() {
@@ -835,7 +837,7 @@ void LispParserTests::let_binding() {
 
 void LispParserTests::cond_expression() {
     LispObjectPtr result = parseString(
-        "(cond ((< x 0) \"negative\") ((> x 0) \"positive\") (t \"zero\"))");
+        R"((cond ((< x 0) "negative") ((> x 0) "positive") (t "zero")))");
     QVERIFY(result);
     QVERIFY(result->is_cons());
     QCOMPARE(result->car()->as_symbol_name(), "cond");

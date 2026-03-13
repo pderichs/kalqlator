@@ -22,99 +22,113 @@
 #include <iomanip>
 
 namespace pdtools {
-    std::string ltrim(const std::string& s) {
-        std::string result(s);
-        result.erase(0, s.find_first_not_of(" \t\n\r"));
+    static constexpr uint32_t UUID_MASK_32BIT    = 0xFFFFFFFF;
+    static constexpr uint32_t UUID_MASK_16BIT    = 0x0000FFFF;
+    static constexpr uint32_t UUID_MASK_12BIT    = 0x00000FFF;
+    static constexpr uint32_t UUID_MASK_14BIT    = 0x00003FFF;
+    static constexpr uint32_t UUID_VERSION4_BITS = 0x00004000;
+    static constexpr uint32_t UUID_VARIANT_BITS  = 0x00008000;
+
+    static constexpr int UUID_WIDTH_WORD  = 8; // 32-Bit-Segment
+    static constexpr int UUID_WIDTH_SHORT = 4; // 16-Bit-Segment
+
+    std::string ltrim(const std::string& string) {
+        std::string result(string);
+        result.erase(0, string.find_first_not_of(" \t\n\r"));
         return result;
     }
 
-    std::string rtrim(const std::string& s) {
-        std::string result(s);
-        result.erase(s.find_last_not_of(" \t\n\r") + 1);
+    std::string rtrim(const std::string& string) {
+        std::string result(string);
+        result.erase(string.find_last_not_of(" \t\n\r") + 1);
         return result;
     }
 
-    std::string trim(const std::string& s) {
-        std::string result(s);
+    std::string trim(const std::string& string) {
+        std::string result(string);
         ltrim(result);
         rtrim(result);
         return result;
     }
 
-    StringVector split(const std::string &s, char delim) {
+    StringVector split(const std::string &string, char delimiter) {
         StringVector result;
-        std::stringstream ss(s);
+        std::stringstream split_string(string);
 
         std::string part;
-        while (std::getline(ss, part, delim)) {
+        while (std::getline(split_string, part, delimiter)) {
             result.push_back(trim(part));
         }
 
         return result;
     }
 
-    std::string stringVectorToString(const StringVector &v) {
-        std::stringstream ss;
+    std::string stringVectorToString(const StringVector &strings) {
+        std::stringstream result;
 
-        std::for_each(v.begin(), v.end(),
-                      [&](const auto &item) { ss << item << ","; });
+        std::ranges::for_each(strings,
+                              [&](const auto &item) { result << item << ","; });
 
-        return ss.str();
+        return result.str();
     }
 
-    std::string intVectorToString(const IntVector &v) {
-        std::stringstream ss;
+    std::string intVectorToString(const IntVector &int_vector) {
+        std::stringstream result;
 
-        std::for_each(v.begin(), v.end(),
-                      [&](const auto &item) { ss << item << ","; });
+        std::ranges::for_each(int_vector,
+                              [&](const auto &item) { result << item << ","; });
 
-        return ss.str();
+        return result.str();
     }
 
-    std::string locationToString(const Location &l) {
+    std::string locationToString(const Location &location) {
         std::stringstream oss;
 
-        oss << "(x: " << l.x() << ", y: " << l.y() << ")";
+        oss << "(x: " << location.x() << ", y: " << location.y() << ")";
 
         return oss.str();
     }
 
     // Function to generate a random integer within a specified range [min, max]
-    int generate_random_int_in_range(int min, int max) {
-        std::random_device rd;
-        std::mt19937 gen(rd()); // Mersenne Twister random number generator
+    int generate_random_int_in_range(const int min, const int max) {
+        std::random_device random_device;
+        std::mt19937 gen(random_device()); // Mersenne Twister random number generator
         std::uniform_int_distribution<int> dist(min, max);
         return dist(gen);
     }
 
-    bool double_nearly_eq(double a, double b, double epsilon) {
-        return std::fabs(a - b) <= epsilon;
+    bool double_nearly_eq(double value, double other, double epsilon) {
+        return std::fabs(value - other) <= epsilon;
     }
 
-    bool is_number(const std::string& s) {
-        if (s.empty()) return false;
+    bool is_number(const std::string& string_to_check) {
+        if (string_to_check.empty()) {
+            return false;
+        }
 
         double value{};
-        auto [ptr, ec] = std::from_chars(s.data(),
-                                         s.data() + s.size(),
+        auto [ptr, ec] = std::from_chars(string_to_check.data(),
+                                         string_to_check.data() + string_to_check.size(),
                                          value);
 
-        return ec == std::errc{} && ptr == s.data() + s.size();
+        return ec == std::errc{} && ptr == string_to_check.data() + string_to_check.size();
     }
 
     std::string generate_uuid() {
-        std::random_device rd;
-        std::mt19937 gen(rd());
-        std::uniform_int_distribution<uint32_t> dis(0, 0xFFFFFFFF);
+        std::random_device random_device;
+        std::mt19937 gen(random_device());
 
-        std::ostringstream oss;
-        oss << std::hex << std::setfill('0')
-            << std::setw(8) << dis(gen) << "-"
-            << std::setw(4) << (dis(gen) & 0xFFFF) << "-"
-            << std::setw(4) << ((dis(gen) & 0x0FFF) | 0x4000) << "-"
-            << std::setw(4) << ((dis(gen) & 0x3FFF) | 0x8000) << "-"
-            << std::setw(8) << dis(gen)
-            << std::setw(4) << (dis(gen) & 0xFFFF);
-        return oss.str();
+        std::uniform_int_distribution<uint32_t> dis(0, UUID_MASK_32BIT);
+        std::ostringstream result;
+
+        result << std::hex << std::setfill('0')
+            << std::setw(UUID_WIDTH_WORD)  << dis(gen) << "-"
+            << std::setw(UUID_WIDTH_SHORT) << (dis(gen) & UUID_MASK_16BIT) << "-"
+            << std::setw(UUID_WIDTH_SHORT) << ((dis(gen) & UUID_MASK_12BIT) | UUID_VERSION4_BITS) << "-"
+            << std::setw(UUID_WIDTH_SHORT) << ((dis(gen) & UUID_MASK_14BIT) | UUID_VARIANT_BITS)  << "-"
+            << std::setw(UUID_WIDTH_WORD)  << dis(gen)
+            << std::setw(UUID_WIDTH_SHORT) << (dis(gen) & UUID_MASK_16BIT);
+
+        return result.str();
     }
 }; // namespace pdtools

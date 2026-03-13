@@ -78,11 +78,11 @@ void KalqSidePanel::onSearchClicked() {
     }
 }
 
-void KalqSidePanel::onItemDoubleClicked(QTreeWidgetItem *item, int) {
+void KalqSidePanel::onItemDoubleClicked(QTreeWidgetItem *item, int /*unused*/) {
     const auto search_result = item->data(0, Qt::UserRole).value<SearchResultItemPtr>();
     if (search_result) {
         EventDispatcher::dispatch("ui:select_sheet_and_cell",
-                                  SelectSheetAndCellEvent{search_result->table_name, search_result->cell});
+                                  SelectSheetAndCellEvent{.table_name=search_result->table_name, .cell_location=search_result->cell});
     }
 }
 

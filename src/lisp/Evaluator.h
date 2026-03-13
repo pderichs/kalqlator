@@ -33,14 +33,14 @@ namespace lisp {
                                                                        context_param_(std::move(context_param)) {
         }
 
-        LispObjectPtr evaluate_object(const LispObjectPtr &shared);
+        LispObjectPtr evaluate_object(const LispObjectPtr &obj);
 
         LispObjectPtr evaluate(const LispObjectPtrVector &objects);
 
     private:
         LispObjectPtr evaluate_list(const LispObjectPtr &list);
 
-        LispObjectPtr call_lambda(const LambdaFunction &lambda_function, const LispObjectPtr &cdr);
+        LispObjectPtr call_lambda(const LambdaFunction &lambda_function, const LispObjectPtr &args);
 
         LispObjectPtr eval_function(const LispObjectPtr &list);
 

@@ -28,7 +28,7 @@ namespace lisp {
             , unknownSymbol_(unknownSymbol)
         {}
 
-        const std::string& symbol() const noexcept { return unknownSymbol_; }
+        [[nodiscard]] const std::string& symbol() const noexcept { return unknownSymbol_; }
 
     private:
         std::string unknownSymbol_;

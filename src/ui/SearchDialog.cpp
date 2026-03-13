@@ -95,8 +95,9 @@ void SearchDialog::setupConnections() {
 
 void SearchDialog::onUseRegexToggled(bool checked) {
     m_caseSensitiveCheck->setEnabled(!checked);
-    if (checked)
+    if (checked) {
         m_caseSensitiveCheck->setChecked(false);
+}
 }
 
 void SearchDialog::applyOptions(const SearchOptions &options) {

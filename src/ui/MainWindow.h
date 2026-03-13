@@ -51,7 +51,7 @@ public:
 
     void updateCellSelectionByDocument();
 
-    void onEvent(const std::string &name, const std::any& payload) override;
+    void onEvent(const std::string &name, const std::any& param) override;
 
 protected:
     bool hasUnsavedChanges() const;
@@ -64,8 +64,8 @@ private slots:
     void openFile();
     void saveFile();
     void cut();
-    void copy();
-    void paste();
+    void copy() const;
+    void paste() const;
 
     void openMacroEditor();
 

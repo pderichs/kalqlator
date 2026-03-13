@@ -26,20 +26,20 @@ using namespace lisp;
 class LispQuoteTests : public TestBase {
     Q_OBJECT
 private slots:
-    void setq_lambda();
-    void setq_int();
-    void setq_string();
-    void setq_list();
-    void setq_nil();
-    void setq_overwrite();
-    void setq_expression_result();
-    void setq_nested_reference();
-    void setq_returns_value();
-    void setq_symbol_reference();
+    static void setq_lambda();
+    static void setq_int();
+    static void setq_string();
+    static void setq_list();
+    static void setq_nil();
+    static void setq_overwrite();
+    static void setq_expression_result();
+    static void setq_nested_reference();
+    static void setq_returns_value();
+    static void setq_symbol_reference();
 };
 
 void LispQuoteTests::setq_lambda() {
-    LispObjectPtrVector lisp = parse_all_string("(setq my-func (lambda (x y) (eql x y))) (my-func \"a\" \"a\")");
+    LispObjectPtrVector lisp = parse_all_string(R"((setq my-func (lambda (x y) (eql x y))) (my-func "a" "a"))");
     EnvironmentPtr env = std::make_shared<DefaultEnvironment>();
     Evaluator evaluator(env, {});
     auto result = evaluator.evaluate(lisp);

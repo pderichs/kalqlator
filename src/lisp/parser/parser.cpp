@@ -120,9 +120,9 @@ LispObjectPtrVector Parser::parse_all() const {
     return top;
 }
 
-std::optional<size_t> Parser::find_dot_position(const LispObjectPtrVector &elements) {
+std::optional<size_t> Parser::find_dot_position(const LispObjectPtrVector &vector) {
     size_t pos = 0;
-    for (auto const &element: elements) {
+    for (auto const &element: vector) {
         if (element->is_symbol() && element->as_symbol_name() == ".") {
             return pos;
         }
@@ -148,15 +148,15 @@ LispObjectPtr Parser::build_dotted_list(const LispObjectPtrVector &vector, unsig
     LispObjectPtr tail = right.back();
 
     LispObjectPtr result = tail;
-    for (auto &it: std::ranges::reverse_view(left)) {
-        result = make_cons(it, result);
+    for (auto &iterator: std::ranges::reverse_view(left)) {
+        result = make_cons(iterator, result);
     }
 
     return result;
 }
 
-LispObjectPtr Parser::vector_to_cons(const LispObjectPtrVector &elements) {
-    if (elements.empty()) {
+LispObjectPtr Parser::vector_to_cons(const LispObjectPtrVector &vector) {
+    if (vector.empty()) {
         return make_nil();
     }
 
@@ -164,17 +164,17 @@ LispObjectPtr Parser::vector_to_cons(const LispObjectPtrVector &elements) {
 
     // If there is a dot we need to provide a cons cell with the two accompanying elements.
     // First check if we have this situation:
-    auto dot_position = find_dot_position(elements);
+    auto dot_position = find_dot_position(vector);
     if (dot_position == std::nullopt) {
-        for (const auto &element: std::ranges::reverse_view(elements)) {
+        for (const auto &element: std::ranges::reverse_view(vector)) {
             result = make_cons(element, result);
         }
     } else {
-        if (*dot_position != elements.size() - 2) {
+        if (*dot_position != vector.size() - 2) {
             throw LispParserError("Malformed dotted pair");
         }
 
-        result = build_dotted_list(elements, *dot_position);
+        result = build_dotted_list(vector, *dot_position);
     }
 
     return result;
@@ -183,12 +183,12 @@ LispObjectPtr Parser::vector_to_cons(const LispObjectPtrVector &elements) {
 LispTokens Parser::read_expression(size_t current_token_pos, size_t *ignore_token_count) const {
     LispTokens result;
 
-    size_t i = current_token_pos;
+    size_t pos_iterator = current_token_pos;
     bool exit = false;
     size_t in_list = 0;
 
-    while (!exit && i < _tokens.size()) {
-        const LispToken token = _tokens.at(i);
+    while (!exit && pos_iterator < _tokens.size()) {
+        const LispToken token = _tokens.at(pos_iterator);
 
         switch (token.id) {
             case SPACE:
@@ -196,7 +196,7 @@ LispTokens Parser::read_expression(size_t current_token_pos, size_t *ignore_toke
                     exit = true;
                 } else {
                     // Ignore
-                    i++;
+                    pos_iterator++;
                     continue;
                 }
                 break;
@@ -230,10 +230,10 @@ LispTokens Parser::read_expression(size_t current_token_pos, size_t *ignore_toke
                 break;
         }
 
-        i++;
+        pos_iterator++;
     }
 
-    *ignore_token_count = i - current_token_pos;
+    *ignore_token_count = pos_iterator - current_token_pos;
 
     return result;
 }

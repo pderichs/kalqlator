@@ -44,7 +44,7 @@ const lisp::NativeFn FnTableCell = lisp::NativeFn{
 
         const auto &context = std::any_cast<TableContext>(context_param);
 
-        const auto sheet = context.sheet_registry->sheet_by_name(table_ref);
+        auto *const sheet = context.sheet_registry->sheet_by_name(table_ref);
         const auto &cell_symbol = cell_ref->as_string();
         const auto &env = sheet->environment();
         if (!env->is_defined(cell_symbol)) {

@@ -26,12 +26,17 @@ using namespace lisp;
 class LispPrognTests : public TestBase {
     Q_OBJECT
 private slots:
-    void progn_empty();
-    void progn_single_expression();
-    void progn_multiple_expressions();
-    void progn_returns_last();
-    void progn_nested();
-    void progn_with_arithmetic();
+    static void progn_empty();
+
+    static void progn_single_expression();
+
+    static void progn_multiple_expressions();
+
+    static void progn_returns_last();
+
+    static void progn_nested();
+
+    static void progn_with_arithmetic();
 };
 
 void LispPrognTests::progn_empty() {

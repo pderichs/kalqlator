@@ -29,7 +29,7 @@
 
 struct SearchOptions;
 class SheetRegistry;
-typedef std::map<Location, std::unique_ptr<Cell>> CellMap;
+using CellMap = std::map<Location, std::unique_ptr<Cell>>;
 
 struct FormulaResult {
     lisp::LispTokens tokens;
@@ -39,7 +39,7 @@ struct FormulaResult {
 
 class Sheet {
 public:
-    explicit Sheet(std::string id, std::string name, SheetRegistry *sheet_registry);
+    explicit Sheet(std::string identifier, std::string name, SheetRegistry *sheet_registry);
 
     [[nodiscard]] std::string name() { return name_; }
 

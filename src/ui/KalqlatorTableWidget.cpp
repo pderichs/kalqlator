@@ -44,7 +44,7 @@ KalqlatorTableWidget::KalqlatorTableWidget(int rows, int cols, QWidget *parent) 
             this, &KalqlatorTableWidget::onSelectionChanged);
 
     connect(horizontalHeader(), &QHeaderView::sectionResized,
-        this, &KalqlatorTableWidget::onColumnResized);
+            this, &KalqlatorTableWidget::onColumnResized);
 
     connect(verticalHeader(), &QHeaderView::sectionResized,
             this, &KalqlatorTableWidget::onRowResized);
@@ -52,7 +52,7 @@ KalqlatorTableWidget::KalqlatorTableWidget(int rows, int cols, QWidget *parent) 
 
 QTableWidgetItem *KalqlatorTableWidget::query_item_or_create(int row, int col) {
     QTableWidgetItem *item = this->item(row, col);
-    if (!item) {
+    if (item == nullptr) {
         item = new QTableWidgetItem();
         setItem(row, col, item);
     }
@@ -61,8 +61,9 @@ QTableWidgetItem *KalqlatorTableWidget::query_item_or_create(int row, int col) {
 }
 
 // Handling cell update from model
-void KalqlatorTableWidget::update_cell(Cell* cell) {
-    FlagScope fs(&internal_cell_update_flag_);
+void KalqlatorTableWidget::update_cell(Cell *cell) {
+    FlagScope cell_update_flag_scope(&internal_cell_update_flag_);
+
     QTableWidgetItem *item = this->query_item_or_create(cell->row_, cell->column_);
     if (cell->has_errors()) {
         item->setData(Qt::DisplayRole, QString::fromStdString(cell->visible_content_));
@@ -100,7 +101,7 @@ void KalqlatorTableWidget::setSelectedCells(const LocationSet &selected_cells, c
             continue;
         }
 
-        if (!item(loc.row(), loc.column())) {
+        if (item(loc.row(), loc.column()) == nullptr) {
             setItem(loc.row(), loc.column(), new QTableWidgetItem());
         }
 
@@ -135,12 +136,15 @@ void KalqlatorTableWidget::onCellChanged(int row, int col) const {
     }
 
     const auto *cell = item(row, col);
-    if (!cell) return;
+    if (cell == nullptr) {
+        return;
+    }
 
     const QString text = cell->data(FormulaRole).toString();
 
     EventDispatcher::dispatch("ui:cell_changed",
-                              CellChangedEvent{{row, col}, text.toStdString()});
+                              CellChangedEvent{CellEvent{.row = row, .col = col}, text.toStdString()}
+    );
 }
 
 void KalqlatorTableWidget::onSelectionChanged() const {
@@ -158,15 +162,20 @@ void KalqlatorTableWidget::onSelectionChanged() const {
 
     const Location current_cell(col, row);
 
-    EventDispatcher::dispatch("ui:cell_selection_changed", SelectionChangedEvent{selected_cells, current_cell});
+    EventDispatcher::dispatch("ui:cell_selection_changed",
+                              SelectionChangedEvent{.selection = selected_cells, .current_cell = current_cell});
 }
 
-void KalqlatorTableWidget::onColumnResized(int logicalIndex, int oldSize, int newSize) const {
-    EventDispatcher::dispatch("ui:column_resized", TablePropertyResizedEvent{logicalIndex, oldSize, newSize});
+void KalqlatorTableWidget::onColumnResized(int logicalIndex, int oldSize, int newSize) {
+    EventDispatcher::dispatch("ui:column_resized", TablePropertyResizedEvent{
+                                  .logical_index = logicalIndex, .old_size = oldSize, .new_size = newSize
+                              });
 }
 
-void KalqlatorTableWidget::onRowResized(int logicalIndex, int oldSize, int newSize) const {
-    EventDispatcher::dispatch("ui:row_resized", TablePropertyResizedEvent{logicalIndex, oldSize, newSize});
+void KalqlatorTableWidget::onRowResized(int logicalIndex, int oldSize, int newSize) {
+    EventDispatcher::dispatch("ui:row_resized", TablePropertyResizedEvent{
+                                  .logical_index = logicalIndex, .old_size = oldSize, .new_size = newSize
+                              });
 }
 
 void KalqlatorTableWidget::clearAndResetSizes() {

@@ -19,11 +19,11 @@
 #include <memory>
 
 namespace lisp {
-    typedef double DoubleType;
-    typedef int64_t Int64Type;
+    using DoubleType = double;
+    using Int64Type = int64_t;
 
     struct LispObject;
-    typedef std::shared_ptr<LispObject> LispObjectPtr;
+    using LispObjectPtr = std::shared_ptr<LispObject>;
 
 }
 

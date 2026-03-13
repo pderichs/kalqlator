@@ -16,6 +16,7 @@
 
 #include "TableLispEnvironment.h"
 
+#include <algorithm>
 #include <ranges>
 #include <unordered_set>
 #include <utility>
@@ -31,12 +32,8 @@
 #include "../tools/FlagScope.h"
 #include "functions/TableCell.h"
 
-
-TableLispEnvironment::TableLispEnvironment(): initializing_(false) {
-}
-
 void TableLispEnvironment::initialize() {
-    FlagScope i(&initializing_);
+    FlagScope initializing_scope(&initializing_);
 
     // Define all cells as environment vars
     for (const char col : std::views::iota('A', 'Z' + 1)) {
@@ -76,7 +73,7 @@ pdtools::StringVector TableLispEnvironment::dependency_chain_in_topological_orde
         dfs(ref, visited, result);
     }
 
-    std::reverse(result.begin(), result.end());
+    std::ranges::reverse(result);
 
     return result;
 }
@@ -89,7 +86,7 @@ void TableLispEnvironment::signal_environment_update(const std::string &name, li
     const pdtools::StringVector dependencies = dependency_chain_in_topological_order(name);
 
     EventDispatcher::dispatch("model:table_environment_update",
-                              TableEnvironmentUpdateEvent { name, std::move(value), dependencies });
+                              TableEnvironmentUpdateEvent { .name=name, .value=std::move(value), .dependencies_in_topological_order=dependencies });
 }
 
 void TableLispEnvironment::define(const std::string &name, lisp::LispObjectPtr value) {
@@ -122,8 +119,10 @@ bool TableLispEnvironment::is_reachable(const std::string &start, const std::str
 
     while (!stack.empty()) {
         auto current = stack.top(); stack.pop();
-        if (current == target) return true;
-        if (visited.contains(current)) continue;
+        if (current == target) { return true;
+}
+        if (visited.contains(current)) { continue;
+}
         visited.insert(current);
         for (const auto &neighbor : references_[current]) {
             stack.push(neighbor);
@@ -142,7 +141,7 @@ void TableLispEnvironment::update_references(const std::string &from_cell, const
     referenced_by_[to_cell].insert(from_cell);
 }
 
-void TableLispEnvironment::on_pre_function_eval_args(const std::string &function_name, const lisp::LispObjectPtr &args, const std::any &context_param) {
+void TableLispEnvironment::on_pre_function_eval_args(const std::string & function_name, const lisp::LispObjectPtr & args, const std::any &context_param) {
     // TODO: Simple symbols are somewhat functional as well - but only with the cell function we
     // support an updatable reference for now. Can be changed if required in future.
     // TODO: Evaluate: Auto update of "table_cell" function as well. Not required atm though - tables are

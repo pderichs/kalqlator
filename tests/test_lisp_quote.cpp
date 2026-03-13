@@ -27,8 +27,8 @@ using namespace lisp;
 class LispQuoteTests : public TestBase {
     Q_OBJECT
 private slots:
-    void quote_symbol();
-    void quote_list();
+    static void quote_symbol();
+    static void quote_list();
 };
 
 void LispQuoteTests::quote_symbol() {

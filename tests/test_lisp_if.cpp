@@ -26,21 +26,21 @@ using namespace lisp;
 class LispIfTests : public TestBase {
     Q_OBJECT
 private slots:
-    void if1();
-    void if2();
-    void if3();
-    void if_true_literal();
-    void if_false_literal();
-    void if_nil_is_false();
-    void if_zero_is_true();
-    void if_empty_string_is_true();
-    void if_list_is_true();
-    void if_nested();
-    void if_evaluates_only_then_branch();
-    void if_evaluates_only_else_branch();
-    void if_with_expression_condition();
-    void if_with_complex_branches();
-    void if_returns_expression_result();
+    static void if1();
+    static void if2();
+    static void if3();
+    static void if_true_literal();
+    static void if_false_literal();
+    static void if_nil_is_false();
+    static void if_zero_is_true();
+    static void if_empty_string_is_true();
+    static void if_list_is_true();
+    static void if_nested();
+    static void if_evaluates_only_then_branch();
+    static void if_evaluates_only_else_branch();
+    static void if_with_expression_condition();
+    static void if_with_complex_branches();
+    static void if_returns_expression_result();
 };
 
 void LispIfTests::if1() {
@@ -70,7 +70,7 @@ void LispIfTests::if3() {
 }
 
 void LispIfTests::if_true_literal() {
-    LispObjectPtrVector lisp = parse_all_string("(if t \"yes\" \"no\")");
+    LispObjectPtrVector lisp = parse_all_string(R"((if t "yes" "no"))");
     EnvironmentPtr env = std::make_shared<DefaultEnvironment>();
     Evaluator evaluator(env, {});
     auto result = evaluator.evaluate(lisp);
@@ -80,7 +80,7 @@ void LispIfTests::if_true_literal() {
 
 void LispIfTests::if_false_literal() {
     // In Common Lisp gibt es kein false-Literal, nur nil
-    LispObjectPtrVector lisp = parse_all_string("(if nil \"yes\" \"no\")");
+    LispObjectPtrVector lisp = parse_all_string(R"((if nil "yes" "no"))");
     EnvironmentPtr env = std::make_shared<DefaultEnvironment>();
     Evaluator evaluator(env, {});
     auto result = evaluator.evaluate(lisp);
@@ -99,7 +99,7 @@ void LispIfTests::if_nil_is_false() {
 }
 
 void LispIfTests::if_zero_is_true() {
-    LispObjectPtrVector lisp = parse_all_string("(if 0 \"truthy\" \"falsy\")");
+    LispObjectPtrVector lisp = parse_all_string(R"((if 0 "truthy" "falsy"))");
     EnvironmentPtr env = std::make_shared<DefaultEnvironment>();
     Evaluator evaluator(env, {});
     auto result = evaluator.evaluate(lisp);
@@ -109,7 +109,7 @@ void LispIfTests::if_zero_is_true() {
 
 void LispIfTests::if_empty_string_is_true() {
     // Leerer String ist truthy in Lisp
-    LispObjectPtrVector lisp = parse_all_string("(if \"\" \"truthy\" \"falsy\")");
+    LispObjectPtrVector lisp = parse_all_string(R"((if "" "truthy" "falsy"))");
     EnvironmentPtr env = std::make_shared<DefaultEnvironment>();
     Evaluator evaluator(env, {});
     auto result = evaluator.evaluate(lisp);
@@ -119,7 +119,7 @@ void LispIfTests::if_empty_string_is_true() {
 
 void LispIfTests::if_list_is_true() {
     // Nicht-leere Liste ist truthy
-    LispObjectPtrVector lisp = parse_all_string("(if '(1 2 3) \"truthy\" \"falsy\")");
+    LispObjectPtrVector lisp = parse_all_string(R"((if '(1 2 3) "truthy" "falsy"))");
     EnvironmentPtr env = std::make_shared<DefaultEnvironment>();
     Evaluator evaluator(env, {});
     auto result = evaluator.evaluate(lisp);
@@ -158,7 +158,7 @@ void LispIfTests::if_evaluates_only_else_branch() {
 }
 
 void LispIfTests::if_with_expression_condition() {
-    LispObjectPtrVector lisp = parse_all_string("(if (> 5 3) \"greater\" \"smaller\")");
+    LispObjectPtrVector lisp = parse_all_string(R"((if (> 5 3) "greater" "smaller"))");
     EnvironmentPtr env = std::make_shared<DefaultEnvironment>();
     Evaluator evaluator(env, {});
     auto result = evaluator.evaluate(lisp);

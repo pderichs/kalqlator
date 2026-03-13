@@ -26,7 +26,7 @@
 
 struct Cell;
 
-typedef std::vector<Cell*> CellVector;
+using CellVector = std::vector<Cell *>;
 
 struct Cell {
     explicit Cell(const int row, const int column, std::string name) : row_(row), column_(column), name_(std::move(name)) {

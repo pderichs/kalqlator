@@ -6,6 +6,8 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
+set(CMAKE_CXX_CLANG_TIDY "clang-tidy;--warnings-as-errors='*'")
+
 enable_testing()
 add_subdirectory(tests)
 

@@ -16,6 +16,7 @@
 
 #include "Sheet.h"
 
+#include <algorithm>
 #include <iomanip>
 #include <QDebug>
 
@@ -32,7 +33,7 @@
 #include "../tools/tools.h"
 #include "search/SearchOptions.h"
 
-Sheet::Sheet(std::string id, std::string name, SheetRegistry *sheet_registry) : id_(std::move(id)),
+Sheet::Sheet(std::string identifier, std::string name, SheetRegistry *sheet_registry) : id_(std::move(identifier)),
     name_(std::move(name)), sheet_registry_(sheet_registry) {
     table_lisp_environment_ = std::make_shared<TableLispEnvironment>();
     table_lisp_environment_->initialize();
@@ -41,20 +42,20 @@ Sheet::Sheet(std::string id, std::string name, SheetRegistry *sheet_registry) : 
     selected_cells_.insert(current_selected_cell_);
 }
 
-Cell* Sheet::get_cell(const Location &location) {
-    const auto it = cells_.find(location);
-    if (it != cells_.end()) {
-        return it->second.get();
+Cell *Sheet::get_cell(const Location &location) {
+    const auto iterator = cells_.find(location);
+    if (iterator != cells_.end()) {
+        return iterator->second.get();
     }
 
     return nullptr;
 }
 
-Cell* Sheet::get_cell(int row, int column) {
+Cell *Sheet::get_cell(int row, int column) {
     return get_cell(Location(column, row));
 }
 
-Cell* Sheet::get_cell_by_name(const std::string &name) {
+Cell *Sheet::get_cell_by_name(const std::string &name) {
     const auto &location = get_cell_location_by_name(name);
     return get_cell(location);
 }
@@ -65,19 +66,15 @@ Location Sheet::get_max_cell_locations() const {
     int max_y = 0;
 
     for (const auto &item: cells_) {
-        if (item.second->column_ > max_x) {
-            max_x = item.second->column_;
-        }
+        max_x = std::max(item.second->column_, max_x);
 
-        if (item.second->row_ > max_y) {
-            max_y = item.second->row_;
-        }
+        max_y = std::max(item.second->row_, max_y);
     }
 
     return Location(max_x, max_y);
 }
 
-void Sheet::run_macros_by_trigger(const std::string &, const lisp::LispObjectPtrVector &lisp) {
+void Sheet::run_macros_by_trigger(const std::string & /*unused*/, const lisp::LispObjectPtrVector &lisp) {
     lisp::Evaluator evaluator(table_lisp_environment_, {});
     auto result = evaluator.evaluate(lisp);
 }
@@ -102,10 +99,10 @@ bool Sheet::field_matches_search(const SearchOptions &options, const std::string
 
     if (!options.caseSensitive) {
         std::ranges::transform(content, content.begin(),
-                               [](unsigned char c) { return std::toupper(c); });
+                               [](unsigned char character) { return std::toupper(character); });
 
         std::ranges::transform(search_text, search_text.begin(),
-                               [](unsigned char c) { return std::toupper(c); });
+                               [](unsigned char character) { return std::toupper(character); });
     }
 
     if (content.find(search_text) != std::string::npos) {
@@ -116,7 +113,7 @@ bool Sheet::field_matches_search(const SearchOptions &options, const std::string
     return false;
 }
 
-bool Sheet::matches_search(const SearchOptions &options, const Cell* cell, std::string *out_complete_match) {
+bool Sheet::matches_search(const SearchOptions &options, const Cell *cell, std::string *out_complete_match) {
     bool match = false;
 
     // TODO Refactor to own class.
@@ -139,7 +136,7 @@ SearchResultItems Sheet::search(const SearchOptions &options) const {
 
     for (const auto &cell_item: cells_) {
         const auto &location = cell_item.first;
-        const auto cell = cell_item.second.get();
+        auto *const cell = cell_item.second.get();
 
         std::string complete_match;
         if (matches_search(options, cell, &complete_match)) {
@@ -162,20 +159,21 @@ FormulaResult Sheet::evaluate_formula(const std::string &formula_text,
     auto tokens = tokenizer.scan();
     lisp::Parser parser(tokens);
     auto formula = parser.parse_all();
-    lisp::Evaluator evaluator(env, TableContext{cell_name, sheet_registry_});
+    lisp::Evaluator evaluator(env, TableContext{.source_cell = cell_name, .sheet_registry = sheet_registry_});
     auto result = evaluator.evaluate(formula);
 
-    return {std::move(tokens), std::move(formula), std::move(result)};
+    return {.tokens = std::move(tokens), .formula = std::move(formula), .result = std::move(result)};
 }
 
-Cell* Sheet::create_cell_model(const Location& location) {
-    cells_[location] = std::make_unique<Cell>(location.row(), location.column(), get_cell_name_by_coordinates(location));
+Cell *Sheet::create_cell_model(const Location &location) {
+    cells_[location] = std::make_unique<
+        Cell>(location.row(), location.column(), get_cell_name_by_coordinates(location));
     return cells_[location].get();
 }
 
 Cell *Sheet::get_or_create_cell_by_pos(int row, int column) {
-    auto cell = get_cell(row, column);
-    if (!cell) {
+    auto *cell = get_cell(row, column);
+    if (cell == nullptr) {
         auto location = Location(column, row);
         return create_cell_model(location);
     }
@@ -184,7 +182,7 @@ Cell *Sheet::get_or_create_cell_by_pos(int row, int column) {
 }
 
 
-void Sheet::refresh_cell(Cell* cell) const {
+void Sheet::refresh_cell(Cell *cell) const {
     const std::string content = cell->raw_content_;
     const bool is_func = is_function(content);
     const std::string formula_text = is_func ? content.substr(1) : content;
@@ -201,7 +199,7 @@ void Sheet::update_cell_contents(
     const std::string &content,
     const bool is_func,
     FormulaResult evaluation,
-    Cell* cell_p) {
+    Cell *cell_p) {
     cell_p->raw_content_ = content;
     cell_p->tokens_ = std::move(evaluation.tokens);
     cell_p->formula_ = std::move(evaluation.formula);
@@ -217,7 +215,7 @@ void Sheet::update_all_cells() {
     });
 }
 
-void Sheet::refresh_cells(const std::string &name, const lisp::LispObjectPtr &,
+void Sheet::refresh_cells(const std::string &name, const lisp::LispObjectPtr & /*unused*/,
                           const pdtools::StringVector &dependencies) {
     std::vector<CellUpdateDoneEvent> events;
 
@@ -227,16 +225,16 @@ void Sheet::refresh_cells(const std::string &name, const lisp::LispObjectPtr &,
         }
 
         auto location = get_cell_location_by_name(dependency_cell_name);
-        auto cell = get_cell(location.y(), location.x());
-        if (cell) {
+        auto *cell = get_cell(location.y(), location.x());
+        if (cell != nullptr) {
             refresh_cell(cell);
 
-            events.push_back(CellUpdateDoneEvent{{cell->row_, cell->column_}, cell});
+            events.push_back(CellUpdateDoneEvent{{.row = cell->row_, .col = cell->column_}, cell});
         }
     }
 
-    for (const auto &e: events) {
-        EventDispatcher::dispatch("model:cell_update_done", e);
+    for (const auto &event: events) {
+        EventDispatcher::dispatch("model:cell_update_done", event);
     }
 }
 
@@ -262,7 +260,7 @@ void Sheet::update_cell(int row, int column, const std::string &cell_name, const
 
     const std::string formula_text = modify_user_entry(content, is_func, is_number);
 
-    Cell* cell_p = get_or_create_cell_by_pos(row, column);
+    Cell *cell_p = get_or_create_cell_by_pos(row, column);
 
     try {
         cell_p->clear_errors();
@@ -274,28 +272,32 @@ void Sheet::update_cell(int row, int column, const std::string &cell_name, const
         update_cell_contents(content, is_func, evaluation, cell_p);
         table_lisp_environment_->define(cell_name, evaluation.result);
     } catch (const CircularReferenceError &circular_reference_error) {
-        cell_p->add_error(CellError{ERROR_CIRCREF, circular_reference_error.what()});
+        cell_p->add_error(CellError{.error_type = ERROR_CIRCREF, .message = circular_reference_error.what()});
         cell_p->raw_formula_ = "";
         cell_p->visible_content_ = content;
 
         EventDispatcher::dispatch("model:cell_update_error", CellUpdateErrorEvent{
-                                      cell_p, content, circular_reference_error.what(), ERROR_CIRCREF
+                                      .cell = cell_p, .content = content,
+                                      .error_message = circular_reference_error.what(), .error_type = ERROR_CIRCREF
                                   });
     } catch (const std::runtime_error &e) {
         qDebug() << e.what();
 
-        cell_p->add_error(CellError{ERROR_GENERAL, e.what()});
+        cell_p->add_error(CellError{.error_type = ERROR_GENERAL, .message = e.what()});
         cell_p->raw_formula_ = "";
         cell_p->visible_content_ = content;
 
         EventDispatcher::dispatch("model:cell_update_error",
-                                  CellUpdateErrorEvent{cell_p, content, e.what(), ERROR_GENERAL});
+                                  CellUpdateErrorEvent{
+                                      .cell = cell_p, .content = content, .error_message = e.what(),
+                                      .error_type = ERROR_GENERAL
+                                  });
     }
 
-    EventDispatcher::dispatch("model:cell_update_done", CellUpdateDoneEvent{{row, column}, cell_p});
+    EventDispatcher::dispatch("model:cell_update_done", CellUpdateDoneEvent{{.row = row, .col = column}, cell_p});
 }
 
-void Sheet::set_cell_content(const Cell* cell, const std::string &content) {
+void Sheet::set_cell_content(const Cell *cell, const std::string &content) {
     set_cell_content(cell->row_, cell->column_, content);
 }
 
@@ -307,6 +309,6 @@ void Sheet::set_cell_content(int row, int column, const std::string &content) {
 
 void Sheet::set_current_cell(const Location &location) {
     current_selected_cell_ = location;
-    const auto cell_p = get_or_create_cell_by_pos(location.y(), location.x());
+    auto *const cell_p = get_or_create_cell_by_pos(location.y(), location.x());
     EventDispatcher::dispatch("model:selected_cell_changed", SelectedCellChangedEvent{cell_p});
 }

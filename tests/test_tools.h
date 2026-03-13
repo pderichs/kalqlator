@@ -45,7 +45,7 @@ namespace lisp {
     inline void checkCons(const LispObjectPtr& obj, std::initializer_list<CheckValue> expected) {
         QVERIFY(obj->is_cons());
 
-        auto it = expected.begin();
+        const auto *it = expected.begin();
         LispObjectPtr current = obj;
 
         while (it != expected.end() && current->is_cons()) {
@@ -66,32 +66,32 @@ namespace lisp {
             switch (type) {
                 case ExpectedType::t_symbol:
                     QVERIFY(element->is_symbol());
-                    if (auto* s = std::get_if<std::string>(&*it)) {
+                    if (const auto* s = std::get_if<std::string>(&*it)) {
                         QCOMPARE(element->as_symbol_name(), *s);
-                    } else if (auto* cs = std::get_if<const char*>(&*it)) {
+                    } else if (const auto* cs = std::get_if<const char*>(&*it)) {
                         QCOMPARE(element->as_symbol_name(), *cs);
                     }
                     break;
 
                 case ExpectedType::t_string:
                     QVERIFY(element->is_string());
-                    if (auto* s = std::get_if<std::string>(&*it)) {
+                    if (const auto* s = std::get_if<std::string>(&*it)) {
                         QCOMPARE(element->as_string(), *s);
-                    } else if (auto* cs = std::get_if<const char*>(&*it)) {
+                    } else if (const auto* cs = std::get_if<const char*>(&*it)) {
                         QCOMPARE(element->as_string(), *cs);
                     }
                     break;
 
                 case ExpectedType::t_integer:
                     QVERIFY(element->is_integer());
-                    if (auto* i = std::get_if<int>(&*it)) {
+                    if (const auto* i = std::get_if<int>(&*it)) {
                         QCOMPARE(element->as_int64(), *i);
                     }
                     break;
 
                 case ExpectedType::t_double:
                     QVERIFY(!element->is_double());
-                    if (auto* i = std::get_if<double>(&*it)) {
+                    if (const auto* i = std::get_if<double>(&*it)) {
                         QCOMPARE(element->as_double(), *i);
                     }
                     break;

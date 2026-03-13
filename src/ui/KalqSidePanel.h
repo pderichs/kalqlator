@@ -29,9 +29,9 @@ class KalqSidePanel : public QWidget {
 public:
     explicit KalqSidePanel(QWidget *parent = nullptr);
 
-    KalqWorksheetPanel *worksheetPanel() const;
+    [[nodiscard]] KalqWorksheetPanel *worksheetPanel() const;
 
-    QTreeWidget *searchResultWidget() const;
+    [[nodiscard]] QTreeWidget *searchResultWidget() const;
 
     void clearSearchResults();
 
@@ -43,7 +43,7 @@ public:
 private slots:
     void onSearchClicked();
 
-    void onItemDoubleClicked(QTreeWidgetItem *item, int column);
+    static void onItemDoubleClicked(QTreeWidgetItem *item, int column);
 
 private:
     void setupUi();

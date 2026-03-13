@@ -29,38 +29,45 @@ class LispLambdaTests : public TestBase {
 
 private slots:
     // Basis-Tests
-    void simple_lambda();
-    void lambda_with_single_parameter();
-    void lambda_with_multiple_parameters();
+    static void simple_lambda();
+
+    static void lambda_with_single_parameter();
+
+    static void lambda_with_multiple_parameters();
 
     // Rückgabewerte
-    void lambda_returns_number();
-    void lambda_returns_list();
-    void lambda_returns_nil();
+    static void lambda_returns_number();
+
+    static void lambda_returns_list();
+
+    static void lambda_returns_nil();
 
     // Body mit mehreren Expressions
-    void lambda_with_multiple_body_expressions();
+    static void lambda_with_multiple_body_expressions();
 
     // Closures
-    void lambda_captures_outer_variable();
-    void lambda_closure_preserves_value();
-    void nested_lambda();
+    static void lambda_captures_outer_variable();
+
+    static void lambda_closure_preserves_value();
+
+    static void nested_lambda();
 
     // Higher-Order Functions
-    void lambda_as_argument();
-    void lambda_returns_lambda();
+    static void lambda_as_argument();
+
+    static void lambda_returns_lambda();
 
     // Rekursion
-    void recursive_lambda_with_define();
+    static void recursive_lambda_with_define();
 
     // Arithmetik im Lambda
-    void lambda_with_arithmetic();
+    static void lambda_with_arithmetic();
 
     // Conditionals im Lambda
-    void lambda_with_conditional();
+    static void lambda_with_conditional();
 
     // Fehlerbehandlung
-    void lambda_wrong_argument_count();
+    static void lambda_wrong_argument_count();
 };
 
 void LispLambdaTests::simple_lambda() {

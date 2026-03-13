@@ -23,10 +23,10 @@
 #include "types.h"
 
 namespace lisp {
-    typedef std::map<std::string, LispObjectPtr> DefinitionMap;
+    using DefinitionMap = std::map<std::string, LispObjectPtr>;
 
     class Environment;
-    typedef std::shared_ptr<Environment> EnvironmentPtr;
+    using EnvironmentPtr = std::shared_ptr<Environment>;
 
     class Environment {
     public:
@@ -62,7 +62,7 @@ namespace lisp {
         /**
          * This is called before function arguments are evaluated.
          */
-        virtual void on_pre_function_eval_args(const std::string & , const LispObjectPtr &, const std::any&) {}
+        virtual void on_pre_function_eval_args(const std::string &  /*unused*/, const LispObjectPtr & /*unused*/, const std::any& /*unused*/) {}
 
     private:
         /**

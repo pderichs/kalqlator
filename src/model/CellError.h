@@ -22,5 +22,5 @@ struct CellError {
     std::string message;
 };
 
-typedef std::shared_ptr<CellError> CellErrorPtr;
-typedef std::vector<CellError> CellErrorVector;
+using CellErrorPtr = std::shared_ptr<CellError>;
+using CellErrorVector = std::vector<CellError>;

@@ -41,7 +41,7 @@ void MacroEditorDialog::accept() {
         lisp::Evaluator evaluator(test_env, {});
         evaluator.evaluate(parsed);
     } catch (const std::runtime_error &e) {
-        EventDispatcher::dispatch("ui:macro_editor_error", MacroEditorErrorEvent{m_previousTrigger, code, e.what()});
+        EventDispatcher::dispatch("ui:macro_editor_error", MacroEditorErrorEvent{.macro=m_previousTrigger, .def=code, .message=e.what()});
 
         // Do not accept dialog.
         return;
