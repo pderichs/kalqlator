@@ -10,7 +10,7 @@ Checks: >
   -readability-static-accessed-through-instance,
   -readability-magic-numbers
 
-WarningsAsErrors: ''
+WarningsAsErrors: '*'
 
 HeaderFilterRegex: '.*'
 
