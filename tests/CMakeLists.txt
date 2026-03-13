@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.31.6)
 
-find_package(Qt5 REQUIRED COMPONENTS Test)
+find_package(Qt6 REQUIRED COMPONENTS Test)
 
 set(ADDITIONAL_DEPS
         ../src/lisp/object.h
@@ -49,6 +49,6 @@ set(TESTS
 
 foreach(test ${TESTS})
     add_executable(${test} ${test}.cpp ${ADDITIONAL_DEPS})
-    target_link_libraries(${test} PRIVATE Qt5::Test Qt5::Core)
+    target_link_libraries(${test} PRIVATE Qt6::Test Qt6::Core)
     add_test(NAME ${test} COMMAND ${test})
 endforeach()
