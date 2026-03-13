@@ -259,7 +259,7 @@ void LispLambdaTests::lambda_wrong_argument_count() {
     EnvironmentPtr env = std::make_shared<DefaultEnvironment>();
     Evaluator evaluator(env, {});
     // Je nach Implementierung: Exception oder Error-Objekt
-    QVERIFY_EXCEPTION_THROWN(evaluator.evaluate(lisp), std::exception);
+    QVERIFY_THROWS_EXCEPTION(std::exception, evaluator.evaluate(lisp));
 }
 
 QTEST_MAIN(LispLambdaTests)
