@@ -23,13 +23,13 @@
 namespace lisp {
     bool is_equal(const LispObjectPtr &first, const LispObjectPtr &second);
 
-    inline bool list_equal(const LispObjectPtr &a, const LispObjectPtr &b) {
-        if (countListElements(a) != countListElements(b)) {
+    inline bool list_equal(const LispObjectPtr &first, const LispObjectPtr &second) {
+        if (countListElements(first) != countListElements(second)) {
             return false;
         }
 
-        LispObjectPtr it_a = a;
-        LispObjectPtr it_b = b;
+        LispObjectPtr it_a = first;
+        LispObjectPtr it_b = second;
         while (it_a && !it_a->is_nil() && it_b && !it_b->is_nil()) {
             if (!is_equal(it_a->car(), it_b->car())) {
                 return false;

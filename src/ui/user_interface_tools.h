@@ -34,12 +34,12 @@ inline std::string get_cell_name_by_coordinates(const Location& location) {
 
 inline std::string get_cell_name_by_coordinates(size_t col, size_t row) {
     std::string colName;
-    int c = static_cast<int>(col) + 1;  // 1 based for calculation
+    int column_index = static_cast<int>(col) + 1;  // 1 based for calculation
 
-    while (c > 0) {
-        c--;  // adjust since A=0, not A=1
-        colName = char('A' + (c % 26)) + colName;
-        c /= 26;
+    while (column_index > 0) {
+        column_index--;  // adjust since A=0, not A=1
+        colName = char('A' + (column_index % 26)) + colName;
+        column_index /= 26;
     }
 
     return colName + std::to_string(row + 1);
@@ -73,8 +73,8 @@ inline Location get_cell_location_by_name(const std::string & name) {
 }
 
 inline bool is_function(const std::string & str) {
-    auto s = pdtools::trim(str);
-    return s.starts_with('=');
+    auto trimmed_string = pdtools::trim(str);
+    return trimmed_string.starts_with('=');
 }
 
 inline QIcon iconFromFont(const QString &text, int size = 24, const QColor &color = Qt::black) {
@@ -87,21 +87,21 @@ inline QIcon iconFromFont(const QString &text, int size = 24, const QColor &colo
     painter.setPen(color);
     painter.drawText(pixmap.rect(), Qt::AlignCenter, text);
 
-    return QIcon(pixmap);
+    return { pixmap };
 }
 
-inline std::string make_function(const std::string& s) {
-    if (pdtools::trim(s).starts_with("=")) {
-        return s;
+inline std::string make_function(const std::string& content) {
+    if (pdtools::trim(content).starts_with("=")) {
+        return content;
     }
 
-    return "=" + s;
+    return "=" + content;
 }
 
-inline std::string make_non_function(const std::string& s) {
-    if (!pdtools::trim(s).starts_with("=")) {
-        return s;
+inline std::string make_non_function(const std::string& content) {
+    if (!pdtools::trim(content).starts_with("=")) {
+        return content;
     }
 
-    return pdtools::trim(s).substr(1);
+    return pdtools::trim(content).substr(1);
 }

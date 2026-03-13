@@ -45,18 +45,18 @@ namespace lisp {
     inline void checkCons(const LispObjectPtr& obj, std::initializer_list<CheckValue> expected) {
         QVERIFY(obj->is_cons());
 
-        const auto *it = expected.begin();
+        const auto *iterator = expected.begin();
         LispObjectPtr current = obj;
 
-        while (it != expected.end() && current->is_cons()) {
+        while (iterator != expected.end() && current->is_cons()) {
             // Type check
-            if (!std::holds_alternative<ExpectedType>(*it)) {
+            if (!std::holds_alternative<ExpectedType>(*iterator)) {
                 throw std::runtime_error("Expected type specifier");
             }
-            ExpectedType type = std::get<ExpectedType>(*it);
-            ++it;
+            ExpectedType type = std::get<ExpectedType>(*iterator);
+            ++iterator;
 
-            if (it == expected.end()) {
+            if (iterator == expected.end()) {
                 throw std::runtime_error("Missing value after type");
             }
 
@@ -66,33 +66,33 @@ namespace lisp {
             switch (type) {
                 case ExpectedType::t_symbol:
                     QVERIFY(element->is_symbol());
-                    if (const auto* s = std::get_if<std::string>(&*it)) {
-                        QCOMPARE(element->as_symbol_name(), *s);
-                    } else if (const auto* cs = std::get_if<const char*>(&*it)) {
-                        QCOMPARE(element->as_symbol_name(), *cs);
+                    if (const auto* string = std::get_if<std::string>(&*iterator)) {
+                        QCOMPARE(element->as_symbol_name(), *string);
+                    } else if (const auto* c_str = std::get_if<const char*>(&*iterator)) {
+                        QCOMPARE(element->as_symbol_name(), *c_str);
                     }
                     break;
 
                 case ExpectedType::t_string:
                     QVERIFY(element->is_string());
-                    if (const auto* s = std::get_if<std::string>(&*it)) {
-                        QCOMPARE(element->as_string(), *s);
-                    } else if (const auto* cs = std::get_if<const char*>(&*it)) {
-                        QCOMPARE(element->as_string(), *cs);
+                    if (const auto* string = std::get_if<std::string>(&*iterator)) {
+                        QCOMPARE(element->as_string(), *string);
+                    } else if (const auto* c_str = std::get_if<const char*>(&*iterator)) {
+                        QCOMPARE(element->as_string(), *c_str);
                     }
                     break;
 
                 case ExpectedType::t_integer:
                     QVERIFY(element->is_integer());
-                    if (const auto* i = std::get_if<int>(&*it)) {
-                        QCOMPARE(element->as_int64(), *i);
+                    if (const auto* int_value = std::get_if<int>(&*iterator)) {
+                        QCOMPARE(element->as_int64(), *int_value);
                     }
                     break;
 
                 case ExpectedType::t_double:
                     QVERIFY(!element->is_double());
-                    if (const auto* i = std::get_if<double>(&*it)) {
-                        QCOMPARE(element->as_double(), *i);
+                    if (const auto* value = std::get_if<double>(&*iterator)) {
+                        QCOMPARE(element->as_double(), *value);
                     }
                     break;
 
@@ -101,12 +101,12 @@ namespace lisp {
                     break;
             }
 
-            ++it;
+            ++iterator;
             current = current->cdr();
         }
 
         // Everything must be evaluated here
-        if (it != expected.end()) {
+        if (iterator != expected.end()) {
             QFAIL("More expected elements than in cons");
         }
 

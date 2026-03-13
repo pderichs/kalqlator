@@ -44,21 +44,21 @@ namespace lisp {
     }
 
     template<typename Op = std::equal_to<>>
-    inline bool numeric_compare(const LispObjectPtr &a, const LispObjectPtr &b, Op op = {}) {
-        return std::visit([&op](auto &&lhs, auto &&rhs) -> bool {
+    inline bool numeric_compare(const LispObjectPtr &first, const LispObjectPtr &second, Op operation = {}) {
+        return std::visit([&operation](auto &&lhs, auto &&rhs) -> bool {
             if constexpr (std::is_arithmetic_v<std::decay_t<decltype(lhs)>> &&
                           std::is_arithmetic_v<std::decay_t<decltype(rhs)>>) {
-                return op(lhs, rhs);
+                return operation(lhs, rhs);
             }
             return false;
-        }, a->data, b->data);
+        }, first->data, second->data);
     }
 
-    inline bool numeric_equal(const LispObjectPtr &a, const LispObjectPtr &b) {
-        return numeric_compare(a, b, std::equal_to<>{});
+    inline bool numeric_equal(const LispObjectPtr &first, const LispObjectPtr &second) {
+        return numeric_compare(first, second, std::equal_to<>{});
     }
 
-    inline bool numeric_greater(const LispObjectPtr &a, const LispObjectPtr &b) {
+    inline bool numeric_greater(const LispObjectPtr &first, const LispObjectPtr &second) {
         return std::visit([](auto &&lhs, auto &&rhs) -> bool {
             if constexpr (std::is_arithmetic_v<std::decay_t<decltype(lhs)> > &&
                           std::is_arithmetic_v<std::decay_t<decltype(rhs)> >) {
@@ -66,10 +66,10 @@ namespace lisp {
                 return lhs > rhs;
             }
             return false;
-        }, a->data, b->data);
+        }, first->data, second->data);
     }
 
-    inline bool numeric_smaller(const LispObjectPtr &a, const LispObjectPtr &b) {
+    inline bool numeric_smaller(const LispObjectPtr &first, const LispObjectPtr &second) {
         return std::visit([](auto &&lhs, auto &&rhs) -> bool {
             if constexpr (std::is_arithmetic_v<std::decay_t<decltype(lhs)> > &&
                           std::is_arithmetic_v<std::decay_t<decltype(rhs)> >) {
@@ -77,7 +77,7 @@ namespace lisp {
                 return lhs < rhs;
             }
             return false;
-        }, a->data, b->data);
+        }, first->data, second->data);
     }
 
     inline LispObjectPtrVector parse_all_string(const std::string &input) {

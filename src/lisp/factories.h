@@ -36,9 +36,9 @@ namespace lisp {
     template<typename T>
     LispObjectPtr make_singleton() {
         static LispObjectPtr instance = [](){
-            auto p = std::make_shared<LispObject>();
-            p->data = T{};
-            return p;
+            auto object = std::make_shared<LispObject>();
+            object->data = T{};
+            return object;
         }();
         return instance;
     }
@@ -79,9 +79,9 @@ namespace lisp {
         return result;
     }
 
-    inline LispObjectPtr make_native_fn(NativeFn fn) {
+    inline LispObjectPtr make_native_fn(NativeFn function) {
         auto result = std::make_shared<LispObject>();
-        result->data = std::move(fn);
+        result->data = std::move(function);
         return result;
     }
 

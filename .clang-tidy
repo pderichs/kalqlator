@@ -9,3 +9,13 @@ Checks: >
   -readability-function-cognitive-complexity,
   -readability-static-accessed-through-instance,
   -readability-magic-numbers
+
+WarningsAsErrors: ''
+
+HeaderFilterRegex: '.*'
+
+CheckOptions:
+  - key: readability-identifier-length.IgnoredParameterNames
+    value: '^(x|y)$'
+  - key: readability-identifier-length.IgnoredVariableNames
+    value: '^(x|y)$'

@@ -35,7 +35,7 @@ namespace lisp {
     struct Symbol {
         std::string name;
 
-        Symbol(std::string n) : name(std::move(n)) {
+        explicit Symbol(std::string provided_name) : name(std::move(provided_name)) {
         }
     };
 
@@ -121,13 +121,13 @@ namespace lisp {
         }
 
         [[nodiscard]] LispObjectPtr car() const {
-            const Cons &c = std::get<Cons>(data);
-            return c.car;
+            const Cons &cons = std::get<Cons>(data);
+            return cons.car;
         }
 
         [[nodiscard]] LispObjectPtr cdr() const {
-            const Cons &c = std::get<Cons>(data);
-            return c.cdr;
+            const Cons &cons = std::get<Cons>(data);
+            return cons.cdr;
         }
 
         [[nodiscard]] Int64Type as_int64() const {

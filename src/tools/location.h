@@ -159,12 +159,12 @@ public:
 
     /**
      * Provides a nice to read stream output for this location
-     * @param os Stream to represent this instance of Location
-     * @param m Location to be displayed
+     * @param stream Stream to represent this instance of Location
+     * @param location Location to be displayed
      * @return the stream so chaining outputs is possible
      */
-    friend std::ostream &operator<<(std::ostream &os, Location const &m) {
-        return os << m.to_string();
+    friend std::ostream &operator<<(std::ostream &stream, Location const &location) {
+        return stream << location.to_string();
     }
 
 private:

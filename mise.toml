@@ -15,7 +15,7 @@ description = "Run clang-tidy on all source files"
 run = """
 find src tests -name '*.cpp' \
   | xargs clang-tidy -p build \
-    --header-filter='^.*(src|tests)/.*\\.(h|hpp)$'
+    --header-filter='.*'
 """
 
 [tasks.lint-fix]
@@ -23,7 +23,7 @@ description = "Run clang-tidy with auto-fix"
 run = """
 find src tests -name '*.cpp' \
   | xargs clang-tidy -p build --fix --fix-errors \
-    --header-filter='^.*(src|tests)/.*\\.(h|hpp)$'
+    --header-filter='.*'
 """
 
 [tasks.cppcheck]

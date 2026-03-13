@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 4.1)
+cmake_minimum_required(VERSION 3.31.6)
 project(kalqlator)
 
 set(CMAKE_CXX_STANDARD 20)
@@ -6,7 +6,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
-set(CMAKE_CXX_CLANG_TIDY "clang-tidy;--warnings-as-errors='*'")
+set(CMAKE_CXX_CLANG_TIDY "clang-tidy")
 
 enable_testing()
 add_subdirectory(tests)

@@ -112,8 +112,8 @@ public:
         return get_sheet_by_name(name);
     }
 
-    Sheet* sheet_by_id(const std::string &id) override {
-        return get_sheet_by_id(id);
+    Sheet* sheet_by_id(const std::string &identifier) override {
+        return get_sheet_by_id(identifier);
     }
 
     SearchResultItems search(const SearchOptions &options) const;

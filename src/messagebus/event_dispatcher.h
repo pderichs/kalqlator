@@ -33,7 +33,7 @@ public:
 
 private:
     static EventSink*& instance() {
-        static EventSink* s = nullptr;
-        return s;
+        static EventSink* sink = nullptr;
+        return sink;
     }
 };

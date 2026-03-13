@@ -72,7 +72,7 @@ public:
     [[nodiscard]] bool open() const;
 
 private:
-    bool write_to_file(QString json) const;
+    [[nodiscard]] bool write_to_file(QString json) const;
 
     DocumentPtr document_;
     std::string filename_;
