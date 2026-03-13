@@ -37,7 +37,7 @@ KalqWorksheetPanel::KalqWorksheetPanel(QWidget *parent)
 
     connect(list_widget_, &QListWidget::currentItemChanged,
             this, [this](QListWidgetItem *current, QListWidgetItem *) {
-                if (current) {
+                if (current != nullptr) {
                     EventDispatcher::dispatch("ui:sheet_selection_changed",
                                               SheetSelectionChangedEvent{list_widget_->row(current)});
                 }
