@@ -12,22 +12,20 @@ run = "cmake -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=ON"
 
 [tasks.lint]
 description = "Run clang-tidy on all source files"
-run = """
-find src tests -name '*.cpp' \
-  | xargs clang-tidy -p build \
-    --header-filter='.*'
-"""
+run = "scripts/run-clang-tidy"
+
+[tasks.prepare-lint]
+description = "Prepare lint"
+run = "cmake -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=ON"
 
 [tasks.lint-fix]
 description = "Run clang-tidy with auto-fix"
-run = """
-find src tests -name '*.cpp' \
-  | xargs clang-tidy -p build --fix --fix-errors \
-    --header-filter='.*'
-"""
+depends = ["prepare-lint"]
+run = "scripts/run-clang-tidy-fix"
 
 [tasks.cppcheck]
 description = "Run cppcheck on all source files"
+depends = ["prepare-lint"]
 run = "scripts/run-cppcheck"
 
 [tasks.check]

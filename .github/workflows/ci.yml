@@ -32,8 +32,14 @@ jobs:
         run: |
           cmake -S . -B build
 
-      - name: Build and clang-tidy
+      - name: Build
         run: cmake --build build --parallel 4
+
+      - name: Prepare lint
+        run: cmake -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+
+      - name: Lint (clang-tidy)
+        run: scripts/run-clang-tidy
 
       - name: Checks (cppcheck)
         run: scripts/run-cppcheck

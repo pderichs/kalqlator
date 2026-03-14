@@ -1,0 +1,7 @@
+#!/bin/sh
+
+run-clang-tidy \
+  -p build \
+  -header-filter='.*' \
+  -j"$(nproc)" \
+  'src/.*\.cpp$' 'tests/.*\.cpp$'
