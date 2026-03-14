@@ -15,9 +15,10 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "tokenizer.h"
-#include "parser_error.h"
+#include "../parser/parser_error.h"
 #include "tokens.h"
 #include <cctype>
+#include <gmpxx.h>
 #include <sstream>
 #include <string>
 #include <utility>
@@ -93,12 +94,8 @@ void Tokenizer::read_comment() {
   }
 }
 
-LispToken Tokenizer::create_double_token(DoubleType number) {
-  return LispToken{.id=DOUBLE, .content=number};
-}
-
-LispToken Tokenizer::create_integer_token(Int64Type number) {
-  return LispToken{.id=INTEGER, .content=number};
+LispToken Tokenizer::create_number_token(const std::string& number) {
+  return LispToken{.id=NUMBER, .content=number};
 }
 
 LispToken Tokenizer::create_string_token(const std::string &value) {
@@ -185,20 +182,27 @@ LispToken Tokenizer::read_number() {
     }
   } while (walk());
 
-  const auto opt_int = pdtools::convert_string_to_number<Int64Type>(number_string);
-  if (opt_int) {
-    return create_integer_token(*opt_int);
+  bool number_ok = false;
+  auto result = pdtools::convert_string_to_number<int64_t>(number_string);
+  if (result) {
+    number_ok = true;
   }
 
-  const auto opt_double = pdtools::convert_string_to_number<DoubleType>(number_string);
-  if (opt_double) {
-    return create_double_token(*opt_double);
+  if (!number_ok) {
+    result = pdtools::convert_string_to_number<double>(number_string);
+    if (result) {
+      number_ok = true;
+    }
   }
 
-  std::stringstream error_message;
-  error_message << "Unable to convert string to number: \"";
-  error_message << number_string << "\"";
-  throw LispParserError(error_message.str());
+  if (!number_ok) {
+    std::stringstream error_message;
+    error_message << "Unable to convert string to number: \"";
+    error_message << number_string << "\"";
+    throw LispParserError(error_message.str());
+  }
+
+  return create_number_token(number_string);
 }
 
 bool Tokenizer::walk() {

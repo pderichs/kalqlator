@@ -24,10 +24,13 @@
 #include "../src/lisp/tools.h"
 
 using namespace lisp;
+
 class LispQuoteTests : public TestBase {
     Q_OBJECT
+
 private slots:
     static void quote_symbol();
+
     static void quote_list();
 };
 
@@ -47,7 +50,11 @@ void LispQuoteTests::quote_list() {
     EnvironmentPtr env = std::make_shared<DefaultEnvironment>();
     Evaluator evaluator(env, {});
     auto result = evaluator.evaluate(lisp);
-    checkCons(result, { ExpectedType::t_integer, 1, ExpectedType::t_string, "Hello", ExpectedType::t_integer, 3, ExpectedType::t_integer, 5 });
+    checkCons(result, {
+                  ExpectedType::t_number, mpq_class(1), ExpectedType::t_string, "Hello", ExpectedType::t_number,
+                  mpq_class(3), ExpectedType::t_number, mpq_class(5)
+              });
 }
+
 QTEST_MAIN(LispQuoteTests)
 #include "test_lisp_quote.moc"

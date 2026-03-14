@@ -19,8 +19,10 @@
 #include <ranges>
 #include <stack>
 
+#include <gmpxx.h>
+
 #include "../factories.h"
-#include "../tokenizer/parser_error.h"
+#include "parser_error.h"
 #include "../tokenizer/syntax_checker.h"
 #include "../tokenizer/tokenizer.h"
 
@@ -76,8 +78,8 @@ LispObjectPtrVector Parser::parse_all() const {
                 break;
             }
 
-            case INTEGER: {
-                stack.top().push_back(make_int(std::any_cast<Int64Type>(token.content)));
+            case NUMBER: {
+                stack.top().push_back(make_number(NumberRepresentation{std::any_cast<std::string>(token.content)}));
                 break;
             }
 
@@ -100,11 +102,6 @@ LispObjectPtrVector Parser::parse_all() const {
                 } else {
                     stack.top().push_back(make_symbol(symbolName));
                 }
-                break;
-            }
-
-            case DOUBLE: {
-                stack.top().push_back(make_double(std::any_cast<DoubleType>(token.content)));
                 break;
             }
 
@@ -205,8 +202,7 @@ LispTokens Parser::read_expression(size_t current_token_pos, size_t *ignore_toke
                 result.push_back(token);
                 break;
             case IDENTIFIER:
-            case INTEGER:
-            case DOUBLE:
+            case NUMBER:
             case STRING:
                 result.push_back(token);
                 break;

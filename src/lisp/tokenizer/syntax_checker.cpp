@@ -17,7 +17,7 @@
 #include <sstream>
 
 #include "syntax_checker.h"
-#include "parser_error.h"
+#include "../parser/parser_error.h"
 
 using lisp::LispSyntaxChecker;
 

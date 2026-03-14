@@ -57,8 +57,8 @@ void LispIfTests::if2() {
     EnvironmentPtr env = std::make_shared<DefaultEnvironment>();
     Evaluator evaluator(env, {});
     auto result = evaluator.evaluate(lisp);
-    QVERIFY(result->is_integer());
-    QCOMPARE(result->as_int64(), 6);
+    QVERIFY(result->is_number());
+    QCOMPARE(result->as_number(), mpq_class(6));
 }
 
 void LispIfTests::if3() {
@@ -94,8 +94,8 @@ void LispIfTests::if_nil_is_false() {
     EnvironmentPtr env = std::make_shared<DefaultEnvironment>();
     Evaluator evaluator(env, {});
     auto result = evaluator.evaluate(lisp);
-    QVERIFY(result->is_integer());
-    QCOMPARE(result->as_int64(), 2);
+    QVERIFY(result->is_number());
+    QCOMPARE(result->as_number(), mpq_class(2));
 }
 
 void LispIfTests::if_zero_is_true() {
@@ -132,8 +132,8 @@ void LispIfTests::if_nested() {
     EnvironmentPtr env = std::make_shared<DefaultEnvironment>();
     Evaluator evaluator(env, {});
     auto result = evaluator.evaluate(lisp);
-    QVERIFY(result->is_integer());
-    QCOMPARE(result->as_int64(), 2);
+    QVERIFY(result->is_number());
+    QCOMPARE(result->as_number(), mpq_class(2));
 }
 
 void LispIfTests::if_evaluates_only_then_branch() {
@@ -143,8 +143,8 @@ void LispIfTests::if_evaluates_only_then_branch() {
     EnvironmentPtr env = std::make_shared<DefaultEnvironment>();
     Evaluator evaluator(env, {});
     auto result = evaluator.evaluate(lisp);
-    QVERIFY(result->is_integer());
-    QCOMPARE(result->as_int64(), 42);
+    QVERIFY(result->is_number());
+    QCOMPARE(result->as_number(), mpq_class(42));
 }
 
 void LispIfTests::if_evaluates_only_else_branch() {
@@ -153,8 +153,8 @@ void LispIfTests::if_evaluates_only_else_branch() {
     EnvironmentPtr env = std::make_shared<DefaultEnvironment>();
     Evaluator evaluator(env, {});
     auto result = evaluator.evaluate(lisp);
-    QVERIFY(result->is_integer());
-    QCOMPARE(result->as_int64(), 42);
+    QVERIFY(result->is_number());
+    QCOMPARE(result->as_number(), mpq_class(42));
 }
 
 void LispIfTests::if_with_expression_condition() {
@@ -171,8 +171,8 @@ void LispIfTests::if_with_complex_branches() {
     EnvironmentPtr env = std::make_shared<DefaultEnvironment>();
     Evaluator evaluator(env, {});
     auto result = evaluator.evaluate(lisp);
-    QVERIFY(result->is_integer());
-    QCOMPARE(result->as_int64(), 6);
+    QVERIFY(result->is_number());
+    QCOMPARE(result->as_number(), mpq_class(6));
 }
 
 void LispIfTests::if_returns_expression_result() {
@@ -181,8 +181,8 @@ void LispIfTests::if_returns_expression_result() {
     EnvironmentPtr env = std::make_shared<DefaultEnvironment>();
     Evaluator evaluator(env, {});
     auto result = evaluator.evaluate(lisp);
-    QVERIFY(result->is_integer());
-    QCOMPARE(result->as_int64(), 15);
+    QVERIFY(result->is_number());
+    QCOMPARE(result->as_number(), mpq_class(15));
 }
 
 QTEST_MAIN(LispIfTests)

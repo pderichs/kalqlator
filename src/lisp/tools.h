@@ -24,12 +24,10 @@
 #include "parser/parser.h"
 
 namespace lisp {
-    using NumericValue = std::variant<Int64Type, DoubleType>;
-
-    inline NumericValue to_numeric(const LispObjectPtr &value) {
-        if (value->is_integer()) { return value->as_int64(); }
-        if (value->is_double()) { return value->as_double(); }
-        if (value->is_nil()) { return 0; }
+    // TODO: Eval
+    inline mpq_class to_numeric(const LispObjectPtr &value, mpq_class default_value = {0}) {
+        if (value->is_number()) { return mpq_class(value->as_number()); }
+        if (value->is_nil()) { return default_value; }
         throw TypeError("Only numbers are allowed.");
     }
 
@@ -43,41 +41,16 @@ namespace lisp {
         return count;
     }
 
-    template<typename Op = std::equal_to<>>
-    inline bool numeric_compare(const LispObjectPtr &first, const LispObjectPtr &second, Op operation = {}) {
-        return std::visit([&operation](auto &&lhs, auto &&rhs) -> bool {
-            if constexpr (std::is_arithmetic_v<std::decay_t<decltype(lhs)>> &&
-                          std::is_arithmetic_v<std::decay_t<decltype(rhs)>>) {
-                return operation(lhs, rhs);
-            }
-            return false;
-        }, first->data, second->data);
-    }
-
     inline bool numeric_equal(const LispObjectPtr &first, const LispObjectPtr &second) {
-        return numeric_compare(first, second, std::equal_to<>{});
+        return first->as_number() == second->as_number();
     }
 
     inline bool numeric_greater(const LispObjectPtr &first, const LispObjectPtr &second) {
-        return std::visit([](auto &&lhs, auto &&rhs) -> bool {
-            if constexpr (std::is_arithmetic_v<std::decay_t<decltype(lhs)> > &&
-                          std::is_arithmetic_v<std::decay_t<decltype(rhs)> >) {
-                // Using promotion
-                return lhs > rhs;
-            }
-            return false;
-        }, first->data, second->data);
+        return first->as_number() > second->as_number();
     }
 
     inline bool numeric_smaller(const LispObjectPtr &first, const LispObjectPtr &second) {
-        return std::visit([](auto &&lhs, auto &&rhs) -> bool {
-            if constexpr (std::is_arithmetic_v<std::decay_t<decltype(lhs)> > &&
-                          std::is_arithmetic_v<std::decay_t<decltype(rhs)> >) {
-                // Using promotion
-                return lhs < rhs;
-            }
-            return false;
-        }, first->data, second->data);
+        return first->as_number() < second->as_number();
     }
 
     inline LispObjectPtrVector parse_all_string(const std::string &input) {

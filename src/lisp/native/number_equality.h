@@ -48,7 +48,7 @@ namespace lisp {
 
             while (current && !current->is_nil()) {
                 if (previous) {
-                    if (!numeric_compare(previous, current->car(), std::greater_equal{})) {
+                    if (previous->as_number() < current->car()->as_number()) {
                         return make_nil();
                     }
                 }
@@ -68,7 +68,7 @@ namespace lisp {
 
             while (current && !current->is_nil()) {
                 if (previous) {
-                    if (!numeric_compare(previous, current->car(), std::less_equal{})) {
+                    if (previous->as_number() > current->car()->as_number()) {
                         return make_nil();
                     }
                 }

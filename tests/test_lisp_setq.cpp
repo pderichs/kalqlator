@@ -51,8 +51,8 @@ void LispQuoteTests::setq_int() {
     EnvironmentPtr env = std::make_shared<DefaultEnvironment>();
     Evaluator evaluator(env, {});
     auto result = evaluator.evaluate(lisp);
-    QVERIFY(result->is_integer());
-    QCOMPARE(result->as_int64(), 126);
+    QVERIFY(result->is_number());
+    QCOMPARE(result->as_number(), mpq_class(126));
 }
 
 void LispQuoteTests::setq_string() {
@@ -69,8 +69,8 @@ void LispQuoteTests::setq_list() {
     EnvironmentPtr env = std::make_shared<DefaultEnvironment>();
     Evaluator evaluator(env, {});
     auto result = evaluator.evaluate(lisp);
-    QVERIFY(result->is_integer());
-    QCOMPARE(result->as_int64(), 1);
+    QVERIFY(result->is_number());
+    QCOMPARE(result->as_number(), mpq_class(1));
 }
 
 void LispQuoteTests::setq_nil() {
@@ -86,8 +86,8 @@ void LispQuoteTests::setq_overwrite() {
     EnvironmentPtr env = std::make_shared<DefaultEnvironment>();
     Evaluator evaluator(env, {});
     auto result = evaluator.evaluate(lisp);
-    QVERIFY(result->is_integer());
-    QCOMPARE(result->as_int64(), 20);
+    QVERIFY(result->is_number());
+    QCOMPARE(result->as_number(), mpq_class(20));
 }
 
 void LispQuoteTests::setq_expression_result() {
@@ -95,8 +95,8 @@ void LispQuoteTests::setq_expression_result() {
     EnvironmentPtr env = std::make_shared<DefaultEnvironment>();
     Evaluator evaluator(env, {});
     auto result = evaluator.evaluate(lisp);
-    QVERIFY(result->is_integer());
-    QCOMPARE(result->as_int64(), 15);
+    QVERIFY(result->is_number());
+    QCOMPARE(result->as_number(), mpq_class(15));
 }
 
 void LispQuoteTests::setq_nested_reference() {
@@ -104,8 +104,8 @@ void LispQuoteTests::setq_nested_reference() {
     EnvironmentPtr env = std::make_shared<DefaultEnvironment>();
     Evaluator evaluator(env, {});
     auto result = evaluator.evaluate(lisp);
-    QVERIFY(result->is_integer());
-    QCOMPARE(result->as_int64(), 30);  // a=5, b=25, c=30
+    QVERIFY(result->is_number());
+    QCOMPARE(result->as_number(), mpq_class(30));  // a=5, b=25, c=30
 }
 
 void LispQuoteTests::setq_returns_value() {
@@ -114,8 +114,8 @@ void LispQuoteTests::setq_returns_value() {
     EnvironmentPtr env = std::make_shared<DefaultEnvironment>();
     Evaluator evaluator(env, {});
     auto result = evaluator.evaluate(lisp);
-    QVERIFY(result->is_integer());
-    QCOMPARE(result->as_int64(), 11);
+    QVERIFY(result->is_number());
+    QCOMPARE(result->as_number(), mpq_class(11));
 }
 
 void LispQuoteTests::setq_symbol_reference() {
@@ -124,8 +124,8 @@ void LispQuoteTests::setq_symbol_reference() {
     EnvironmentPtr env = std::make_shared<DefaultEnvironment>();
     Evaluator evaluator(env, {});
     auto result = evaluator.evaluate(lisp);
-    QVERIFY(result->is_integer());
-    QCOMPARE(result->as_int64(), 42);  // copy sollte den Wert behalten, nicht die Referenz
+    QVERIFY(result->is_number());
+    QCOMPARE(result->as_number(), mpq_class(42));  // copy sollte den Wert behalten, nicht die Referenz
 }
 
 QTEST_MAIN(LispQuoteTests)

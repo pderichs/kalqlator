@@ -52,7 +52,7 @@ void LispPrognTests::progn_single_expression() {
     EnvironmentPtr env = std::make_shared<DefaultEnvironment>();
     Evaluator evaluator(env, {});
     auto result = evaluator.evaluate(lisp);
-    QCOMPARE(result->as_int64(), 42);
+    QCOMPARE(result->as_number(), mpq_class(42));
 }
 
 void LispPrognTests::progn_multiple_expressions() {
@@ -60,7 +60,7 @@ void LispPrognTests::progn_multiple_expressions() {
     EnvironmentPtr env = std::make_shared<DefaultEnvironment>();
     Evaluator evaluator(env, {});
     auto result = evaluator.evaluate(lisp);
-    QCOMPARE(result->as_int64(), 3);
+    QCOMPARE(result->as_number(), mpq_class(3));
 }
 
 void LispPrognTests::progn_returns_last() {
@@ -68,7 +68,7 @@ void LispPrognTests::progn_returns_last() {
     EnvironmentPtr env = std::make_shared<DefaultEnvironment>();
     Evaluator evaluator(env, {});
     auto result = evaluator.evaluate(lisp);
-    QCOMPARE(result->as_int64(), 6);
+    QCOMPARE(result->as_number(), mpq_class(6));
 }
 
 void LispPrognTests::progn_nested() {
@@ -76,7 +76,7 @@ void LispPrognTests::progn_nested() {
     EnvironmentPtr env = std::make_shared<DefaultEnvironment>();
     Evaluator evaluator(env, {});
     auto result = evaluator.evaluate(lisp);
-    QCOMPARE(result->as_int64(), 4);
+    QCOMPARE(result->as_number(), mpq_class(4));
 }
 
 void LispPrognTests::progn_with_arithmetic() {
@@ -84,7 +84,7 @@ void LispPrognTests::progn_with_arithmetic() {
     EnvironmentPtr env = std::make_shared<DefaultEnvironment>();
     Evaluator evaluator(env, {});
     auto result = evaluator.evaluate(lisp);
-    QCOMPARE(result->as_int64(), 123);
+    QCOMPARE(result->as_number(), mpq_class(123));
 }
 
 QTEST_MAIN(LispPrognTests)

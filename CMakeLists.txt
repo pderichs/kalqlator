@@ -15,6 +15,9 @@ find_package(Qt6 COMPONENTS
         Widgets
         REQUIRED)
 
+find_library(GMP_LIB gmp REQUIRED)
+find_library(GMPXX_LIB gmpxx REQUIRED)
+
 add_executable(kalqlator src/main.cpp
         src/ui/MainWindow.h
         src/ui/MainWindow.cpp
@@ -26,7 +29,7 @@ add_executable(kalqlator src/main.cpp
         src/lisp/factories.h
         src/lisp/tokenizer/tokenizer.h
         src/lisp/tokenizer/tokenizer.cpp
-        src/lisp/tokenizer/parser_error.h
+        src/lisp/parser/parser_error.h
         src/lisp/tokenizer/tokenizer.cpp
         src/lisp/types.h
         src/tools/tools.cpp
@@ -114,6 +117,7 @@ add_executable(kalqlator src/main.cpp
         src/model/triggers.h
         src/events/MacroErrorEvent.h
         src/events/MacroEditorErrorEvent.h
+        src/lisp/gmp_tools.h
 )
 
 target_link_libraries(kalqlator
@@ -121,6 +125,7 @@ target_link_libraries(kalqlator
         Qt6::Core
         Qt6::Gui
         Qt6::Widgets
+        ${GMP_LIB} ${GMPXX_LIB}
 )
 
 

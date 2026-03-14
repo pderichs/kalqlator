@@ -71,21 +71,21 @@ void LispEvaluatorTests::simple_int_atom1() {
 
     auto result = evaluator.evaluate(lisp);
 
-    QVERIFY(result->is_integer());
-    QCOMPARE(result->as_int64(), 42);
+    QVERIFY(result->is_number());
+    QCOMPARE(result->as_number(), mpq_class(42));
 }
 
 void LispEvaluatorTests::defined_symbol1() {
     LispObjectPtrVector lisp = parse_all_string("foo");
 
     EnvironmentPtr env = std::make_shared<Environment>(nullptr);
-    env->define("foo", make_int(14));
+    env->define("foo", make_number(14));
     Evaluator evaluator(env, {});
 
     auto result = evaluator.evaluate(lisp);
 
-    QVERIFY(result->is_integer());
-    QCOMPARE(result->as_int64(), 14);
+    QVERIFY(result->is_number());
+    QCOMPARE(result->as_number(), mpq_class(14));
 }
 
 void LispEvaluatorTests::defined_symbol2() {
@@ -93,15 +93,15 @@ void LispEvaluatorTests::defined_symbol2() {
     LispObjectPtrVector lisp = parse_all_string("foo");
 
     EnvironmentPtr env = std::make_shared<Environment>(nullptr);
-    env->define("foo", make_int(1981));
+    env->define("foo", make_number(1981));
 
     EnvironmentPtr env2 = std::make_shared<Environment>(env);
     Evaluator evaluator(env2, {});
 
     auto result = evaluator.evaluate(lisp);
 
-    QVERIFY(result->is_integer());
-    QCOMPARE(result->as_int64(), 1981);
+    QVERIFY(result->is_number());
+    QCOMPARE(result->as_number(), mpq_class(1981));
 }
 
 void LispEvaluatorTests::defined_symbol3() {
@@ -109,16 +109,16 @@ void LispEvaluatorTests::defined_symbol3() {
     LispObjectPtrVector lisp = parse_all_string("foo");
 
     EnvironmentPtr env = std::make_shared<Environment>(nullptr);
-    env->define("foo", make_int(1981));
+    env->define("foo", make_number(1981));
 
     EnvironmentPtr env2 = std::make_shared<Environment>(env);
-    env2->define("foo", make_int(1987));
+    env2->define("foo", make_number(1987));
     Evaluator evaluator(env2, {});
 
     auto result = evaluator.evaluate(lisp);
 
-    QVERIFY(result->is_integer());
-    QCOMPARE(result->as_int64(), 1987);
+    QVERIFY(result->is_number());
+    QCOMPARE(result->as_number(), mpq_class(1987));
 }
 
 void LispEvaluatorTests::addition1() {
@@ -126,8 +126,8 @@ void LispEvaluatorTests::addition1() {
     EnvironmentPtr env = std::make_shared<DefaultEnvironment>();
     Evaluator evaluator(env, {});
     auto result = evaluator.evaluate(lisp);
-    QVERIFY(result->is_integer());
-    QCOMPARE(result->as_int64(), 47);
+    QVERIFY(result->is_number());
+    QCOMPARE(result->as_number(), mpq_class(47));
 }
 
 void LispEvaluatorTests::addition2() {
@@ -135,8 +135,8 @@ void LispEvaluatorTests::addition2() {
     EnvironmentPtr env = std::make_shared<DefaultEnvironment>();
     Evaluator evaluator(env, {});
     auto result = evaluator.evaluate(lisp);
-    QVERIFY(result->is_integer());
-    QCOMPARE(result->as_int64(), 1245);
+    QVERIFY(result->is_number());
+    QCOMPARE(result->as_number(), mpq_class(1245));
 }
 
 void LispEvaluatorTests::addition3() {
@@ -144,8 +144,8 @@ void LispEvaluatorTests::addition3() {
     EnvironmentPtr env = std::make_shared<DefaultEnvironment>();
     Evaluator evaluator(env, {});
     auto result = evaluator.evaluate(lisp);
-    QVERIFY(result->is_integer());
-    QCOMPARE(result->as_int64(), 3);
+    QVERIFY(result->is_number());
+    QCOMPARE(result->as_number(), mpq_class(3));
 }
 
 void LispEvaluatorTests::addition4() {
@@ -153,8 +153,8 @@ void LispEvaluatorTests::addition4() {
     EnvironmentPtr env = std::make_shared<DefaultEnvironment>();
     Evaluator evaluator(env, {});
     auto result = evaluator.evaluate(lisp);
-    QVERIFY(result->is_integer());
-    QCOMPARE(result->as_int64(), 71);
+    QVERIFY(result->is_number());
+    QCOMPARE(result->as_number(), mpq_class(71));
 }
 
 void LispEvaluatorTests::subtraction1() {
@@ -162,8 +162,8 @@ void LispEvaluatorTests::subtraction1() {
     EnvironmentPtr env = std::make_shared<DefaultEnvironment>();
     Evaluator evaluator(env, {});
     auto result = evaluator.evaluate(lisp);
-    QVERIFY(result->is_integer());
-    QCOMPARE(result->as_int64(), 37);
+    QVERIFY(result->is_number());
+    QCOMPARE(result->as_number(), mpq_class(37));
 }
 
 void LispEvaluatorTests::subtraction2() {
@@ -171,8 +171,8 @@ void LispEvaluatorTests::subtraction2() {
     EnvironmentPtr env = std::make_shared<DefaultEnvironment>();
     Evaluator evaluator(env, {});
     auto result = evaluator.evaluate(lisp);
-    QVERIFY(result->is_integer());
-    QCOMPARE(result->as_int64(), 36);
+    QVERIFY(result->is_number());
+    QCOMPARE(result->as_number(), mpq_class(36));
 }
 
 void LispEvaluatorTests::subtraction3() {
@@ -180,8 +180,8 @@ void LispEvaluatorTests::subtraction3() {
     EnvironmentPtr env = std::make_shared<DefaultEnvironment>();
     Evaluator evaluator(env, {});
     auto result = evaluator.evaluate(lisp);
-    QVERIFY(result->is_integer());
-    QCOMPARE(result->as_int64(), 3);
+    QVERIFY(result->is_number());
+    QCOMPARE(result->as_number(), mpq_class(3));
 }
 
 void LispEvaluatorTests::subtraction4() {
@@ -189,8 +189,8 @@ void LispEvaluatorTests::subtraction4() {
     EnvironmentPtr env = std::make_shared<DefaultEnvironment>();
     Evaluator evaluator(env, {});
     auto result = evaluator.evaluate(lisp);
-    QVERIFY(result->is_integer());
-    QCOMPARE(result->as_int64(), 67);
+    QVERIFY(result->is_number());
+    QCOMPARE(result->as_number(), mpq_class(67));
 }
 
 void LispEvaluatorTests::multiplication1() {
@@ -198,8 +198,8 @@ void LispEvaluatorTests::multiplication1() {
     EnvironmentPtr env = std::make_shared<DefaultEnvironment>();
     Evaluator evaluator(env, {});
     auto result = evaluator.evaluate(lisp);
-    QVERIFY(result->is_integer());
-    QCOMPARE(result->as_int64(), 8);
+    QVERIFY(result->is_number());
+    QCOMPARE(result->as_number(), mpq_class(8));
 }
 
 void LispEvaluatorTests::multiplication2() {
@@ -207,8 +207,8 @@ void LispEvaluatorTests::multiplication2() {
     EnvironmentPtr env = std::make_shared<DefaultEnvironment>();
     Evaluator evaluator(env, {});
     auto result = evaluator.evaluate(lisp);
-    QVERIFY(result->is_integer());
-    QCOMPARE(result->as_int64(), 400);
+    QVERIFY(result->is_number());
+    QCOMPARE(result->as_number(), mpq_class(400));
 }
 
 void LispEvaluatorTests::division1() {
@@ -216,8 +216,8 @@ void LispEvaluatorTests::division1() {
     EnvironmentPtr env = std::make_shared<DefaultEnvironment>();
     Evaluator evaluator(env, {});
     auto result = evaluator.evaluate(lisp);
-    QVERIFY(result->is_integer());
-    QCOMPARE(result->as_int64(), 2);
+    QVERIFY(result->is_number());
+    QCOMPARE(result->as_number(), mpq_class(2));
 }
 
 void LispEvaluatorTests::division2() {
@@ -225,8 +225,8 @@ void LispEvaluatorTests::division2() {
     EnvironmentPtr env = std::make_shared<DefaultEnvironment>();
     Evaluator evaluator(env, {});
     auto result = evaluator.evaluate(lisp);
-    QVERIFY(result->is_integer());
-    QCOMPARE(result->as_int64(), 10);
+    QVERIFY(result->is_number());
+    QCOMPARE(result->as_number(), mpq_class(10));
 }
 
 void LispEvaluatorTests::adding_nils_1() {
@@ -234,8 +234,8 @@ void LispEvaluatorTests::adding_nils_1() {
     EnvironmentPtr env = std::make_shared<DefaultEnvironment>();
     Evaluator evaluator(env, {});
     auto result = evaluator.evaluate(lisp);
-    QVERIFY(result->is_integer());
-    QCOMPARE(result->as_int64(), 0);
+    QVERIFY(result->is_number());
+    QCOMPARE(result->as_number(), mpq_class(0));
 }
 
 void LispEvaluatorTests::adding_nils_2() {
@@ -243,8 +243,8 @@ void LispEvaluatorTests::adding_nils_2() {
     EnvironmentPtr env = std::make_shared<DefaultEnvironment>();
     Evaluator evaluator(env, {});
     auto result = evaluator.evaluate(lisp);
-    QVERIFY(result->is_integer());
-    QCOMPARE(result->as_int64(), 2);
+    QVERIFY(result->is_number());
+    QCOMPARE(result->as_number(), mpq_class(2));
 }
 
 QTEST_MAIN(LispEvaluatorTests)

@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 3.31.6)
 
 find_package(Qt6 REQUIRED COMPONENTS Test)
 
+find_library(GMP_LIB gmp REQUIRED)
+find_library(GMPXX_LIB gmpxx REQUIRED)
+
 set(ADDITIONAL_DEPS
         ../src/lisp/object.h
         ../src/lisp/parser/parser.h
@@ -11,7 +14,7 @@ set(ADDITIONAL_DEPS
         ../src/lisp/factories.h
         ../src/lisp/tokenizer/tokenizer.h
         ../src/lisp/tokenizer/tokenizer.cpp
-        ../src/lisp/tokenizer/parser_error.h
+        ../src/lisp/parser/parser_error.h
         ../src/lisp/tokenizer/tokenizer.cpp
         ../src/lisp/types.h
         ../src/tools/tools.cpp
@@ -49,6 +52,6 @@ set(TESTS
 
 foreach(test ${TESTS})
     add_executable(${test} ${test}.cpp ${ADDITIONAL_DEPS})
-    target_link_libraries(${test} PRIVATE Qt6::Test Qt6::Core)
+    target_link_libraries(${test} PRIVATE Qt6::Test Qt6::Core ${GMP_LIB} ${GMPXX_LIB})
     add_test(NAME ${test} COMMAND ${test})
 endforeach()

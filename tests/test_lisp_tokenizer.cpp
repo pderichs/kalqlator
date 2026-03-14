@@ -56,9 +56,9 @@ void LispTokenizerTests::tokenizerTest1() {
     QCOMPARE(tokens[0].id, OPEN_BRACKET);
     QCOMPARE(tokens[1].id, IDENTIFIER);
     QCOMPARE(tokens[2].id, SPACE);
-    QCOMPARE(tokens[3].id, INTEGER);
+    QCOMPARE(tokens[3].id, NUMBER);
     QCOMPARE(tokens[4].id, SPACE);
-    QCOMPARE(tokens[5].id, INTEGER);
+    QCOMPARE(tokens[5].id, NUMBER);
     QCOMPARE(tokens[6].id, CLOSE_BRACKET);
 }
 
@@ -80,16 +80,16 @@ void LispTokenizerTests::tokenizerTest2() {
     QCOMPARE(actual_content, std::string("Hello \"World\""));
 
     QCOMPARE(tokens[4].id, SPACE);
-    QCOMPARE(tokens[5].id, INTEGER);
+    QCOMPARE(tokens[5].id, NUMBER);
 
-    auto actual_value = std::any_cast<Int64Type>(tokens[5].content);
-    QCOMPARE(actual_value, 22.0);
+    auto actual_value = std::any_cast<std::string>(tokens[5].content);
+    QCOMPARE(actual_value, "22");
 
     QCOMPARE(tokens[6].id, SPACE);
-    QCOMPARE(tokens[7].id, INTEGER);
+    QCOMPARE(tokens[7].id, NUMBER);
 
-    actual_value = std::any_cast<Int64Type>(tokens[7].content);
-    QCOMPARE(actual_value, 4.0);
+    actual_value = std::any_cast<std::string>(tokens[7].content);
+    QCOMPARE(actual_value, "4");
 
     QCOMPARE(tokens[8].id, CLOSE_BRACKET);
 }
@@ -112,10 +112,10 @@ void LispTokenizerTests::tokenizerTest3() {
     QCOMPARE(actual_content, std::string("8282"));
 
     QCOMPARE(tokens[4].id, SPACE);
-    QCOMPARE(tokens[5].id, DOUBLE);
+    QCOMPARE(tokens[5].id, NUMBER);
 
-    auto actual_value = std::any_cast<DoubleType>(tokens[5].content);
-    QCOMPARE(actual_value, -484.32);
+    auto actual_value = std::any_cast<std::string>(tokens[5].content);
+    QCOMPARE(actual_value, "-484.32");
 
     QCOMPARE(tokens[6].id, CLOSE_BRACKET);
 }
@@ -151,8 +151,8 @@ void LispTokenizerTests::atomTest1() {
     LispTokens tokens = parser.scan();
 
     QCOMPARE(tokens.size(), 1U);
-    QCOMPARE(tokens[0].id, INTEGER);
-    QCOMPARE(std::any_cast<Int64Type>(tokens[0].content), 42);
+    QCOMPARE(tokens[0].id, NUMBER);
+    QCOMPARE(std::any_cast<std::string>(tokens[0].content), "42");
 }
 
 void LispTokenizerTests::atomTest2() {
@@ -169,8 +169,8 @@ void LispTokenizerTests::atomTest3() {
     LispTokens tokens = parser.scan();
 
     QCOMPARE(tokens.size(), 1U);
-    QCOMPARE(tokens[0].id, DOUBLE);
-    QCOMPARE(std::any_cast<DoubleType>(tokens[0].content), 32.5684);
+    QCOMPARE(tokens[0].id, NUMBER);
+    QCOMPARE(std::any_cast<std::string>(tokens[0].content), "32.5684");
 }
 
 
@@ -229,8 +229,8 @@ void LispTokenizerTests::numberWithNewLine() {
     LispTokens tokens = tokenizer.scan();
 
     QCOMPARE(tokens.size(), 2U);
-    QCOMPARE(tokens[0].id, INTEGER);
-    QCOMPARE(std::any_cast<Int64Type>(tokens[0].content), 1);
+    QCOMPARE(tokens[0].id, NUMBER);
+    QCOMPARE(std::any_cast<std::string>(tokens[0].content), "1");
 
     QCOMPARE(tokens[1].id, SPACE);
 }

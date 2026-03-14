@@ -23,18 +23,18 @@
 
 #include "../src/lisp/types.h"
 #include "../src/lisp/object.h"
+#include "../src/lisp/tools.h"
 
 namespace lisp {
     // Enum for expected types
     enum class ExpectedType {
         t_symbol,
-        t_integer,
-        t_double,
+        t_number,
         t_string,
     };
 
     // Element is either a type or a value
-    using CheckValue = std::variant<ExpectedType, int, std::string, double, Symbol, Cons, Nil, const char*>;
+    using CheckValue = std::variant<ExpectedType, std::string, Symbol, Cons, Nil, const char*, mpq_class>;
 
     /**
      * Checks a simple cons for its content. Used within tests.
@@ -70,6 +70,8 @@ namespace lisp {
                         QCOMPARE(element->as_symbol_name(), *string);
                     } else if (const auto* c_str = std::get_if<const char*>(iterator)) {
                         QCOMPARE(element->as_symbol_name(), *c_str);
+                    } else {
+                        QFAIL("Unknown type (t_symbol)");
                     }
                     break;
 
@@ -79,21 +81,20 @@ namespace lisp {
                         QCOMPARE(element->as_string(), *string);
                     } else if (const auto* c_str = std::get_if<const char*>(iterator)) {
                         QCOMPARE(element->as_string(), *c_str);
+                    } else {
+                        QFAIL("Unknown type (t_string)");
                     }
+
                     break;
 
-                case ExpectedType::t_integer:
-                    QVERIFY(element->is_integer());
-                    if (const auto* int_value = std::get_if<int>(iterator)) {
-                        QCOMPARE(element->as_int64(), *int_value);
+                case ExpectedType::t_number:
+                    QVERIFY(element->is_number());
+                    if (const auto *const value = std::get_if<mpq_class>(iterator)) {
+                        QCOMPARE(to_numeric(element), *value);
+                    } else {
+                        QFAIL("Unknown type (t_number)");
                     }
-                    break;
 
-                case ExpectedType::t_double:
-                    QVERIFY(!element->is_double());
-                    if (const auto* value = std::get_if<double>(iterator)) {
-                        QCOMPARE(element->as_double(), *value);
-                    }
                     break;
 
                 default:

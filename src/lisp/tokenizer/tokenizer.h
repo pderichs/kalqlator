@@ -37,9 +37,7 @@ namespace lisp {
 
     void read_comment();
 
-    static LispToken create_double_token(DoubleType number);
-
-    static LispToken create_integer_token(Int64Type number);
+    static LispToken create_number_token(const std::string& number);
 
     static LispToken create_string_token(const std::string &value);
 

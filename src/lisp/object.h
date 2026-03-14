@@ -18,6 +18,7 @@
 
 
 #include <functional>
+#include <gmpxx.h>
 #include <iostream>
 #include <memory>
 #include <string>
@@ -25,6 +26,7 @@
 #include <variant>
 #include "environment.h"
 #include "types.h"
+#include "gmp_tools.h"
 
 namespace lisp {
     struct Cons {
@@ -73,6 +75,10 @@ namespace lisp {
         constexpr bool operator==(const True &) const = default;
     };
 
+    struct NumberRepresentation {
+        std::string content;
+    };
+
     struct LambdaFunction {
         LispObjectPtr args;
         LispObjectPtr body;
@@ -81,9 +87,8 @@ namespace lisp {
 
     using LispValue = std::variant<
         std::monostate,
-        double,
-        int64_t,
         std::string,
+        NumberRepresentation,
         True,
         Cons,
         Symbol,
@@ -96,14 +101,12 @@ namespace lisp {
     struct LispObject {
         LispValue data;
 
-        [[nodiscard]] bool is_integer() const { return std::holds_alternative<Int64Type>(data); }
-        [[nodiscard]] bool is_double() const { return std::holds_alternative<DoubleType>(data); }
+        [[nodiscard]] bool is_number() const { return std::holds_alternative<NumberRepresentation>(data); }
         [[nodiscard]] bool is_string() const { return std::holds_alternative<std::string>(data); }
         [[nodiscard]] bool is_symbol() const { return std::holds_alternative<Symbol>(data); }
         [[nodiscard]] bool is_cons() const { return std::holds_alternative<Cons>(data); }
         [[nodiscard]] bool is_nil() const { return std::holds_alternative<Nil>(data); }
         [[nodiscard]] bool is_lambda() const { return std::holds_alternative<LambdaFunction>(data); }
-        [[nodiscard]] bool is_number() const { return is_integer() || is_double(); }
         [[nodiscard]] bool is_atom() const { return !is_cons(); }
 
         [[nodiscard]] bool is_list() const {
@@ -130,16 +133,12 @@ namespace lisp {
             return cons.cdr;
         }
 
-        [[nodiscard]] Int64Type as_int64() const {
-            return std::get<Int64Type>(data);
+        [[nodiscard]] mpq_class as_number() const {
+            return mpq_class_from_decimal_or_int(std::get<NumberRepresentation>(data).content);
         }
 
         [[nodiscard]] std::string as_string() const {
             return std::get<std::string>(data);
-        }
-
-        [[nodiscard]] double as_double() const {
-            return std::get<double>(data);
         }
 
         [[nodiscard]] Symbol as_symbol() const {

@@ -25,6 +25,12 @@ sudo apt install \                                                              
   libqt6test6 
 ```
 
+For GMP:
+
+```bash
+sudo apt install libgmp-dev libgmpxx4ldbl
+```
+
 Lint tools:
 
 ```bash
@@ -66,6 +72,7 @@ mise run lint-fix
 KalQlator uses Open Source Software:
 
 - **[Qt](https://www.qt.io/)** – Cross-platform Application Framework
+- **[GMP – GNU Multiple Precision Arithmetic Library](https://gmplib.org/)** – Arbitrary-precision arithmetic
 - **[Material Icons Font](https://fonts.google.com/icons)** – Icons
 
 Please see their respective Licenses for more information.
@@ -77,6 +84,10 @@ This project is licensed under the [GNU General Public License v3.0](https://www
 This project uses the Qt Framework (https://www.qt.io).
 Qt modules used in this project are licensed under the GNU Lesser General
 Public License v3.0 (LGPLv3).
+See: https://www.gnu.org/licenses/lgpl-3.0.html
+
+This project uses the GNU Multiple Precision Arithmetic Library (GMP) (https://gmplib.org/).
+GMP is licensed under the GNU Lesser General Public License v3.0 (LGPLv3).
 See: https://www.gnu.org/licenses/lgpl-3.0.html
 
 This project uses Material Icons Font (https://fonts.google.com/icons)  

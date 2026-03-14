@@ -85,7 +85,7 @@ void LispLambdaTests::lambda_with_single_parameter() {
     Evaluator evaluator(env, {});
     auto result = evaluator.evaluate(lisp);
     QVERIFY(result->is_number());
-    QCOMPARE(result->as_int64(), 10);
+    QCOMPARE(result->as_number(), mpq_class(10));
 }
 
 void LispLambdaTests::lambda_with_multiple_parameters() {
@@ -94,7 +94,7 @@ void LispLambdaTests::lambda_with_multiple_parameters() {
     Evaluator evaluator(env, {});
     auto result = evaluator.evaluate(lisp);
     QVERIFY(result->is_number());
-    QCOMPARE(result->as_int64(), 6);
+    QCOMPARE(result->as_number(), mpq_class(6));
 }
 
 void LispLambdaTests::lambda_returns_number() {
@@ -103,7 +103,7 @@ void LispLambdaTests::lambda_returns_number() {
     Evaluator evaluator(env, {});
     auto result = evaluator.evaluate(lisp);
     QVERIFY(result->is_number());
-    QCOMPARE(result->as_int64(), 42);
+    QCOMPARE(result->as_number(), mpq_class(42));
 }
 
 void LispLambdaTests::lambda_returns_list() {
@@ -135,7 +135,7 @@ void LispLambdaTests::lambda_with_multiple_body_expressions() {
     Evaluator evaluator(env, {});
     auto result = evaluator.evaluate(lisp);
     QVERIFY(result->is_number());
-    QCOMPARE(result->as_int64(), 15);
+    QCOMPARE(result->as_number(), mpq_class(15));
 }
 
 void LispLambdaTests::lambda_captures_outer_variable() {
@@ -148,7 +148,7 @@ void LispLambdaTests::lambda_captures_outer_variable() {
     Evaluator evaluator(env, {});
     auto result = evaluator.evaluate(lisp);
     QVERIFY(result->is_number());
-    QCOMPARE(result->as_int64(), 50);
+    QCOMPARE(result->as_number(), mpq_class(50));
 }
 
 void LispLambdaTests::lambda_closure_preserves_value() {
@@ -165,7 +165,7 @@ void LispLambdaTests::lambda_closure_preserves_value() {
     QVERIFY(result->is_number());
     // Je nach Implementierung: 10 (lexical scope) oder 20 (dynamic scope)
     // Anpassen je nach deiner Semantik
-    QCOMPARE(result->as_int64(), 20);
+    QCOMPARE(result->as_number(), mpq_class(20));
 }
 
 void LispLambdaTests::nested_lambda() {
@@ -179,7 +179,7 @@ void LispLambdaTests::nested_lambda() {
     Evaluator evaluator(env, {});
     auto result = evaluator.evaluate(lisp);
     QVERIFY(result->is_number());
-    QCOMPARE(result->as_int64(), 15);
+    QCOMPARE(result->as_number(), mpq_class(15));
 }
 
 void LispLambdaTests::lambda_as_argument() {
@@ -192,7 +192,7 @@ void LispLambdaTests::lambda_as_argument() {
     Evaluator evaluator(env, {});
     auto result = evaluator.evaluate(lisp);
     QVERIFY(result->is_number());
-    QCOMPARE(result->as_int64(), 7);
+    QCOMPARE(result->as_number(), mpq_class(7));
 }
 
 void LispLambdaTests::lambda_returns_lambda() {
@@ -206,7 +206,7 @@ void LispLambdaTests::lambda_returns_lambda() {
     Evaluator evaluator(env, {});
     auto result = evaluator.evaluate(lisp);
     QVERIFY(result->is_number());
-    QCOMPARE(result->as_int64(), 15);
+    QCOMPARE(result->as_number(), mpq_class(15));
 }
 
 void LispLambdaTests::recursive_lambda_with_define() {
@@ -221,7 +221,7 @@ void LispLambdaTests::recursive_lambda_with_define() {
     Evaluator evaluator(env, {});
     auto result = evaluator.evaluate(lisp);
     QVERIFY(result->is_number());
-    QCOMPARE(result->as_int64(), 120);
+    QCOMPARE(result->as_number(), mpq_class(120));
 }
 
 void LispLambdaTests::lambda_with_arithmetic() {
@@ -235,7 +235,7 @@ void LispLambdaTests::lambda_with_arithmetic() {
     auto result = evaluator.evaluate(lisp);
     QVERIFY(result->is_number());
     // 1*3² + 2*3 + 1 = 9 + 6 + 1 = 16
-    QCOMPARE(result->as_int64(), 16);
+    QCOMPARE(result->as_number(), mpq_class(16));
 }
 
 void LispLambdaTests::lambda_with_conditional() {
@@ -248,7 +248,7 @@ void LispLambdaTests::lambda_with_conditional() {
     Evaluator evaluator(env, {});
     auto result = evaluator.evaluate(lisp);
     QVERIFY(result->is_number());
-    QCOMPARE(result->as_int64(), 42);
+    QCOMPARE(result->as_number(), mpq_class(42));
 }
 
 void LispLambdaTests::lambda_wrong_argument_count() {

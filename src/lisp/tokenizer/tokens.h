@@ -17,7 +17,6 @@
 #pragma once
 
 #include <any>
-#include <ostream>
 #include <vector>
 
 namespace lisp {
@@ -30,8 +29,7 @@ namespace lisp {
     CLOSE_BRACKET,
     IDENTIFIER,
     STRING,
-    DOUBLE,
-    INTEGER,
+    NUMBER,
     SPACE
   };
 
@@ -45,8 +43,7 @@ namespace lisp {
     [[nodiscard]] bool is_space() const { return id == SPACE; }
     [[nodiscard]] bool is_identifier() const { return id == IDENTIFIER; }
     [[nodiscard]] bool is_string() const { return id == STRING; }
-    [[nodiscard]] bool is_integer() const { return id == INTEGER; }
-    [[nodiscard]] bool is_double() const { return id == DOUBLE; }
+    [[nodiscard]] bool is_number() const { return id == NUMBER; }
     [[nodiscard]] bool is_open_bracket() const { return id == OPEN_BRACKET; }
     [[nodiscard]] bool is_closed_bracket() const { return id == CLOSE_BRACKET; }
   };

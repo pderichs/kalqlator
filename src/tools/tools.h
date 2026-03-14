@@ -55,7 +55,7 @@ namespace pdtools {
         char leftover;
         bool is_valid = (iss >> value) && !(iss >> leftover);
         if (!is_valid) {
-            return {};
+            return std::nullopt;
         }
 
         return value;

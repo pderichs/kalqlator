@@ -4,5 +4,4 @@ run-clang-tidy \
   -p build \
   -header-filter='.*' \
   -fix \
-  -fix-errors \
   '(src|tests)/.*\.cpp$'

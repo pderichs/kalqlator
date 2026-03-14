@@ -27,28 +27,15 @@
 
 namespace lisp {
     template<typename Op>
-    LispObjectPtr numeric_fold(const LispObjectPtr& args, Op operation, NumericValue start_value) {
-        NumericValue acc = start_value;
-
+    LispObjectPtr numeric_fold(const LispObjectPtr &args, Op operation, mpq_class start_value) {
+        mpq_class acc = start_value;
         LispObjectPtr current = args;
-        while (current && !current->is_nil()) {
-            NumericValue value = to_numeric(current->car());
-            acc = std::visit([&](auto first, auto second) -> NumericValue {
-                using ResultType = decltype(first - second); // Using C++ promotion rules - use subtraction to get result type
-                return static_cast<ResultType>(operation(static_cast<ResultType>(first), static_cast<ResultType>(second)));
-            }, acc, value);
 
+        while (current && !current->is_nil()) {
+            acc = operation(acc, to_numeric(current->car()));
             current = current->cdr();
         }
 
-        return std::visit([](auto value) -> LispObjectPtr {
-            if constexpr (std::is_same_v<decltype(value), DoubleType>) {
-                return make_double(value);
-            }
-
-            return make_int(value);
-        }, acc);
+        return make_number(NumberRepresentation{ acc.get_str() });
     }
-
 } // lisp
-

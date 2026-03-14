@@ -16,21 +16,23 @@
 
 #pragma once
 
+#include <format>
+#include <gmpxx.h>
 #include <utility>
 
 #include "object.h"
 
 namespace lisp {
-    inline LispObjectPtr make_double(double value) {
+    inline LispObjectPtr make_number(NumberRepresentation number_representation) {
         auto result = std::make_shared<LispObject>();
-        result->data = value;
+        result->data = std::move(number_representation);
         return result;
     }
 
-    inline LispObjectPtr make_int(int64_t value) {
-        auto result = std::make_shared<LispObject>();
-        result->data = value;
-        return result;
+    template<typename T>
+    LispObjectPtr make_number(T value) {
+        const auto string = std::format("{}", value);
+        return make_number(NumberRepresentation{ string });
     }
 
     template<typename T>

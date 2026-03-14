@@ -20,7 +20,7 @@
 #include "test_tools.h"
 #include "../src/lisp/tokenizer/tokenizer.h"
 #include "../src/lisp/parser/parser.h"
-#include "../src/lisp/tokenizer/parser_error.h"
+#include "../src/lisp/parser/parser_error.h"
 #include "../src/tools/tools.h"
 #include "../src/lisp/tools.h"
 
@@ -151,29 +151,29 @@ private slots:
 void LispParserTests::atom_integer() {
     LispObjectPtr result = parseString("42");
     QVERIFY(result);
-    QVERIFY(result->is_integer());
-    QCOMPARE(result->as_int64(), 42);
+    QVERIFY(result->is_number());
+    QCOMPARE(result->as_number(), mpq_class(42));
 }
 
 void LispParserTests::atom_negative_integer() {
     LispObjectPtr result = parseString("-123");
     QVERIFY(result);
-    QVERIFY(result->is_integer());
-    QCOMPARE(result->as_int64(), -123);
+    QVERIFY(result->is_number());
+    QCOMPARE(result->as_number(), mpq_class(-123));
 }
 
 void LispParserTests::atom_double() {
     LispObjectPtr result = parseString("3.14159");
     QVERIFY(result);
-    QVERIFY(result->is_double());
-    QCOMPARE(result->as_double(), 3.14159);
+    QVERIFY(result->is_number());
+    QCOMPARE(result->as_number(), mpq_class_from_decimal_or_int("3.14159"));
 }
 
 void LispParserTests::atom_negative_double() {
     LispObjectPtr result = parseString("-2.5");
     QVERIFY(result);
-    QVERIFY(result->is_double());
-    QCOMPARE(result->as_double(), -2.5);
+    QVERIFY(result->is_number());
+    QCOMPARE(result->as_number(), mpq_class_from_decimal_or_int("-2.5"));
 }
 
 void LispParserTests::atom_string() {
@@ -230,13 +230,13 @@ void LispParserTests::simple_list() {
 
     LispObjectPtr rest = result->cdr();
     QVERIFY(rest->is_cons());
-    QVERIFY(rest->car()->is_integer());
-    QCOMPARE(rest->car()->as_int64(), 22);
+    QVERIFY(rest->car()->is_number());
+    QCOMPARE(rest->car()->as_number(), mpq_class(22));
 
     rest = rest->cdr();
     QVERIFY(rest->is_cons());
-    QVERIFY(rest->car()->is_integer());
-    QCOMPARE(rest->car()->as_int64(), 4);
+    QVERIFY(rest->car()->is_number());
+    QCOMPARE(rest->car()->as_number(), mpq_class(4));
 }
 
 void LispParserTests::empty_list() {
@@ -249,8 +249,8 @@ void LispParserTests::single_element_list() {
     LispObjectPtr result = parseString("(42)");
     QVERIFY(result);
     QVERIFY(result->is_cons());
-    QVERIFY(result->car()->is_integer());
-    QCOMPARE(result->car()->as_int64(), 42);
+    QVERIFY(result->car()->is_number());
+    QCOMPARE(result->car()->as_number(), mpq_class(42));
     QVERIFY(result->cdr()->is_nil());
 }
 
@@ -264,13 +264,13 @@ void LispParserTests::nested_list() {
 
     LispObjectPtr rest = result->cdr();
     QVERIFY(rest->is_cons());
-    QVERIFY(rest->car()->is_integer());
-    QCOMPARE(rest->car()->as_int64(), 1);
+    QVERIFY(rest->car()->is_number());
+    QCOMPARE(rest->car()->as_number(), mpq_class(1));
 
     rest = rest->cdr();
     QVERIFY(rest->is_cons());
     LispObjectPtr inner = rest->car();
-    checkCons(inner, { ExpectedType::t_symbol, "*", ExpectedType::t_integer, 2, ExpectedType::t_integer, 3 });
+    checkCons(inner, { ExpectedType::t_symbol, "*", ExpectedType::t_number, mpq_class(2), ExpectedType::t_number, mpq_class(3) });
 }
 
 void LispParserTests::deeply_nested_list() {
@@ -300,14 +300,14 @@ void LispParserTests::quoted_list() {
     QCOMPARE(result->car()->as_symbol_name(), "quote");
 
     LispObjectPtr quoted = result->cdr()->car();
-    checkCons(quoted, { ExpectedType::t_integer, 1, ExpectedType::t_integer, 2, ExpectedType::t_integer, 3 });
+    checkCons(quoted, { ExpectedType::t_number, 1, ExpectedType::t_number, 2, ExpectedType::t_number, 3 });
 }
 
 void LispParserTests::whitespace_handling() {
     LispObjectPtr result = parseString("  (  +   1   2  )  ");
     QVERIFY(result);
     QVERIFY(result->is_cons());
-    checkCons(result, { ExpectedType::t_symbol, "+", ExpectedType::t_integer, 1, ExpectedType::t_integer, 2});
+    checkCons(result, { ExpectedType::t_symbol, "+", ExpectedType::t_number, 1, ExpectedType::t_number, 2});
 }
 
 void LispParserTests::multiple_spaces() {
@@ -324,10 +324,10 @@ void LispParserTests::arithmetic_expression() {
     QCOMPARE(result->car()->as_symbol_name(), "/");
 
     LispObjectPtr first_arg = result->cdr()->car();
-    checkCons(first_arg, { ExpectedType::t_symbol, "+", ExpectedType::t_integer, 10, ExpectedType::t_integer, 20 });
+    checkCons(first_arg, { ExpectedType::t_symbol, "+", ExpectedType::t_number, 10, ExpectedType::t_number, 20 });
 
     LispObjectPtr second_arg = result->cdr()->cdr()->car();
-    checkCons(second_arg, { ExpectedType::t_symbol, "-", ExpectedType::t_integer, 5, ExpectedType::t_integer, 2 });
+    checkCons(second_arg, { ExpectedType::t_symbol, "-", ExpectedType::t_number, 5, ExpectedType::t_number, 2 });
 }
 
 void LispParserTests::function_call_with_nested_args() {
@@ -356,16 +356,16 @@ void LispParserTests::list_with_mixed_types() {
     QVERIFY(result);
     QVERIFY(result->is_cons());
 
-    QVERIFY(result->car()->is_integer());
-    QCOMPARE(result->car()->as_int64(), 1);
+    QVERIFY(result->car()->is_number());
+    QCOMPARE(result->car()->as_number(), 1);
 
     result = result->cdr();
     QVERIFY(result->car()->is_string());
     QCOMPARE(result->car()->as_string(), "hello");
 
     result = result->cdr();
-    QVERIFY(result->car()->is_double());
-    QCOMPARE(result->car()->as_double(), 3.14);
+    QVERIFY(result->car()->is_number());
+    QCOMPARE(result->car()->as_number(), mpq_class_from_decimal_or_int("3.14"));
 
     result = result->cdr();
     QVERIFY(result->car()->is_symbol());
@@ -411,43 +411,43 @@ void LispParserTests::error_only_whitespace() {
 void LispParserTests::number_zero() {
     LispObjectPtr result = parseString("0");
     QVERIFY(result);
-    QVERIFY(result->is_integer());
-    QCOMPARE(result->as_int64(), 0);
+    QVERIFY(result->is_number());
+    QCOMPARE(result->as_number(), mpq_class(0));
 }
 
 void LispParserTests::number_negative_zero() {
     LispObjectPtr result = parseString("-0");
     QVERIFY(result);
-    QVERIFY(result->is_integer());
-    QCOMPARE(result->as_int64(), 0);
+    QVERIFY(result->is_number());
+    QCOMPARE(result->as_number(), mpq_class(0));
 }
 
 void LispParserTests::number_leading_plus() {
     LispObjectPtr result = parseString("+42");
     QVERIFY(result);
-    QVERIFY(result->is_integer());
-    QCOMPARE(result->as_int64(), 42);
+    QVERIFY(result->is_number());
+    QCOMPARE(result->as_number(), mpq_class(42));
 }
 
 void LispParserTests::number_very_large_integer() {
     LispObjectPtr result = parseString("9223372036854775807");  // INT64_MAX
     QVERIFY(result);
-    QVERIFY(result->is_integer());
-    QCOMPARE(result->as_int64(), INT64_MAX);
+    QVERIFY(result->is_number());
+    QCOMPARE(result->as_number(), mpq_class(INT64_MAX));
 }
 
 void LispParserTests::number_very_small_double() {
     LispObjectPtr result = parseString("0.0000001");
     QVERIFY(result);
-    QVERIFY(result->is_double());
-    QVERIFY(qFuzzyCompare(result->as_double(), 0.0000001));
+    QVERIFY(result->is_number());
+    QCOMPARE(result->as_number(), mpq_class_from_decimal_or_int("0.0000001"));
 }
 
 void LispParserTests::number_double_without_leading_digit() {
     LispObjectPtr result = parseString(".5");
     QVERIFY(result);
-    QVERIFY(result->is_double());
-    QCOMPARE(result->as_double(), 0.5);
+    QVERIFY(result->is_number());
+    QCOMPARE(result->as_number(), mpq_class(0.5));
 }
 
 void LispParserTests::symbol_with_two_dots_at_the_start() {
@@ -460,8 +460,8 @@ void LispParserTests::symbol_with_two_dots_at_the_start() {
 void LispParserTests::number_double_without_trailing_digit() {
     LispObjectPtr result = parseString("5.");
     QVERIFY(result);
-    QVERIFY(result->is_double());
-    QCOMPARE(result->as_double(), 5.0);
+    QVERIFY(result->is_number());
+    QCOMPARE(result->as_number(), mpq_class(5.0));
 }
 
 void LispParserTests::string_empty() {
@@ -598,20 +598,20 @@ void LispParserTests::dotted_pair_with_lists() {
 
     QVERIFY(result->car()->is_cons());  // (1 2)
     auto firstCons = result->car();
-    QVERIFY(firstCons->car()->is_integer());
-    QCOMPARE(firstCons->car()->as_int64(), 1);
+    QVERIFY(firstCons->car()->is_number());
+    QCOMPARE(firstCons->car()->as_number(), 1);
     auto rest = firstCons->cdr();
     QVERIFY(rest->is_cons());
-    QCOMPARE(rest->car()->as_int64(), 2);
+    QCOMPARE(rest->car()->as_number(), 2);
     QVERIFY(rest->cdr()->is_nil()); // Last element
 
     QVERIFY(result->cdr()->is_cons());  // (3 4)
     auto secondCons = result->cdr();
-    QVERIFY(secondCons->car()->is_integer());
-    QCOMPARE(secondCons->car()->as_int64(), 3);
+    QVERIFY(secondCons->car()->is_number());
+    QCOMPARE(secondCons->car()->as_number(), 3);
     rest = secondCons->cdr();
     QVERIFY(rest->is_cons());
-    QCOMPARE(rest->car()->as_int64(), 4);
+    QCOMPARE(rest->car()->as_number(), 4);
     QVERIFY(rest->cdr()->is_nil()); // Last element
 }
 
@@ -619,14 +619,14 @@ void LispParserTests::improper_list() {
     LispObjectPtr result = parseString("(1 2 . 3)");
     QVERIFY(result);
     QVERIFY(result->is_cons());
-    QCOMPARE(result->car()->as_int64(), 1);
+    QCOMPARE(result->car()->as_number(), 1);
 
     LispObjectPtr rest = result->cdr();
     QVERIFY(rest->is_cons());
-    QCOMPARE(rest->car()->as_int64(), 2);
+    QCOMPARE(rest->car()->as_number(), 2);
 
-    QVERIFY(rest->cdr()->is_integer());
-    QCOMPARE(rest->cdr()->as_int64(), 3);
+    QVERIFY(rest->cdr()->is_number());
+    QCOMPARE(rest->cdr()->as_number(), 3);
 }
 
 void LispParserTests::error_dot_at_start() {
@@ -644,8 +644,8 @@ void LispParserTests::error_multiple_dots() {
 void LispParserTests::multiple_top_level_atoms() {
     LispObjectPtr result = parseString("1 2 3");
     QVERIFY(result);
-    QVERIFY(result->is_integer());
-    QCOMPARE(result->as_int64(), 1);
+    QVERIFY(result->is_number());
+    QCOMPARE(result->as_number(), 1);
 }
 
 void LispParserTests::multiple_top_level_atoms_parse_all() {
@@ -653,23 +653,23 @@ void LispParserTests::multiple_top_level_atoms_parse_all() {
     QVERIFY(result.size() == 3);
 
     auto item = result.front();
-    QVERIFY(item->is_integer());
-    QCOMPARE(item->as_int64(), 1);
+    QVERIFY(item->is_number());
+    QCOMPARE(item->as_number(), 1);
 
     item = result[1];
-    QVERIFY(item->is_integer());
-    QCOMPARE(item->as_int64(), 2);
+    QVERIFY(item->is_number());
+    QCOMPARE(item->as_number(), 2);
 
     item = result[2];
-    QVERIFY(item->is_integer());
-    QCOMPARE(item->as_int64(), 3);
+    QVERIFY(item->is_number());
+    QCOMPARE(item->as_number(), 3);
 }
 
 void LispParserTests::multiple_top_level_lists() {
     LispObjectPtr result = parseString("(+ 1 2) (- 3 4)");
     QVERIFY(result);
     QVERIFY(result->is_cons());
-    checkCons(result, { ExpectedType::t_symbol, "+", ExpectedType::t_integer, 1, ExpectedType::t_integer, 2 });
+    checkCons(result, { ExpectedType::t_symbol, "+", ExpectedType::t_number, 1, ExpectedType::t_number, 2 });
 }
 
 void LispParserTests::multiple_top_level_lists_parse_all() {
@@ -677,10 +677,10 @@ void LispParserTests::multiple_top_level_lists_parse_all() {
     QVERIFY(result.size() == 2);
 
     auto item = result.front();
-    checkCons(item, { ExpectedType::t_symbol, "+", ExpectedType::t_integer, 1, ExpectedType::t_integer, 2 });
+    checkCons(item, { ExpectedType::t_symbol, "+", ExpectedType::t_number, 1, ExpectedType::t_number, 2 });
 
     item = result[1];
-    checkCons(item, { ExpectedType::t_symbol, "-", ExpectedType::t_integer, 3, ExpectedType::t_integer, 4 });
+    checkCons(item, { ExpectedType::t_symbol, "-", ExpectedType::t_number, 3, ExpectedType::t_number, 4 });
 }
 
 void LispParserTests::parse_all_expressions() {
@@ -689,8 +689,8 @@ void LispParserTests::parse_all_expressions() {
     Parser parser(tokens);
 
     LispObjectPtr first = parser.parse();
-    QVERIFY(first && first->is_integer());
-    QCOMPARE(first->as_int64(), 1);
+    QVERIFY(first && first->is_number());
+    QCOMPARE(first->as_number(), 1);
 }
 
 void LispParserTests::parse_all_expressions_parse_all() {
@@ -701,16 +701,16 @@ void LispParserTests::parse_all_expressions_parse_all() {
     LispObjectPtrVector all = parser.parse_all();
 
     auto item = all.front();
-    QVERIFY(item && item->is_integer());
-    QCOMPARE(item->as_int64(), 1);
+    QVERIFY(item && item->is_number());
+    QCOMPARE(item->as_number(), 1);
 
     item = all[1];
-    QVERIFY(item && item->is_integer());
-    QCOMPARE(item->as_int64(), 2);
+    QVERIFY(item && item->is_number());
+    QCOMPARE(item->as_number(), 2);
 
     item = all[2];
-    QVERIFY(item && item->is_integer());
-    QCOMPARE(item->as_int64(), 3);
+    QVERIFY(item && item->is_number());
+    QCOMPARE(item->as_number(), 3);
 }
 
 void LispParserTests::nested_quotes() {
@@ -760,15 +760,15 @@ void LispParserTests::quote_at_end_of_list() {
 void LispParserTests::comment_line() {
     LispObjectPtr result = parseString("; this is a comment\n42");
     QVERIFY(result);
-    QVERIFY(result->is_integer());
-    QCOMPARE(result->as_int64(), 42);
+    QVERIFY(result->is_number());
+    QCOMPARE(result->as_number(), 42);
 }
 
 void LispParserTests::comment_at_end_of_line() {
     LispObjectPtr result = parseString("42 ; trailing comment");
     QVERIFY(result);
-    QVERIFY(result->is_integer());
-    QCOMPARE(result->as_int64(), 42);
+    QVERIFY(result->is_number());
+    QCOMPARE(result->as_number(), 42);
 }
 
 void LispParserTests::comment_between_expressions() {
@@ -779,9 +779,9 @@ void LispParserTests::comment_between_expressions() {
 
     QCOMPARE(result->car()->as_symbol_name(), "+");
     auto cdr = result->cdr();
-    QCOMPARE(cdr->car()->as_int64(), 1);
+    QCOMPARE(cdr->car()->as_number(), 1);
     cdr = cdr->cdr();
-    QCOMPARE(cdr->car()->as_int64(), 2);
+    QCOMPARE(cdr->car()->as_number(), 2);
 }
 
 void LispParserTests::comment_inside_list() {
@@ -824,11 +824,11 @@ void LispParserTests::let_binding() {
 
     // First binding (x 1)
     LispObjectPtr first_binding = bindings->car();
-    checkCons(first_binding, { ExpectedType::t_symbol, "x", ExpectedType::t_integer, 1 });
+    checkCons(first_binding, { ExpectedType::t_symbol, "x", ExpectedType::t_number, 1 });
 
     // Second binding (y 2)
     LispObjectPtr second_binding = bindings->cdr()->car();
-    checkCons(second_binding, { ExpectedType::t_symbol, "y", ExpectedType::t_integer, 2 });
+    checkCons(second_binding, { ExpectedType::t_symbol, "y", ExpectedType::t_number, 2 });
 
     // Body
     LispObjectPtr body = result->cdr()->cdr()->car();
@@ -849,7 +849,7 @@ void LispParserTests::cond_expression() {
     LispObjectPtr first = clauses->car();
     QVERIFY(first->is_cons());
     auto first_condition = first->car();
-    checkCons(first_condition, { ExpectedType::t_symbol, "<", ExpectedType::t_symbol, "x", ExpectedType::t_integer, 0 });
+    checkCons(first_condition, { ExpectedType::t_symbol, "<", ExpectedType::t_symbol, "x", ExpectedType::t_number, 0 });
     auto first_value = first->cdr()->car();
     QVERIFY(first_value->is_string());
     QCOMPARE(first_value->as_string(), "negative");
@@ -857,7 +857,7 @@ void LispParserTests::cond_expression() {
     LispObjectPtr second = clauses->cdr()->car();
     QVERIFY(second->is_cons());
     auto second_condition = second->car();
-    checkCons(second_condition, { ExpectedType::t_symbol, ">", ExpectedType::t_symbol, "x", ExpectedType::t_integer, 0 });
+    checkCons(second_condition, { ExpectedType::t_symbol, ">", ExpectedType::t_symbol, "x", ExpectedType::t_number, 0 });
     auto second_value = second->cdr()->car();
     QVERIFY(second_value->is_string());
     QCOMPARE(second_value->as_string(), "positive");
@@ -881,17 +881,17 @@ void LispParserTests::deeply_nested_arithmetic() {
     LispObjectPtr first = result->cdr()->car();
     QVERIFY(first->is_cons());
     QCOMPARE(first->car()->as_symbol_name(), "*");
-    QCOMPARE(first->cdr()->car()->as_int64(), 2);
+    QCOMPARE(first->cdr()->car()->as_number(), 2);
     auto second_product = first->cdr()->cdr()->car();
-    checkCons(second_product, { ExpectedType::t_symbol, "-", ExpectedType::t_integer, 10, ExpectedType::t_integer, 5 });
+    checkCons(second_product, { ExpectedType::t_symbol, "-", ExpectedType::t_number, 10, ExpectedType::t_number, 5 });
 
     // Second operand: (/ 100 (+ 3 2))
     LispObjectPtr second = result->cdr()->cdr()->car();
     QVERIFY(second->is_cons());
     QCOMPARE(second->car()->as_symbol_name(), "/");
-    QCOMPARE(second->cdr()->car()->as_int64(), 100);
+    QCOMPARE(second->cdr()->car()->as_number(), 100);
     auto second_part = second->cdr()->cdr()->car();
-    checkCons(second_part, { ExpectedType::t_symbol, "+", ExpectedType::t_integer, 3, ExpectedType::t_integer, 2 });
+    checkCons(second_part, { ExpectedType::t_symbol, "+", ExpectedType::t_number, 3, ExpectedType::t_number, 2 });
 }
 
 void LispParserTests::list_of_lists() {
@@ -943,8 +943,8 @@ void LispParserTests::very_deep_nesting() {
         QVERIFY(current->is_cons());
         current = current->car();
     }
-    QVERIFY(current->is_integer());
-    QCOMPARE(current->as_int64(), 42);
+    QVERIFY(current->is_number());
+    QCOMPARE(current->as_number(), mpq_class(42));
 }
 
 void LispParserTests::very_long_symbol() {
