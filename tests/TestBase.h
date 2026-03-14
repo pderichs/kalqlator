@@ -20,7 +20,7 @@
 
 #include "../src/lisp/types.h"
 #include "../src/lisp/object.h"
-#include "../src/lisp/tokenizer/lisp_tokenizer.h"
+#include "../src/lisp/tokenizer/tokenizer.h"
 #include "../src/lisp/parser/parser.h"
 
 namespace lisp {

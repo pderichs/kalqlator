@@ -22,7 +22,7 @@
 
 #include "CellError.h"
 #include "../lisp/object.h"
-#include "../lisp/tokenizer/lisp_tokens.h"
+#include "../lisp/tokenizer/tokens.h"
 
 struct Cell;
 

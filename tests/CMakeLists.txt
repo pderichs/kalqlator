@@ -9,15 +9,15 @@ set(ADDITIONAL_DEPS
         ../src/lisp/environment.h
         ../src/lisp/native/calculation.h
         ../src/lisp/factories.h
-        ../src/lisp/tokenizer/lisp_tokenizer.h
-        ../src/lisp/tokenizer/lisp_tokenizer.cpp
-        ../src/lisp/tokenizer/lisp_parser_error.h
-        ../src/lisp/tokenizer/lisp_tokenizer.cpp
+        ../src/lisp/tokenizer/tokenizer.h
+        ../src/lisp/tokenizer/tokenizer.cpp
+        ../src/lisp/tokenizer/parser_error.h
+        ../src/lisp/tokenizer/tokenizer.cpp
         ../src/lisp/types.h
         ../src/tools/tools.cpp
         ../src/tools/location.h
         ../src/tools/rectangle.h
-        ../src/lisp/tokenizer/lisp_syntax_checker.cpp
+        ../src/lisp/tokenizer/syntax_checker.cpp
         ../src/lisp/Evaluator.cpp
         ../src/lisp/Evaluator.h
         ../src/lisp/EvalError.h

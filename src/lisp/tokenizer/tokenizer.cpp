@@ -14,14 +14,15 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "lisp_tokenizer.h"
-#include "lisp_parser_error.h"
-#include "lisp_tokens.h"
+#include "tokenizer.h"
+#include "parser_error.h"
+#include "tokens.h"
 #include <cctype>
 #include <sstream>
 #include <string>
 #include <utility>
 #include "../../tools/tools.h"
+
 using namespace lisp;
 
 Tokenizer::Tokenizer(std::string lisp) : lisp_(std::move(lisp)) {

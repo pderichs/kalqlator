@@ -6,8 +6,6 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
-set(CMAKE_CXX_CLANG_TIDY "clang-tidy")
-
 enable_testing()
 add_subdirectory(tests)
 
@@ -26,14 +24,14 @@ add_executable(kalqlator src/main.cpp
         src/lisp/environment.h
         src/lisp/native/calculation.h
         src/lisp/factories.h
-        src/lisp/tokenizer/lisp_tokenizer.h
-        src/lisp/tokenizer/lisp_tokenizer.cpp
-        src/lisp/tokenizer/lisp_parser_error.h
-        src/lisp/tokenizer/lisp_tokenizer.cpp
+        src/lisp/tokenizer/tokenizer.h
+        src/lisp/tokenizer/tokenizer.cpp
+        src/lisp/tokenizer/parser_error.h
+        src/lisp/tokenizer/tokenizer.cpp
         src/lisp/types.h
         src/tools/tools.cpp
         src/tools/rectangle.h
-        src/lisp/tokenizer/lisp_syntax_checker.cpp
+        src/lisp/tokenizer/syntax_checker.cpp
         src/lisp/Evaluator.cpp
         src/lisp/Evaluator.h
         src/lisp/environment.cpp

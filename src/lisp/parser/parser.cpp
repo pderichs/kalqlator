@@ -20,9 +20,9 @@
 #include <stack>
 
 #include "../factories.h"
-#include "../tokenizer/lisp_parser_error.h"
-#include "../tokenizer/lisp_syntax_checker.h"
-#include "../tokenizer/lisp_tokenizer.h"
+#include "../tokenizer/parser_error.h"
+#include "../tokenizer/syntax_checker.h"
+#include "../tokenizer/tokenizer.h"
 
 using namespace lisp;
 

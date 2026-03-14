@@ -18,9 +18,9 @@
 
 #include "TestBase.h"
 #include "test_tools.h"
-#include "../src/lisp/tokenizer/lisp_tokenizer.h"
+#include "../src/lisp/tokenizer/tokenizer.h"
 #include "../src/lisp/parser/parser.h"
-#include "../src/lisp/tokenizer/lisp_parser_error.h"
+#include "../src/lisp/tokenizer/parser_error.h"
 #include "../src/tools/tools.h"
 #include "../src/lisp/tools.h"
 

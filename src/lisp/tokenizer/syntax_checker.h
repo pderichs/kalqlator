@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include "lisp_tokens.h"
+#include "tokens.h"
 
 namespace lisp {
   /**

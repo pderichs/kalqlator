@@ -20,7 +20,7 @@
 #include "../events/MacroErrorEvent.h"
 #include "../ui/user_interface_tools.h"
 #include "../messagebus/event_dispatcher.h"
-#include "../lisp/tokenizer/lisp_tokenizer.h"
+#include "../lisp/tokenizer/tokenizer.h"
 #include "../lisp/parser/parser.h"
 #include "../lisp/tools.h"
 

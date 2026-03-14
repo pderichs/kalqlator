@@ -23,7 +23,7 @@
 #include "CircularReferenceError.h"
 #include "../lisp/Evaluator.h"
 #include "../lisp/parser/parser.h"
-#include "../lisp/tokenizer/lisp_tokenizer.h"
+#include "../lisp/tokenizer/tokenizer.h"
 #include "../events/CellUpdateDoneEvent.h"
 #include "../events/SelectedCellChangedEvent.h"
 #include "../events/CellUpdateErrorEvent.h"

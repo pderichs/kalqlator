@@ -20,7 +20,7 @@
 #include <utility>
 
 #include "../object.h"
-#include "../tokenizer/lisp_tokens.h"
+#include "../tokenizer/tokens.h"
 
 namespace lisp {
     class Parser {

@@ -16,7 +16,7 @@
 
 #include <any>
 #include <QtTest/QtTest>
-#include "../src/lisp/tokenizer/lisp_tokenizer.h"
+#include "../src/lisp/tokenizer/tokenizer.h"
 #include "../src/tools/tools.h"
 
 using namespace lisp;
