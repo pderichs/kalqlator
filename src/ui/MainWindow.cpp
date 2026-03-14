@@ -169,8 +169,7 @@ void MainWindow::registerEventHandlers() {
 
         m_sidePanel->clearSearchResults();
 
-
-        for (auto item: result) {
+        for (const auto& item: result) {
             m_sidePanel->addSearchResult(
                 QString::fromStdString(item->complete_match),
                 QString::fromStdString(item->table_name),
@@ -233,41 +232,41 @@ MainWindow::MainWindow(QWidget *parent)
 }
 
 void MainWindow::createActions() {
-    const QString newDocument("\ue89c");
-    const QString openDocument("\ueaf3");
-    const QString copy("\ue173");
-    const QString cut("\ue14e");
-    const QString exit("\ue879");
-    const QString paste("\ue14f");
-    const QString code("\uf84d");
+    const QString newDocument_icon("\ue89c");
+    const QString openDocument_icon("\ueaf3");
+    const QString copy_icon("\ue173");
+    const QString cut_icon("\ue14e");
+    const QString exit_icon("\ue879");
+    const QString paste_icon("\ue14f");
+    const QString code_icon("\uf84d");
 
     // File actions
     m_newAction = new QAction(tr("&New"), this);
     m_newAction->setShortcut(QKeySequence::New);
-    m_newAction->setIcon(iconFromFont(newDocument));
+    m_newAction->setIcon(iconFromFont(newDocument_icon));
     m_newAction->setStatusTip(tr("Create a new table"));
     connect(m_newAction, &QAction::triggered, this, &MainWindow::newFile);
 
     m_openAction = new QAction(tr("&Open..."), this);
     m_openAction->setShortcut(QKeySequence::Open);
-    m_openAction->setIcon(iconFromFont(openDocument));
+    m_openAction->setIcon(iconFromFont(openDocument_icon));
     m_openAction->setStatusTip(tr("Open file"));
     connect(m_openAction, &QAction::triggered, this, &MainWindow::openFile);
 
     m_saveAction = new QAction(tr("&Save"), this);
     m_saveAction->setShortcut(QKeySequence::Save);
-    m_saveAction->setIcon(iconFromFont(newDocument, 24, Qt::black));
+    m_saveAction->setIcon(iconFromFont(newDocument_icon, 24, Qt::black));
     m_saveAction->setStatusTip(tr("Save file"));
     connect(m_saveAction, &QAction::triggered, this, &MainWindow::saveFile);
 
     m_editMacros = new QAction(tr("Open Macro Editor..."), this);
-    m_editMacros->setIcon(iconFromFont(code));
+    m_editMacros->setIcon(iconFromFont(code_icon));
     m_editMacros->setStatusTip(tr("Open the macro editor."));
     connect(m_editMacros, &QAction::triggered, this, &MainWindow::openMacroEditor);
 
     m_exitAction = new QAction(tr("&Quit"), this);
     m_exitAction->setShortcut(QKeySequence::Quit);
-    m_exitAction->setIcon(iconFromFont(exit));
+    m_exitAction->setIcon(iconFromFont(exit_icon));
     m_exitAction->setStatusTip(tr("Exit"));
     connect(m_exitAction, &QAction::triggered, this, &QMainWindow::close);
 
@@ -280,19 +279,19 @@ void MainWindow::createActions() {
 
     m_cutAction = new QAction(tr("Cut"), this);
     m_cutAction->setShortcut(QKeySequence::Cut);
-    m_cutAction->setIcon(iconFromFont(cut));
+    m_cutAction->setIcon(iconFromFont(cut_icon));
     m_cutAction->setStatusTip(tr("Cut selection"));
     connect(m_cutAction, &QAction::triggered, this, &MainWindow::cut);
 
     m_copyAction = new QAction(tr("&Copy"), this);
     m_copyAction->setShortcut(QKeySequence::Copy);
-    m_copyAction->setIcon(iconFromFont(copy));
+    m_copyAction->setIcon(iconFromFont(copy_icon));
     m_copyAction->setStatusTip(tr("Copy selection"));
     connect(m_copyAction, &QAction::triggered, this, &MainWindow::copy);
 
     m_pasteAction = new QAction(tr("&Paste"), this);
     m_pasteAction->setShortcut(QKeySequence::Paste);
-    m_pasteAction->setIcon(iconFromFont(paste));
+    m_pasteAction->setIcon(iconFromFont(paste_icon));
     m_pasteAction->setStatusTip(tr("Paste"));
     connect(m_pasteAction, &QAction::triggered, this, &MainWindow::paste);
 
@@ -441,7 +440,7 @@ void MainWindow::createNewDocument() {
 }
 
 void MainWindow::onCellSelectionChanged(const SelectedCellChangedEvent &cell_selection_changed_event) const {
-    const auto &cell = cell_selection_changed_event.cell;
+    const auto* const cell = cell_selection_changed_event.cell;
 
     if (cell != nullptr) {
         m_formulaBar->setCellReference(QString::fromStdString(cell->name_));

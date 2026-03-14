@@ -142,7 +142,7 @@ namespace lisp {
             if (is_setq || is_define) {
                 auto symbol_name = obj->cdr()->car()->as_symbol_name();
                 auto symbol_def = obj->cdr()->cdr()->car();
-                auto evaluated = evaluate_object(symbol_def);
+                evaluate_object(symbol_def);
 
                 // debug_print(symbol_def);
                 if (is_setq) {

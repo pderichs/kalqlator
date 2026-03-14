@@ -26,7 +26,6 @@ LispSyntaxChecker::LispSyntaxChecker(LispTokens tokens)
 
 void LispSyntaxChecker::check() const {
   check_matching_brackets();
-  // check_valid_functions();
 }
 
 void LispSyntaxChecker::check_matching_brackets() const {
@@ -58,24 +57,5 @@ void LispSyntaxChecker::check_matching_brackets() const {
        << closed_brackets;
     throw LispParserError(error_message.str());
   }
-
-  // if (open_brackets == 0 || closed_brackets == 0) {
-  //   throw LispParserError("Not a lisp expression");
-  // }
 }
 
-void LispSyntaxChecker::check_valid_functions() const {
-  bool next_identifier = false;
-
-  for (const auto &token : tokens_) {
-    if (token.is_open_bracket()) {
-      next_identifier = true;
-    } else if (next_identifier) {
-      if (!token.is_identifier()) {
-        throw LispParserError("Expected function call identifier");
-      }
-
-      next_identifier = false;
-    }
-  }
-}

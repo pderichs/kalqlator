@@ -49,7 +49,7 @@ QJsonObject DocumentJsonSerializer::location_to_json(Location location) {
     return result;
 }
 
-QJsonArray DocumentJsonSerializer::convert_selected_cells_to_json_array(Sheet *sheet) {
+QJsonArray DocumentJsonSerializer::convert_selected_cells_to_json_array(const Sheet *sheet) {
     QJsonArray selected_cells;
     for (const auto &location: sheet->get_selected_cells()) {
         QJsonObject selected_cell = location_to_json(location);
@@ -58,7 +58,7 @@ QJsonArray DocumentJsonSerializer::convert_selected_cells_to_json_array(Sheet *s
     return selected_cells;
 }
 
-QJsonArray DocumentJsonSerializer::get_row_heights(Sheet *sheet) {
+QJsonArray DocumentJsonSerializer::get_row_heights(const Sheet *sheet) {
     QJsonArray result;
     const auto &row_heights = sheet->get_row_heights();
 
@@ -72,7 +72,7 @@ QJsonArray DocumentJsonSerializer::get_row_heights(Sheet *sheet) {
     return result;
 }
 
-QJsonArray DocumentJsonSerializer::get_column_widths(Sheet *sheet) {
+QJsonArray DocumentJsonSerializer::get_column_widths(const Sheet *sheet) {
     QJsonArray result;
     const auto &column_widths = sheet->get_column_widths();
 
@@ -101,7 +101,7 @@ QJsonObject DocumentJsonSerializer::create_macros_json(const MacroMap &map) {
     return result;
 }
 
-bool DocumentJsonSerializer::write_to_file(QString json) const {
+bool DocumentJsonSerializer::write_to_file(const QString &json) const {
     std::ofstream file(filename_, std::ofstream::out);
     if (!file) {
         return false;

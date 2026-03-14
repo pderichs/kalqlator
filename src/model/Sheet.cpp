@@ -34,15 +34,14 @@
 #include "search/SearchOptions.h"
 
 Sheet::Sheet(std::string identifier, std::string name, SheetRegistry *sheet_registry) : id_(std::move(identifier)),
-    name_(std::move(name)), sheet_registry_(sheet_registry) {
-    table_lisp_environment_ = std::make_shared<TableLispEnvironment>();
+    name_(std::move(name)), table_lisp_environment_(std::make_shared<TableLispEnvironment>()), sheet_registry_(sheet_registry) {
     table_lisp_environment_->initialize();
 
     current_selected_cell_ = Location(0, 0);
     selected_cells_.insert(current_selected_cell_);
 }
 
-Cell *Sheet::get_cell(const Location &location) {
+Cell *Sheet::get_cell(const Location &location) const {
     const auto iterator = cells_.find(location);
     if (iterator != cells_.end()) {
         return iterator->second.get();
@@ -51,15 +50,66 @@ Cell *Sheet::get_cell(const Location &location) {
     return nullptr;
 }
 
-Cell *Sheet::get_cell(int row, int column) {
+Cell *Sheet::get_cell(int row, int column) const {
     return get_cell(Location(column, row));
 }
 
-Cell *Sheet::get_cell_by_name(const std::string &name) {
+Cell *Sheet::get_cell_by_name(const std::string &name) const {
     const auto &location = get_cell_location_by_name(name);
     return get_cell(location);
 }
 
+
+Cell *Sheet::create_cell_model(const Location &location) {
+    cells_[location] = std::make_unique<
+        Cell>(location.row(), location.column(), get_cell_name_by_coordinates(location));
+    return cells_[location].get();
+}
+
+Cell *Sheet::get_or_create_cell_by_pos(int row, int column) {
+    auto *cell = get_cell(row, column);
+    if (cell == nullptr) {
+        auto location = Location(column, row);
+        return create_cell_model(location);
+    }
+
+    return cell;
+}
+
+// Called when a new document is loaded
+void Sheet::update_all_cells() {
+    for_each_cell([this](const auto &cell) {
+        // Trigger cell reference update
+        set_cell_content(cell, cell->raw_content_);
+    });
+}
+
+void Sheet::refresh_cells(const std::string &name, const lisp::LispObjectPtr & /*unused*/,
+                          const pdtools::StringVector &dependencies) {
+    std::vector<CellUpdateDoneEvent> events;
+
+    for (const auto &dependency_cell_name: dependencies) {
+        if (dependency_cell_name == name) {
+            continue;
+        }
+
+        auto location = get_cell_location_by_name(dependency_cell_name);
+        auto *cell = get_cell(location.y(), location.x());
+        if (cell != nullptr) {
+            refresh_cell(cell);
+
+            events.push_back(CellUpdateDoneEvent{{.row = cell->row_, .col = cell->column_}, cell});
+        }
+    }
+
+    for (const auto &event: events) {
+        EventDispatcher::dispatch("model:cell_update_done", event);
+    }
+}
+
+void Sheet::set_name(const std::string &name) {
+    name_ = name;
+}
 
 Location Sheet::get_max_cell_locations() const {
     int max_x = 0;
@@ -76,7 +126,7 @@ Location Sheet::get_max_cell_locations() const {
 
 void Sheet::run_macros_by_trigger(const std::string & /*unused*/, const lisp::LispObjectPtrVector &lisp) {
     lisp::Evaluator evaluator(table_lisp_environment_, {});
-    auto result = evaluator.evaluate(lisp);
+    evaluator.evaluate(lisp);
 }
 
 bool Sheet::field_matches_search(const SearchOptions &options, const std::string &field_content,
@@ -112,6 +162,7 @@ bool Sheet::field_matches_search(const SearchOptions &options, const std::string
 
     return false;
 }
+
 
 bool Sheet::matches_search(const SearchOptions &options, const Cell *cell, std::string *out_complete_match) {
     bool match = false;
@@ -165,23 +216,6 @@ FormulaResult Sheet::evaluate_formula(const std::string &formula_text,
     return {.tokens = std::move(tokens), .formula = std::move(formula), .result = std::move(result)};
 }
 
-Cell *Sheet::create_cell_model(const Location &location) {
-    cells_[location] = std::make_unique<
-        Cell>(location.row(), location.column(), get_cell_name_by_coordinates(location));
-    return cells_[location].get();
-}
-
-Cell *Sheet::get_or_create_cell_by_pos(int row, int column) {
-    auto *cell = get_cell(row, column);
-    if (cell == nullptr) {
-        auto location = Location(column, row);
-        return create_cell_model(location);
-    }
-
-    return cell;
-}
-
-
 void Sheet::refresh_cell(Cell *cell) const {
     const std::string content = cell->raw_content_;
     const bool is_func = is_function(content);
@@ -205,41 +239,6 @@ void Sheet::update_cell_contents(
     cell_p->formula_ = std::move(evaluation.formula);
     cell_p->visible_content_ = is_func ? LispObjectStringConverter(evaluation.result).to_str() : content;
     cell_p->raw_formula_ = is_func ? content : "";
-}
-
-// Called when a new document is loaded
-void Sheet::update_all_cells() {
-    for_each_cell([this](const auto &cell) {
-        // Trigger cell reference update
-        set_cell_content(cell, cell->raw_content_);
-    });
-}
-
-void Sheet::refresh_cells(const std::string &name, const lisp::LispObjectPtr & /*unused*/,
-                          const pdtools::StringVector &dependencies) {
-    std::vector<CellUpdateDoneEvent> events;
-
-    for (const auto &dependency_cell_name: dependencies) {
-        if (dependency_cell_name == name) {
-            continue;
-        }
-
-        auto location = get_cell_location_by_name(dependency_cell_name);
-        auto *cell = get_cell(location.y(), location.x());
-        if (cell != nullptr) {
-            refresh_cell(cell);
-
-            events.push_back(CellUpdateDoneEvent{{.row = cell->row_, .col = cell->column_}, cell});
-        }
-    }
-
-    for (const auto &event: events) {
-        EventDispatcher::dispatch("model:cell_update_done", event);
-    }
-}
-
-void Sheet::set_name(const std::string &name) {
-    name_ = name;
 }
 
 std::string modify_user_entry(const std::string &content, bool is_func, bool is_number) {

@@ -48,7 +48,7 @@ size_t Document::add_sheet(std::string identifier, std::string name) {
         }
         const auto &lisp = parsed_macro_cache_.at(Trigger_OnLoad);
 
-        sheet->run_macros_by_trigger(Trigger_OnLoad, lisp);
+        sheet.get()->run_macros_by_trigger(Trigger_OnLoad, lisp);
     }
 
     return result;
@@ -176,12 +176,12 @@ void Document::clear(bool add_initial_sheet) {
 }
 
 Location Document::get_current_selected_cell() const {
-    Sheet *sheet = current_sheet();
+    const Sheet *sheet = current_sheet();
     return sheet->get_current_selected_cell();
 }
 
 LocationSet Document::get_selected_cells() const {
-    Sheet *sheet = current_sheet();
+    const Sheet *sheet = current_sheet();
     return sheet->get_selected_cells();
 }
 
@@ -196,12 +196,12 @@ void Document::set_column_width(size_t column_index, size_t width) const {
 }
 
 std::unordered_map<size_t, size_t> Document::sheet_row_heights() const {
-    Sheet *sheet = current_sheet();
+    const Sheet *sheet = current_sheet();
     return sheet->get_row_heights();
 }
 
 std::unordered_map<size_t, size_t> Document::sheet_column_widths() const {
-    Sheet *sheet = current_sheet();
+    const Sheet *sheet = current_sheet();
     return sheet->get_column_widths();
 }
 
@@ -245,8 +245,8 @@ void Document::select_sheet_and_cell(const std::string &table_name, const Locati
 }
 
 std::string Document::get_cell_raw_content(int row, int col) const {
-    auto *const sheet = current_sheet();
-    auto *const cell = sheet->get_cell(row, col);
+    const auto *const sheet = current_sheet();
+    const auto *const cell = sheet->get_cell(row, col);
 
     if (cell == nullptr) {
         return "";

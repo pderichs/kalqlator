@@ -30,7 +30,6 @@ namespace lisp {
 
   private:
     void check_matching_brackets() const;
-    void check_valid_functions() const;
 
   private:
     LispTokens tokens_;

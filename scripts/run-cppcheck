@@ -1,0 +1,7 @@
+#!/bin/bash
+cppcheck --version
+cppcheck --enable=warning,style,performance,portability \
+         --error-exitcode=1 \
+         --suppress=normalCheckLevelMaxBranches \
+         --suppress=useStlAlgorithm \
+         --project=kalqlator.cppcheck

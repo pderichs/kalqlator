@@ -25,14 +25,18 @@ jobs:
             qt6-tools-dev-tools \
             libqt6test6 \
             clang \
+            cppcheck \
             clang-tidy
 
       - name: Configure (CMake)
         run: |
           cmake -S . -B build
 
-      - name: Build
+      - name: Build and clang-tidy
         run: cmake --build build --parallel 4
+
+      - name: Checks (cppcheck)
+        run: scripts/run-cppcheck
 
       - name: Run tests (CTest)
         working-directory: build

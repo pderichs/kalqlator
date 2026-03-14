@@ -148,7 +148,7 @@ LispObjectPtr Parser::build_dotted_list(const LispObjectPtrVector &vector, unsig
     LispObjectPtr tail = right.back();
 
     LispObjectPtr result = tail;
-    for (auto &iterator: std::ranges::reverse_view(left)) {
+    for (const auto &iterator: std::ranges::reverse_view(left)) {
         result = make_cons(iterator, result);
     }
 
@@ -192,7 +192,7 @@ LispTokens Parser::read_expression(size_t current_token_pos, size_t *ignore_toke
 
         switch (token.id) {
             case SPACE:
-                if (!result.empty() && in_list <= 0) {
+                if (!result.empty() && in_list == 0) {
                     exit = true;
                 } else {
                     // Ignore

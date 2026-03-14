@@ -30,7 +30,7 @@ namespace lisp {
         LispParserError(const std::string &msg, std::string item)
             : std::runtime_error(msg), item_(std::move(item)) {}
 
-        [[nodiscard]] std::string item() const { return item_; }
+        [[nodiscard]] const std::string& item() const { return item_; }
 
     private:
         std::string item_;

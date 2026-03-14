@@ -24,7 +24,8 @@
 #include "../../tools/tools.h"
 using namespace lisp;
 
-Tokenizer::Tokenizer(std::string lisp) : lisp_(std::move(lisp)) {}
+Tokenizer::Tokenizer(std::string lisp) : lisp_(std::move(lisp)) {
+}
 
 bool Tokenizer::digit_sequence_is_number() {
   size_t advanced = 0;

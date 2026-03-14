@@ -42,11 +42,11 @@ public:
 
     static QJsonObject location_to_json(Location location);
 
-    static QJsonArray convert_selected_cells_to_json_array(Sheet *sheet) ;
+    static QJsonArray convert_selected_cells_to_json_array(const Sheet *sheet) ;
 
-    static QJsonArray get_row_heights(Sheet* sheet) ;
+    static QJsonArray get_row_heights(const Sheet* sheet) ;
 
-    static QJsonArray get_column_widths(Sheet* sheet) ;
+    static QJsonArray get_column_widths(const Sheet* sheet) ;
 
     static QJsonObject create_macros_json(const MacroMap & map) ;
 
@@ -72,7 +72,7 @@ public:
     [[nodiscard]] bool open() const;
 
 private:
-    [[nodiscard]] bool write_to_file(QString json) const;
+    [[nodiscard]] bool write_to_file(const QString& json) const;
 
     DocumentPtr document_;
     std::string filename_;

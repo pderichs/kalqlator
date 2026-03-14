@@ -21,7 +21,7 @@
 namespace lisp {
     class EvalError: public std::runtime_error {
     public:
-        EvalError(const std::string &message): runtime_error(message) {}
+        explicit EvalError(const std::string &message): runtime_error(message) {}
     };
 }
 

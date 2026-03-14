@@ -40,7 +40,7 @@ public:
 
     void set_file_name(const std::string &filename) { filename_ = filename; }
 
-    [[nodiscard]] std::string get_file_name() const { return filename_; }
+    [[nodiscard]] const std::string& get_file_name() const { return filename_; }
 
     void set_changed_flag(bool changed) { changed_ = changed; }
     [[nodiscard]] bool changed() const { return changed_; }
@@ -124,7 +124,7 @@ public:
 
     std::string get_cell_raw_content(int row, int col) const;
 
-    MacroMap macro_map() const  { return macros_; }
+    const MacroMap& macro_map() const  { return macros_; }
     void set_macro_map(const MacroMap& map) {
         parsed_macro_cache_.clear();
         macros_ = map;

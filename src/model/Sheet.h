@@ -17,7 +17,6 @@
 #pragma once
 
 #include <memory>
-#include <optional>
 #include <map>
 #include <ranges>
 
@@ -41,15 +40,15 @@ class Sheet {
 public:
     explicit Sheet(std::string identifier, std::string name, SheetRegistry *sheet_registry);
 
-    [[nodiscard]] std::string name() { return name_; }
+    [[nodiscard]] const std::string& name() { return name_; }
 
-    [[nodiscard]] std::string id() const { return id_; }
+    [[nodiscard]] const std::string& id() const { return id_; }
 
-    Cell* get_cell(const Location &location);
+    Cell* get_cell(const Location &location) const;
 
-    Cell* get_cell(int row, int column);
+    Cell* get_cell(int row, int column) const;
 
-    Cell* get_cell_by_name(const std::string &name);
+    Cell* get_cell_by_name(const std::string &name) const;
 
     Cell* create_cell_model(const Location &location);
 
@@ -85,11 +84,11 @@ public:
     void set_name(const std::string &name);
 
     // TODO: Might need to add current cell
-    [[nodiscard]] LocationSet get_selected_cells() const { return selected_cells_; }
+    [[nodiscard]] const LocationSet& get_selected_cells() const { return selected_cells_; }
 
     void set_selected_cells(const LocationSet &current_selection) { selected_cells_ = current_selection; }
 
-    [[nodiscard]] Location get_current_selected_cell() const { return current_selected_cell_; }
+    [[nodiscard]] const Location& get_current_selected_cell() const { return current_selected_cell_; }
 
     [[nodiscard]] lisp::EnvironmentPtr environment() const {
         // TODO: Read only env wrapper?
@@ -107,8 +106,8 @@ public:
         column_widths_[column_index] = width;
     }
 
-    std::unordered_map<size_t, size_t> get_column_widths() const { return column_widths_; }
-    std::unordered_map<size_t, size_t> get_row_heights() const { return row_heights_; }
+    const std::unordered_map<size_t, size_t>& get_column_widths() const { return column_widths_; }
+    const std::unordered_map<size_t, size_t>& get_row_heights() const { return row_heights_; }
 
     void run_macros_by_trigger(const std::string & string, const lisp::LispObjectPtrVector & lisp);
 

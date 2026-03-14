@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<project>
+    <paths>
+        <dir name="."/>
+    </paths>
+    <libraries>
+      <library>qt</library>
+    </libraries>
+    <exclude>
+        <path name="assets/"/>
+        <path name="resources/"/>
+        <path name="Testing/"/>
+        <path name="build/"/>
+        <path name="cmake-build-debug/"/>
+    </exclude>
+    <suppressions>
+      <suppression>
+        <id>normalCheckLevelMaxBranches</id>
+      </suppression>
+      <suppression>
+        <id>useStlAlgorithm</id>
+      </suppression>
+    </suppressions>
+</project>

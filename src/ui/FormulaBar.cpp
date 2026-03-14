@@ -102,8 +102,8 @@ void FormulaBar::clear() {
 void FormulaBar::onExpandClicked() {
     FormulaEditorDialog dialog(this);
 
-    const std::string formula = m_formulaEdit->text().toStdString();
-    const std::string editor_formula = make_non_function(formula);
+    const std::string formula_content = m_formulaEdit->text().toStdString();
+    const std::string editor_formula = make_non_function(formula_content);
     dialog.setFormula(QString::fromStdString(editor_formula));
 
     if (dialog.exec() == QDialog::Accepted) {

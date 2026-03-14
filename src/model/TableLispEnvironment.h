@@ -76,7 +76,7 @@ private:
      */
     NameReferencesMap referenced_by_;
 
-    bool initializing_;
+    bool initializing_{false};
 };
 
 using TableLispEnvironmentPtr = std::shared_ptr<TableLispEnvironment>;

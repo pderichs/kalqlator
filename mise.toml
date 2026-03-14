@@ -28,7 +28,7 @@ find src tests -name '*.cpp' \
 
 [tasks.cppcheck]
 description = "Run cppcheck on all source files"
-run = "cppcheck --enable=all --error-exitcode=1 --suppress=missingIncludeSystem src/"
+run = "scripts/run-cppcheck"
 
 [tasks.check]
 description = "Run all linters (clang-tidy + cppcheck)"

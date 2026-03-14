@@ -51,7 +51,6 @@ namespace lisp {
 
     static LispToken create_space_token();
 
-    void start_parsing();
     LispToken read_string();
     LispToken read_number();
     LispToken read_identifier();
@@ -62,7 +61,7 @@ namespace lisp {
 
   private:
     std::string lisp_;
-    size_t pos_;
+    size_t pos_{0};
   };
 }
 

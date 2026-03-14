@@ -66,32 +66,32 @@ namespace lisp {
             switch (type) {
                 case ExpectedType::t_symbol:
                     QVERIFY(element->is_symbol());
-                    if (const auto* string = std::get_if<std::string>(&*iterator)) {
+                    if (const auto* string = std::get_if<std::string>(iterator)) {
                         QCOMPARE(element->as_symbol_name(), *string);
-                    } else if (const auto* c_str = std::get_if<const char*>(&*iterator)) {
+                    } else if (const auto* c_str = std::get_if<const char*>(iterator)) {
                         QCOMPARE(element->as_symbol_name(), *c_str);
                     }
                     break;
 
                 case ExpectedType::t_string:
                     QVERIFY(element->is_string());
-                    if (const auto* string = std::get_if<std::string>(&*iterator)) {
+                    if (const auto* string = std::get_if<std::string>(iterator)) {
                         QCOMPARE(element->as_string(), *string);
-                    } else if (const auto* c_str = std::get_if<const char*>(&*iterator)) {
+                    } else if (const auto* c_str = std::get_if<const char*>(iterator)) {
                         QCOMPARE(element->as_string(), *c_str);
                     }
                     break;
 
                 case ExpectedType::t_integer:
                     QVERIFY(element->is_integer());
-                    if (const auto* int_value = std::get_if<int>(&*iterator)) {
+                    if (const auto* int_value = std::get_if<int>(iterator)) {
                         QCOMPARE(element->as_int64(), *int_value);
                     }
                     break;
 
                 case ExpectedType::t_double:
                     QVERIFY(!element->is_double());
-                    if (const auto* value = std::get_if<double>(&*iterator)) {
+                    if (const auto* value = std::get_if<double>(iterator)) {
                         QCOMPARE(element->as_double(), *value);
                     }
                     break;

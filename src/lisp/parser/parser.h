@@ -25,8 +25,10 @@
 namespace lisp {
     class Parser {
     public:
-        Parser(LispTokens  tokens): _tokens(std::move(tokens)) {}
+        explicit Parser(LispTokens  tokens): _tokens(std::move(tokens)) {}
+
         [[nodiscard]] LispObjectPtr parse() const;
+
         [[nodiscard]] LispObjectPtrVector parse_all() const;
 
     private:
