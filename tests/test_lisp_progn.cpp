@@ -14,77 +14,80 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include <QtTest/QtTest>
-#include <memory>
-#include "TestBase.h"
+#include "../src/lisp/DefaultEnvironment.h"
 #include "../src/lisp/Evaluator.h"
 #include "../src/lisp/tools.h"
 #include "../src/tools/tools.h"
-#include "../src/lisp/DefaultEnvironment.h"
+#include "TestBase.h"
+#include <QtTest/QtTest>
+#include <memory>
 
 using namespace lisp;
 class LispPrognTests : public TestBase {
-    Q_OBJECT
+  Q_OBJECT
 private slots:
-    static void progn_empty();
+  static void progn_empty();
 
-    static void progn_single_expression();
+  static void progn_single_expression();
 
-    static void progn_multiple_expressions();
+  static void progn_multiple_expressions();
 
-    static void progn_returns_last();
+  static void progn_returns_last();
 
-    static void progn_nested();
+  static void progn_nested();
 
-    static void progn_with_arithmetic();
+  static void progn_with_arithmetic();
 };
 
 void LispPrognTests::progn_empty() {
-    LispObjectPtrVector lisp = parse_all_string("(progn)");
-    EnvironmentPtr env = std::make_shared<DefaultEnvironment>();
-    Evaluator evaluator(env, {});
-    auto result = evaluator.evaluate(lisp);
-    QVERIFY(result->is_nil());
+  LispObjectPtrVector lisp = parse_all_string("(progn)");
+  EnvironmentPtr env = std::make_shared<DefaultEnvironment>();
+  Evaluator evaluator(env, {});
+  auto result = evaluator.evaluate(lisp);
+  QVERIFY(result->is_nil());
 }
 
 void LispPrognTests::progn_single_expression() {
-    LispObjectPtrVector lisp = parse_all_string("(progn 42)");
-    EnvironmentPtr env = std::make_shared<DefaultEnvironment>();
-    Evaluator evaluator(env, {});
-    auto result = evaluator.evaluate(lisp);
-    QCOMPARE(result->as_number(), mpq_class(42));
+  LispObjectPtrVector lisp = parse_all_string("(progn 42)");
+  EnvironmentPtr env = std::make_shared<DefaultEnvironment>();
+  Evaluator evaluator(env, {});
+  auto result = evaluator.evaluate(lisp);
+  QCOMPARE(result->as_number(), mpq_class(42));
 }
 
 void LispPrognTests::progn_multiple_expressions() {
-    LispObjectPtrVector lisp = parse_all_string("(progn 1 2 3)");
-    EnvironmentPtr env = std::make_shared<DefaultEnvironment>();
-    Evaluator evaluator(env, {});
-    auto result = evaluator.evaluate(lisp);
-    QCOMPARE(result->as_number(), mpq_class(3));
+  LispObjectPtrVector lisp = parse_all_string("(progn 1 2 3)");
+  EnvironmentPtr env = std::make_shared<DefaultEnvironment>();
+  Evaluator evaluator(env, {});
+  auto result = evaluator.evaluate(lisp);
+  QCOMPARE(result->as_number(), mpq_class(3));
 }
 
 void LispPrognTests::progn_returns_last() {
-    LispObjectPtrVector lisp = parse_all_string("(progn (+ 1 1) (+ 2 2) (+ 3 3))");
-    EnvironmentPtr env = std::make_shared<DefaultEnvironment>();
-    Evaluator evaluator(env, {});
-    auto result = evaluator.evaluate(lisp);
-    QCOMPARE(result->as_number(), mpq_class(6));
+  LispObjectPtrVector lisp =
+      parse_all_string("(progn (+ 1 1) (+ 2 2) (+ 3 3))");
+  EnvironmentPtr env = std::make_shared<DefaultEnvironment>();
+  Evaluator evaluator(env, {});
+  auto result = evaluator.evaluate(lisp);
+  QCOMPARE(result->as_number(), mpq_class(6));
 }
 
 void LispPrognTests::progn_nested() {
-    LispObjectPtrVector lisp = parse_all_string("(progn (progn 1 2) (progn 3 4))");
-    EnvironmentPtr env = std::make_shared<DefaultEnvironment>();
-    Evaluator evaluator(env, {});
-    auto result = evaluator.evaluate(lisp);
-    QCOMPARE(result->as_number(), mpq_class(4));
+  LispObjectPtrVector lisp =
+      parse_all_string("(progn (progn 1 2) (progn 3 4))");
+  EnvironmentPtr env = std::make_shared<DefaultEnvironment>();
+  Evaluator evaluator(env, {});
+  auto result = evaluator.evaluate(lisp);
+  QCOMPARE(result->as_number(), mpq_class(4));
 }
 
 void LispPrognTests::progn_with_arithmetic() {
-    LispObjectPtrVector lisp = parse_all_string("(progn (* 2 3) (- 10 5) (+ 100 23))");
-    EnvironmentPtr env = std::make_shared<DefaultEnvironment>();
-    Evaluator evaluator(env, {});
-    auto result = evaluator.evaluate(lisp);
-    QCOMPARE(result->as_number(), mpq_class(123));
+  LispObjectPtrVector lisp =
+      parse_all_string("(progn (* 2 3) (- 10 5) (+ 100 23))");
+  EnvironmentPtr env = std::make_shared<DefaultEnvironment>();
+  Evaluator evaluator(env, {});
+  auto result = evaluator.evaluate(lisp);
+  QCOMPARE(result->as_number(), mpq_class(123));
 }
 
 QTEST_MAIN(LispPrognTests)

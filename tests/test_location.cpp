@@ -14,112 +14,97 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include <QtTest/QtTest>
 #include "../src/tools/location.h"
+#include <QtTest/QtTest>
 
-class LocationTests : public QObject
-{
-    Q_OBJECT
+class LocationTests : public QObject {
+  Q_OBJECT
 
 private slots:
-    static void initialLocationIsAtX0Y0()
-    {
-        const Location location;
-        QCOMPARE(location.x(), 0);
-        QCOMPARE(location.y(), 0);
-    }
+  static void initialLocationIsAtX0Y0() {
+    const Location location;
+    QCOMPARE(location.x(), 0);
+    QCOMPARE(location.y(), 0);
+  }
 
-    static void locationAcceptsCoordinates()
-    {
-        const Location location(10, 42);
-        QCOMPARE(location.x(), 10);
-        QCOMPARE(location.y(), 42);
-    }
+  static void locationAcceptsCoordinates() {
+    const Location location(10, 42);
+    QCOMPARE(location.x(), 10);
+    QCOMPARE(location.y(), 42);
+  }
 
-    static void locationLowerThanRespectsX()
-    {
-        const Location location1(9, 42);
-        const Location location2(10, 42);
-        QVERIFY(location1 < location2);
-    }
+  static void locationLowerThanRespectsX() {
+    const Location location1(9, 42);
+    const Location location2(10, 42);
+    QVERIFY(location1 < location2);
+  }
 
-    static void locationLowerThanRespectsY()
-    {
-        const Location location1(10, 42);
-        const Location location2(10, 43);
-        QVERIFY(location1 < location2);
-    }
+  static void locationLowerThanRespectsY() {
+    const Location location1(10, 42);
+    const Location location2(10, 43);
+    QVERIFY(location1 < location2);
+  }
 
-    static void locationLowerThanEquality()
-    {
-        const Location location1(10, 42);
-        const Location location2(10, 42);
-        QVERIFY(!(location1 < location2));
-    }
+  static void locationLowerThanEquality() {
+    const Location location1(10, 42);
+    const Location location2(10, 42);
+    QVERIFY(!(location1 < location2));
+  }
 
-    static void locationLowerThanMismatchX()
-    {
-        const Location location1(11, 42);
-        const Location location2(10, 42);
-        QVERIFY(!(location1 < location2));
-    }
+  static void locationLowerThanMismatchX() {
+    const Location location1(11, 42);
+    const Location location2(10, 42);
+    QVERIFY(!(location1 < location2));
+  }
 
-    static void locationLowerThanMismatchY()
-    {
-        const Location location1(10, 43);
-        const Location location2(10, 42);
-        QVERIFY(!(location1 < location2));
-    }
+  static void locationLowerThanMismatchY() {
+    const Location location1(10, 43);
+    const Location location2(10, 42);
+    QVERIFY(!(location1 < location2));
+  }
 
-    static void locationEqualityNotEqualX()
-    {
-        const Location location1(10, 42);
-        const Location location2(11, 42);
-        QVERIFY(location1 != location2);
-    }
+  static void locationEqualityNotEqualX() {
+    const Location location1(10, 42);
+    const Location location2(11, 42);
+    QVERIFY(location1 != location2);
+  }
 
-    static void locationEqualityNotEqualY()
-    {
-        const Location location1(10, 43);
-        const Location location2(10, 42);
-        QVERIFY(location1 != location2);
-    }
+  static void locationEqualityNotEqualY() {
+    const Location location1(10, 43);
+    const Location location2(10, 42);
+    QVERIFY(location1 != location2);
+  }
 
-    static void locationEqualityEqual()
-    {
-        const Location location1(10, 42);
-        const Location location2(10, 42);
-        QVERIFY(location1 == location2);
-    }
+  static void locationEqualityEqual() {
+    const Location location1(10, 42);
+    const Location location2(10, 42);
+    QVERIFY(location1 == location2);
+  }
 
-    static void locationInEqualityNotEqualX()
-    {
-        const Location location1(10, 42);
-        const Location location2(11, 42);
-        QVERIFY(location1 != location2);
-    }
+  static void locationInEqualityNotEqualX() {
+    const Location location1(10, 42);
+    const Location location2(11, 42);
+    QVERIFY(location1 != location2);
+  }
 
-    static void locationInEqualityNotEqualY()
-    {
-        const Location location1(10, 43);
-        const Location location2(10, 42);
-        QVERIFY(location1 != location2);
-    }
+  static void locationInEqualityNotEqualY() {
+    const Location location1(10, 43);
+    const Location location2(10, 42);
+    QVERIFY(location1 != location2);
+  }
 
-    static void locationInEqualityEqual()
-    {
-        const Location location1(10, 42);
-        const Location location2(10, 42);
-        QVERIFY(location1 == location2);
-    }
+  static void locationInEqualityEqual() {
+    const Location location1(10, 42);
+    const Location location2(10, 42);
+    QVERIFY(location1 == location2);
+  }
 
-    static void addition()
-    {
-        const Location location1(10, 42);
-        const Location location2(1, 2);
-        const auto result = location1 + location2;
-        QCOMPARE(result, Location(11, 44));
-    }
+  static void addition() {
+    const Location location1(10, 42);
+    const Location location2(1, 2);
+    const auto result = location1 + location2;
+    QCOMPARE(result, Location(11, 44));
+  }
 };
 
 QTEST_MAIN(LocationTests)

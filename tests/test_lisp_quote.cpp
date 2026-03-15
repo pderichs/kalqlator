@@ -14,46 +14,45 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include <QtTest/QtTest>
-#include <memory>
+#include "../src/lisp/DefaultEnvironment.h"
+#include "../src/lisp/Evaluator.h"
+#include "../src/lisp/tools.h"
+#include "../src/tools/tools.h"
 #include "TestBase.h"
 #include "test_tools.h"
-#include "../src/lisp/Evaluator.h"
-#include "../src/tools/tools.h"
-#include "../src/lisp/DefaultEnvironment.h"
-#include "../src/lisp/tools.h"
+#include <QtTest/QtTest>
+#include <memory>
 
 using namespace lisp;
 
 class LispQuoteTests : public TestBase {
-    Q_OBJECT
+  Q_OBJECT
 
 private slots:
-    static void quote_symbol();
+  static void quote_symbol();
 
-    static void quote_list();
+  static void quote_list();
 };
 
 void LispQuoteTests::quote_symbol() {
-    // 5 and 5.0 should be identical
-    LispObjectPtrVector lisp = parse_all_string("(quote foo)");
-    EnvironmentPtr env = std::make_shared<DefaultEnvironment>();
-    Evaluator evaluator(env, {});
-    auto result = evaluator.evaluate(lisp);
-    QVERIFY(result->is_symbol());
-    QCOMPARE(result->as_symbol_name(), "foo");
+  // 5 and 5.0 should be identical
+  LispObjectPtrVector lisp = parse_all_string("(quote foo)");
+  EnvironmentPtr env = std::make_shared<DefaultEnvironment>();
+  Evaluator evaluator(env, {});
+  auto result = evaluator.evaluate(lisp);
+  QVERIFY(result->is_symbol());
+  QCOMPARE(result->as_symbol_name(), "foo");
 }
 
 void LispQuoteTests::quote_list() {
-    // 5 and 5.0 should be identical
-    LispObjectPtrVector lisp = parse_all_string("(quote (1 \"Hello\" 3 5))");
-    EnvironmentPtr env = std::make_shared<DefaultEnvironment>();
-    Evaluator evaluator(env, {});
-    auto result = evaluator.evaluate(lisp);
-    checkCons(result, {
-                  ExpectedType::t_number, mpq_class(1), ExpectedType::t_string, "Hello", ExpectedType::t_number,
-                  mpq_class(3), ExpectedType::t_number, mpq_class(5)
-              });
+  // 5 and 5.0 should be identical
+  LispObjectPtrVector lisp = parse_all_string("(quote (1 \"Hello\" 3 5))");
+  EnvironmentPtr env = std::make_shared<DefaultEnvironment>();
+  Evaluator evaluator(env, {});
+  auto result = evaluator.evaluate(lisp);
+  checkCons(result, {ExpectedType::t_number, mpq_class(1),
+                     ExpectedType::t_string, "Hello", ExpectedType::t_number,
+                     mpq_class(3), ExpectedType::t_number, mpq_class(5)});
 }
 
 QTEST_MAIN(LispQuoteTests)

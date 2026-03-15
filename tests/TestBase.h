@@ -16,36 +16,34 @@
 
 #pragma once
 
-#include <QObject>
+#include <QtTest/QtTest>
 
-#include "../src/lisp/types.h"
-#include "../src/lisp/object.h"
-#include "../src/lisp/tokenizer/tokenizer.h"
 #include "../src/lisp/parser/parser.h"
+#include "../src/lisp/tokenizer/tokenizer.h"
+#include "../src/lisp/types.h"
 
 namespace lisp {
-    class TestBase: public QObject {
-    protected:
-        static LispObjectPtr parseString(const std::string &input) {
-            Tokenizer tokenizer(input);
-            LispTokens tokens = tokenizer.scan();
-            Parser parser(tokens);
-            return parser.parse();
-        }
+class TestBase : public QObject {
+protected:
+  static LispObjectPtr parseString(const std::string &input) {
+    Tokenizer tokenizer(input);
+    LispTokens tokens = tokenizer.scan();
+    Parser parser(tokens);
+    return parser.parse();
+  }
 
-        template<typename ExceptionType>
-        static void expectParseError(const std::string &input) {
-            bool exceptionThrown = false;
-            try {
-                parseString(input);
-            } catch (const ExceptionType &) {
-                exceptionThrown = true;
-            } catch (...) {
-                QFAIL("Wrong exception type thrown");
-            }
-            QVERIFY2(exceptionThrown,
-                     ("Expected exception for input: " + input).c_str());
-        }
-    };
-} // lisp
-
+  template <typename ExceptionType>
+  static void expectParseError(const std::string &input) {
+    bool exceptionThrown = false;
+    try {
+      parseString(input);
+    } catch (const ExceptionType &) {
+      exceptionThrown = true;
+    } catch (...) {
+      QFAIL("Wrong exception type thrown");
+    }
+    QVERIFY2(exceptionThrown,
+             ("Expected exception for input: " + input).c_str());
+  }
+};
+} // namespace lisp
