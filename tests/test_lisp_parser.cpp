@@ -18,11 +18,11 @@
 
 #include "TestBase.h"
 #include "test_tools.h"
-#include "../src/lisp/tokenizer/tokenizer.h"
+#include "../src/lisp/tools.h"
 #include "../src/lisp/parser/parser.h"
 #include "../src/lisp/parser/parser_error.h"
+#include "../src/lisp/tokenizer/tokenizer.h"
 #include "../src/tools/tools.h"
-#include "../src/lisp/tools.h"
 
 using namespace lisp;
 
@@ -433,7 +433,7 @@ void LispParserTests::number_very_large_integer() {
     LispObjectPtr result = parseString("9223372036854775807");  // INT64_MAX
     QVERIFY(result);
     QVERIFY(result->is_number());
-    QCOMPARE(result->as_number(), mpq_class(INT64_MAX));
+    QCOMPARE(result->as_number(), mpq_class(std::to_string(INT64_MAX)));
 }
 
 void LispParserTests::number_very_small_double() {
