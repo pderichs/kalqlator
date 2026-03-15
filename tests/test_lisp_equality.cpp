@@ -14,13 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include <QtTest/QtTest>
 #include <memory>
+#include <QtTest/QtTest>
 #include "TestBase.h"
-#include "../src/lisp/Evaluator.h"
-#include "../src/tools/tools.h"
-#include "../src/lisp/tools.h"
 #include "../src/lisp/DefaultEnvironment.h"
+#include "../src/lisp/Evaluator.h"
+#include "../src/lisp/tools.h"
+#include "../src/tools/tools.h"
 
 using namespace lisp;
 class LispEqualityTests : public TestBase {
