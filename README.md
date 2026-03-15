@@ -16,7 +16,7 @@ I created a similar project before using wxWidgets. You can find it here: https:
 
 Some development libraries are required to build this project. For lint jobs you also need `clang-tidy` and `cppcheck`.
 
-For e.g. Debian based systems you can use
+For e.g. **Debian** based systems you can use
 
 ```bash
 sudo apt install \                                                                                                                           2 ↵
@@ -26,6 +26,12 @@ sudo apt install \                                                              
   qt6-tools-dev-tools \
   libgmp-dev libgmpxx4ldbl \
   libqt6test6 
+```
+
+For **Mac OS** you can use Homebrew to install the required libs:
+
+```bash
+brew install qt6 gmp
 ```
 
 #### Lint tools
