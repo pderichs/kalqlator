@@ -25,20 +25,17 @@ sudo apt install \                                                              
   qt6-tools-dev \
   qt6-tools-dev-tools \
   libgmp-dev libgmpxx4ldbl \
+  clang-tidy cppcheck \
   libqt6test6 
 ```
 
 For **Mac OS** you can use Homebrew to install the required libs:
 
 ```bash
-brew install qt6 gmp
+brew install qt6 gmp llvm cppcheck
 ```
 
-#### Lint tools
-
-```bash
-  sudo apt install clang-tidy cppcheck
-```
+**Note:** For linting on Mac OS you might need to manually put run-clang-tidy from `llvm` to your PATH.
 
 ### Build commands
 
