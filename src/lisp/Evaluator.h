@@ -24,30 +24,31 @@
 #include "types.h"
 
 namespace lisp {
-    /**
-     * Interprets Lisp values with a defined environment.
-     */
-    class Evaluator {
-    public:
-        explicit Evaluator(EnvironmentPtr env, std::any context_param) : env_(std::move(env)),
-                                                                       context_param_(std::move(context_param)) {
-        }
+/**
+ * Interprets Lisp values with a defined environment.
+ */
+class Evaluator {
+public:
+  explicit Evaluator(EnvironmentPtr env, std::any context_param)
+      : env_(std::move(env)), context_param_(std::move(context_param)) {}
 
-        LispObjectPtr evaluate_object(const LispObjectPtr &obj);
+  LispObjectPtr evaluate_object(const LispObjectPtr &obj);
 
-        LispObjectPtr evaluate(const LispObjectPtrVector &objects);
+  LispObjectPtr evaluate(const LispObjectPtrVector &objects);
 
-    private:
-        LispObjectPtr evaluate_list(const LispObjectPtr &list);
+private:
+  LispObjectPtr evaluate_list(const LispObjectPtr &list);
 
-        LispObjectPtr call_lambda(const LambdaFunction &lambda_function, const LispObjectPtr &args);
+  LispObjectPtr call_lambda(const LambdaFunction &lambda_function,
+                            const LispObjectPtr &args);
 
-        LispObjectPtr eval_function(const LispObjectPtr &list);
+  LispObjectPtr eval_function(const LispObjectPtr &list);
 
-        static bool is_named_function(const LispObjectPtr &obj, const std::string &function_name);
+  static bool is_named_function(const LispObjectPtr &obj,
+                                const std::string &function_name);
 
-        EnvironmentPtr env_;
+  EnvironmentPtr env_;
 
-        std::any context_param_;
-    };
-} // lisp
+  std::any context_param_;
+};
+} // namespace lisp

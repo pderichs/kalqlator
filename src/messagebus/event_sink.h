@@ -20,6 +20,6 @@
 
 class EventSink {
 public:
-    virtual ~EventSink() = default;
-    virtual void onEvent(const std::string& name, const std::any& payload) = 0;
+  virtual ~EventSink() = default;
+  virtual void onEvent(const std::string &name, const std::any &payload) = 0;
 };

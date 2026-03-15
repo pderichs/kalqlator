@@ -15,9 +15,9 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #pragma once
-#include "CellEvent.h"
 #include "../model/Cell.h"
+#include "CellEvent.h"
 
-struct CellUpdateDoneEvent: CellEvent {
-    Cell* cell;
+struct CellUpdateDoneEvent : CellEvent {
+  Cell *cell;
 };

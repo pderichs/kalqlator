@@ -16,13 +16,12 @@
 
 #pragma once
 
-#include <QStyledItemDelegate>
 #include <QPainter>
+#include <QStyledItemDelegate>
 
 #include "TableCellTypes.h"
 
-class TableErrorDelegate: public QStyledItemDelegate {
+class TableErrorDelegate : public QStyledItemDelegate {
 public:
-    using QStyledItemDelegate::QStyledItemDelegate;
-
+  using QStyledItemDelegate::QStyledItemDelegate;
 };

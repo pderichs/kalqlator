@@ -19,11 +19,8 @@
 #include <stdexcept>
 
 namespace lisp {
-    class ArgumentError : public std::runtime_error {
-    public:
-        explicit ArgumentError(const char *string)
-            : runtime_error(string) {
-        }
-    };
-}
-
+class ArgumentError : public std::runtime_error {
+public:
+  explicit ArgumentError(const char *string) : runtime_error(string) {}
+};
+} // namespace lisp

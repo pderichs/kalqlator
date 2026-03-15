@@ -16,33 +16,27 @@
 
 #pragma once
 
-
-#include "../object.h"
 #include "../NumericOperation.h"
+#include "../object.h"
 
 namespace lisp {
-    const NativeFn FnAddition = NativeFn{
-        [](const LispObjectPtr &args, const std::any&) {
-            return numeric_fold(args, std::plus<>{}, 0);
-        }
-    };
+const NativeFn FnAddition =
+    NativeFn{[](const LispObjectPtr &args, const std::any &) {
+      return numeric_fold(args, std::plus<>{}, 0);
+    }};
 
-    const NativeFn FnSubtraction = NativeFn{
-        [](const LispObjectPtr &args, const std::any&) {
-            return numeric_fold(args->cdr(), std::minus<>{}, to_numeric(args->car()));
-        }
-    };
+const NativeFn FnSubtraction =
+    NativeFn{[](const LispObjectPtr &args, const std::any &) {
+      return numeric_fold(args->cdr(), std::minus<>{}, to_numeric(args->car()));
+    }};
 
-    const NativeFn FnDivision = NativeFn{
-        [](const LispObjectPtr &args, const std::any&) {
-            return numeric_fold(args->cdr(), std::divides<>{}, to_numeric(args->car()));
-        }
-    };
+const NativeFn FnDivision = NativeFn{[](const LispObjectPtr &args,
+                                        const std::any &) {
+  return numeric_fold(args->cdr(), std::divides<>{}, to_numeric(args->car()));
+}};
 
-    const NativeFn FnMultiplication = NativeFn{
-        [](const LispObjectPtr &args, const std::any&) {
-            return numeric_fold(args, std::multiplies<>{}, 1);
-        }
-    };
-}
-
+const NativeFn FnMultiplication =
+    NativeFn{[](const LispObjectPtr &args, const std::any &) {
+      return numeric_fold(args, std::multiplies<>{}, 1);
+    }};
+} // namespace lisp

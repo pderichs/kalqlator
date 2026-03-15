@@ -16,313 +16,322 @@
 
 #include "DocumentJsonSerializer.h"
 
-#include <fstream>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QStringLiteral>
+#include <fstream>
 
 #define KALQLATOR_VERSION "0.0.1"
 
 QJsonArray DocumentJsonSerializer::create_cells_array(Sheet *sheet) {
-    QJsonArray cellsArray;
+  QJsonArray cellsArray;
 
-    sheet->for_each_cell([&cellsArray](const Cell *cell) {
-        if (!cell->empty()) {
-            QJsonObject cell1;
+  sheet->for_each_cell([&cellsArray](const Cell *cell) {
+    if (!cell->empty()) {
+      QJsonObject cell1;
 
-            cell1["name"] = QString::fromStdString(cell->name_);
-            cell1["content"] = QString::fromStdString(cell->raw_content_);
+      cell1["name"] = QString::fromStdString(cell->name_);
+      cell1["content"] = QString::fromStdString(cell->raw_content_);
 
-            cellsArray.append(cell1);
-        }
-    });
+      cellsArray.append(cell1);
+    }
+  });
 
-    return cellsArray;
+  return cellsArray;
 }
 
 QJsonObject DocumentJsonSerializer::location_to_json(Location location) {
-    QJsonObject result;
+  QJsonObject result;
 
-    result["x"] = static_cast<int>(location.x());
-    result["y"] = static_cast<int>(location.y());
+  result["x"] = static_cast<int>(location.x());
+  result["y"] = static_cast<int>(location.y());
 
-    return result;
+  return result;
 }
 
-QJsonArray DocumentJsonSerializer::convert_selected_cells_to_json_array(const Sheet *sheet) {
-    QJsonArray selected_cells;
-    for (const auto &location: sheet->get_selected_cells()) {
-        QJsonObject selected_cell = location_to_json(location);
-        selected_cells.append(selected_cell);
-    }
-    return selected_cells;
+QJsonArray DocumentJsonSerializer::convert_selected_cells_to_json_array(
+    const Sheet *sheet) {
+  QJsonArray selected_cells;
+  for (const auto &location : sheet->get_selected_cells()) {
+    QJsonObject selected_cell = location_to_json(location);
+    selected_cells.append(selected_cell);
+  }
+  return selected_cells;
 }
 
 QJsonArray DocumentJsonSerializer::get_row_heights(const Sheet *sheet) {
-    QJsonArray result;
-    const auto &row_heights = sheet->get_row_heights();
+  QJsonArray result;
+  const auto &row_heights = sheet->get_row_heights();
 
-    for (const auto &item: row_heights) {
-        QJsonObject rowHeightObj;
-        rowHeightObj["index"] = static_cast<int>(item.first);
-        rowHeightObj["height"] = static_cast<int>(item.second);
-        result.append(rowHeightObj);
-    }
+  for (const auto &item : row_heights) {
+    QJsonObject rowHeightObj;
+    rowHeightObj["index"] = static_cast<int>(item.first);
+    rowHeightObj["height"] = static_cast<int>(item.second);
+    result.append(rowHeightObj);
+  }
 
-    return result;
+  return result;
 }
 
 QJsonArray DocumentJsonSerializer::get_column_widths(const Sheet *sheet) {
-    QJsonArray result;
-    const auto &column_widths = sheet->get_column_widths();
+  QJsonArray result;
+  const auto &column_widths = sheet->get_column_widths();
 
-    for (const auto &item: column_widths) {
-        QJsonObject colWidthObj;
-        colWidthObj["index"] = static_cast<int>(item.first);
-        colWidthObj["width"] = static_cast<int>(item.second);
-        result.append(colWidthObj);
-    }
+  for (const auto &item : column_widths) {
+    QJsonObject colWidthObj;
+    colWidthObj["index"] = static_cast<int>(item.first);
+    colWidthObj["width"] = static_cast<int>(item.second);
+    result.append(colWidthObj);
+  }
 
-    return result;
+  return result;
 }
 
 QJsonObject DocumentJsonSerializer::create_macros_json(const MacroMap &map) {
-    QJsonObject result;
+  QJsonObject result;
 
-    for (const auto &macro: map) {
-        const auto &trigger = macro.first;
-        const auto &definition = macro.second;
+  for (const auto &macro : map) {
+    const auto &trigger = macro.first;
+    const auto &definition = macro.second;
 
-        if (!trigger.empty() && !definition.empty()) {
-            result[QString::fromStdString(trigger)] = QString::fromStdString(definition);
-        }
+    if (!trigger.empty() && !definition.empty()) {
+      result[QString::fromStdString(trigger)] =
+          QString::fromStdString(definition);
     }
+  }
 
-    return result;
+  return result;
 }
 
 bool DocumentJsonSerializer::write_to_file(const QString &json) const {
-    std::ofstream file(filename_, std::ofstream::out);
-    if (!file) {
-        return false;
-    }
+  std::ofstream file(filename_, std::ofstream::out);
+  if (!file) {
+    return false;
+  }
 
-    file << json.toStdString();
-    file.close();
+  file << json.toStdString();
+  file.close();
 
-    return true;
+  return true;
 }
 
 bool DocumentJsonSerializer::save() const {
-    QJsonObject metaObj;
-    metaObj["version"] = KALQLATOR_VERSION;
+  QJsonObject metaObj;
+  metaObj["version"] = KALQLATOR_VERSION;
 
-    QJsonObject workbookObj;
+  QJsonObject workbookObj;
 
-    QJsonArray sheetsArray;
-    int index = 0;
-    for (size_t i = 0; i < document_->sheet_count(); i++) {
-        Sheet *sheet = document_->sheet_by_index(i);
-        if (sheet == nullptr) {
-            continue;
-        }
-
-        QJsonObject sheetObj;
-        sheetObj["index"] = index;
-        sheetObj["id"] = QString::fromStdString(sheet->id());
-        sheetObj["name"] = QString::fromStdString(sheet->name());
-
-        sheetObj["current_cell"] = location_to_json(sheet->get_current_selected_cell());
-
-        QJsonArray selected_cells = convert_selected_cells_to_json_array(sheet);
-        sheetObj["selected_cells"] = selected_cells;
-
-        auto cellsArray = create_cells_array(sheet);
-        sheetObj["cells"] = cellsArray;
-
-        sheetObj["row_heights"] = get_row_heights(sheet);
-        sheetObj["column_widths"] = get_column_widths(sheet);
-
-        sheetsArray.append(sheetObj);
-
-        index++;
+  QJsonArray sheetsArray;
+  int index = 0;
+  for (size_t i = 0; i < document_->sheet_count(); i++) {
+    Sheet *sheet = document_->sheet_by_index(i);
+    if (sheet == nullptr) {
+      continue;
     }
 
-    workbookObj["sheets"] = sheetsArray;
+    QJsonObject sheetObj;
+    sheetObj["index"] = index;
+    sheetObj["id"] = QString::fromStdString(sheet->id());
+    sheetObj["name"] = QString::fromStdString(sheet->name());
 
+    sheetObj["current_cell"] =
+        location_to_json(sheet->get_current_selected_cell());
 
-    MacroMap macros = document_->macro_map();
-    if (!macros.empty()) {
-        workbookObj["macros"] = create_macros_json(macros);
-    }
+    QJsonArray selected_cells = convert_selected_cells_to_json_array(sheet);
+    sheetObj["selected_cells"] = selected_cells;
 
-    QJsonObject rootObj;
-    rootObj["meta"] = metaObj;
-    rootObj["workbook"] = workbookObj;
+    auto cellsArray = create_cells_array(sheet);
+    sheetObj["cells"] = cellsArray;
 
-    QJsonDocument doc(rootObj);
-    QString json = doc.toJson(QJsonDocument::Indented);
+    sheetObj["row_heights"] = get_row_heights(sheet);
+    sheetObj["column_widths"] = get_column_widths(sheet);
 
-    return write_to_file(json);
+    sheetsArray.append(sheetObj);
+
+    index++;
+  }
+
+  workbookObj["sheets"] = sheetsArray;
+
+  MacroMap macros = document_->macro_map();
+  if (!macros.empty()) {
+    workbookObj["macros"] = create_macros_json(macros);
+  }
+
+  QJsonObject rootObj;
+  rootObj["meta"] = metaObj;
+  rootObj["workbook"] = workbookObj;
+
+  QJsonDocument doc(rootObj);
+  QString json = doc.toJson(QJsonDocument::Indented);
+
+  return write_to_file(json);
 }
 
-void DocumentJsonSerializer::create_cell_by_task(Sheet *sheet, const CellValueTask &task) {
-    auto *const cell = sheet->create_cell_model(task.location);
-    cell->name_ = task.name;
-    cell->raw_content_ = task.content;
-    cell->raw_formula_ = task.formula;
+void DocumentJsonSerializer::create_cell_by_task(Sheet *sheet,
+                                                 const CellValueTask &task) {
+  auto *const cell = sheet->create_cell_model(task.location);
+  cell->name_ = task.name;
+  cell->raw_content_ = task.content;
+  cell->raw_formula_ = task.formula;
 }
 
 void DocumentJsonSerializer::setSheetSizes(
-    const QJsonArray &array,
-    const QString &sizeKey,
+    const QJsonArray &array, const QString &sizeKey,
     std::function<void(size_t, size_t)> setter) {
-    for (const auto &item: array) {
-        setter(item[QStringLiteral("index")].toInt(), item[sizeKey].toInt());
-    }
+  for (const auto &item : array) {
+    setter(item[QStringLiteral("index")].toInt(), item[sizeKey].toInt());
+  }
 }
 
-void DocumentJsonSerializer::setSheetRowHeights(Sheet *sheet, const QJsonArray &heights) {
-    setSheetSizes(heights, "height", [&](size_t index, size_t size) { sheet->set_row_height(index, size); });
+void DocumentJsonSerializer::setSheetRowHeights(Sheet *sheet,
+                                                const QJsonArray &heights) {
+  setSheetSizes(heights, "height", [&](size_t index, size_t size) {
+    sheet->set_row_height(index, size);
+  });
 }
 
-void DocumentJsonSerializer::setSheetColumnWidths(Sheet *sheet, const QJsonArray &widths) {
-    setSheetSizes(widths, "width", [&](size_t index, size_t size) { sheet->set_column_width(index, size); });
+void DocumentJsonSerializer::setSheetColumnWidths(Sheet *sheet,
+                                                  const QJsonArray &widths) {
+  setSheetSizes(widths, "width", [&](size_t index, size_t size) {
+    sheet->set_column_width(index, size);
+  });
 }
 
-void DocumentJsonSerializer::applySizes(Sheet *sheet, const QJsonObject &json_values) {
-    const auto &row_array = json_values["row_heights"].toArray();
-    const auto &col_array = json_values["column_widths"].toArray();
+void DocumentJsonSerializer::applySizes(Sheet *sheet,
+                                        const QJsonObject &json_values) {
+  const auto &row_array = json_values["row_heights"].toArray();
+  const auto &col_array = json_values["column_widths"].toArray();
 
-    setSheetRowHeights(sheet, row_array);
-    setSheetColumnWidths(sheet, col_array);
+  setSheetRowHeights(sheet, row_array);
+  setSheetColumnWidths(sheet, col_array);
 }
 
 void DocumentJsonSerializer::add_sheets(const QJsonObject &workbook) const {
-    // Apply values in order - first we set value cells then formulas.
-    std::vector<CellValueTask> values;
-    std::vector<CellValueTask> formulas;
+  // Apply values in order - first we set value cells then formulas.
+  std::vector<CellValueTask> values;
+  std::vector<CellValueTask> formulas;
 
-    int index = 0;
-    QJsonArray sheets = workbook["sheets"].toArray();
-    for (const auto &item: sheets) {
-        QJsonObject jsonSheet = item.toObject();
-        size_t sheet_index = document_->add_sheet(jsonSheet["id"].toString().toStdString(),
-                                                  jsonSheet["name"].toString().toStdString());
-        auto *sheet = document_->sheet_by_index(sheet_index);
+  int index = 0;
+  QJsonArray sheets = workbook["sheets"].toArray();
+  for (const auto &item : sheets) {
+    QJsonObject jsonSheet = item.toObject();
+    size_t sheet_index =
+        document_->add_sheet(jsonSheet["id"].toString().toStdString(),
+                             jsonSheet["name"].toString().toStdString());
+    auto *sheet = document_->sheet_by_index(sheet_index);
 
-        QJsonArray cellsArray = jsonSheet["cells"].toArray();
-        for (const auto &cellItem: cellsArray) {
-            QJsonObject jsonCell = cellItem.toObject();
-            auto name = jsonCell["name"].toString().toStdString();
+    QJsonArray cellsArray = jsonSheet["cells"].toArray();
+    for (const auto &cellItem : cellsArray) {
+      QJsonObject jsonCell = cellItem.toObject();
+      auto name = jsonCell["name"].toString().toStdString();
 
-            std::string content = jsonCell["content"].toString().toStdString();
+      std::string content = jsonCell["content"].toString().toStdString();
 
-            std::string formula;
-            if (is_function(content)) {
-                formula = content;
-            }
+      std::string formula;
+      if (is_function(content)) {
+        formula = content;
+      }
 
-            const Location cell_location = get_cell_location_by_name(name);
+      const Location cell_location = get_cell_location_by_name(name);
 
-            auto task = CellValueTask{
-                .location = cell_location,
-                .name = name,
-                .content = content,
-                .formula = formula
-            };
+      auto task = CellValueTask{.location = cell_location,
+                                .name = name,
+                                .content = content,
+                                .formula = formula};
 
-            if (formula.empty()) {
-                values.push_back(task);
-            } else {
-                formulas.push_back(task);
-            }
-        }
-
-        QJsonArray selected_cells = jsonSheet["selected_cells"].toArray();
-        LocationSet selected_cells_set;
-        for (const auto &selected_cell: selected_cells) {
-            auto selected = selected_cell.toObject();
-            Location location(selected["x"].toInt(), selected["y"].toInt());
-            selected_cells_set.insert(location);
-        }
-        sheet->set_selected_cells(selected_cells_set);
-        QJsonObject current = jsonSheet["current_cell"].toObject();
-        sheet->set_current_cell(Location(current["x"].toInt(), current["y"].toInt()));
-
-        // TODO Sizes
-        applySizes(sheet, jsonSheet);
-
-        document_->set_active_sheet(index);
-
-        for (const auto &task: values) {
-            create_cell_by_task(sheet, task);
-        }
-        for (const auto &task: formulas) {
-            create_cell_by_task(sheet, task);
-        }
-
-        index++;
+      if (formula.empty()) {
+        values.push_back(task);
+      } else {
+        formulas.push_back(task);
+      }
     }
+
+    QJsonArray selected_cells = jsonSheet["selected_cells"].toArray();
+    LocationSet selected_cells_set;
+    for (const auto &selected_cell : selected_cells) {
+      auto selected = selected_cell.toObject();
+      Location location(selected["x"].toInt(), selected["y"].toInt());
+      selected_cells_set.insert(location);
+    }
+    sheet->set_selected_cells(selected_cells_set);
+    QJsonObject current = jsonSheet["current_cell"].toObject();
+    sheet->set_current_cell(
+        Location(current["x"].toInt(), current["y"].toInt()));
+
+    // TODO Sizes
+    applySizes(sheet, jsonSheet);
+
+    document_->set_active_sheet(index);
+
+    for (const auto &task : values) {
+      create_cell_by_task(sheet, task);
+    }
+    for (const auto &task : formulas) {
+      create_cell_by_task(sheet, task);
+    }
+
+    index++;
+  }
 }
 
 void DocumentJsonSerializer::add_macros(const QJsonObject &workbook) const {
-    MacroMap macro_map;
+  MacroMap macro_map;
 
-    if (workbook.contains("macros")) {
-        QJsonObject macros = workbook["macros"].toObject();
+  if (workbook.contains("macros")) {
+    QJsonObject macros = workbook["macros"].toObject();
 
-        for (const auto &trigger: macros.keys()) {
-            const auto &def = macros[trigger];
-            macro_map[trigger.toStdString()] = def.toString().toStdString();
-        }
+    for (const auto &trigger : macros.keys()) {
+      const auto &def = macros[trigger];
+      macro_map[trigger.toStdString()] = def.toString().toStdString();
     }
+  }
 
-    document_->set_macro_map(macro_map);
+  document_->set_macro_map(macro_map);
 }
 
 bool DocumentJsonSerializer::open() const {
-    document_->clear(false); // Do not initialize with sheet
+  document_->clear(false); // Do not initialize with sheet
 
-    std::ifstream file(filename_, std::ifstream::in);
+  std::ifstream file(filename_, std::ifstream::in);
 
-    if (!file) {
-        qWarning() << "Unable to open file";
-        return false;
-    }
+  if (!file) {
+    qWarning() << "Unable to open file";
+    return false;
+  }
 
-    std::stringstream stringstream;
-    std::string line;
-    while (std::getline(file, line)) {
-        stringstream << line;
-    }
+  std::stringstream stringstream;
+  std::string line;
+  while (std::getline(file, line)) {
+    stringstream << line;
+  }
 
-    QByteArray jsonData = QByteArray::fromStdString(stringstream.str());
+  QByteArray jsonData = QByteArray::fromStdString(stringstream.str());
 
-    QJsonDocument doc = QJsonDocument::fromJson(jsonData);
-    if (doc.isNull() || !doc.isObject()) {
-        qWarning() << "Invalid JSON";
-        return false;
-    }
+  QJsonDocument doc = QJsonDocument::fromJson(jsonData);
+  if (doc.isNull() || !doc.isObject()) {
+    qWarning() << "Invalid JSON";
+    return false;
+  }
 
-    QJsonObject rootObj = doc.object();
+  QJsonObject rootObj = doc.object();
 
-    QJsonObject meta = rootObj["meta"].toObject();
-    if (meta["version"].toString() != KALQLATOR_VERSION) {
-        qWarning() << "Invalid version";
-        return false;
-    }
+  QJsonObject meta = rootObj["meta"].toObject();
+  if (meta["version"].toString() != KALQLATOR_VERSION) {
+    qWarning() << "Invalid version";
+    return false;
+  }
 
-    document_->set_file_name(filename_);
+  document_->set_file_name(filename_);
 
-    QJsonObject workbook = rootObj["workbook"].toObject();
+  QJsonObject workbook = rootObj["workbook"].toObject();
 
-    add_sheets(workbook);
+  add_sheets(workbook);
 
-    add_macros(workbook);
+  add_macros(workbook);
 
-    int active_sheet_index = workbook["active_sheet_index"].toInt();
-    document_->set_active_sheet(active_sheet_index);
+  int active_sheet_index = workbook["active_sheet_index"].toInt();
+  document_->set_active_sheet(active_sheet_index);
 
-    return true;
+  return true;
 }

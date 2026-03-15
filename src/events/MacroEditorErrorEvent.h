@@ -3,7 +3,7 @@
 #include <string>
 
 struct MacroEditorErrorEvent {
-    std::string macro;
-    std::string def;
-    std::string message;
+  std::string macro;
+  std::string def;
+  std::string message;
 };

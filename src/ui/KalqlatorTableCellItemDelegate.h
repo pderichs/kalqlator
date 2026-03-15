@@ -16,45 +16,43 @@
 
 #pragma once
 
-#include <QStyledItemDelegate>
 #include <QLineEdit>
 #include <QPainter>
+#include <QStyledItemDelegate>
 
 #include "TableCellTypes.h"
 
-class KalqlatorTableCellItemDelegate: public QStyledItemDelegate {
+class KalqlatorTableCellItemDelegate : public QStyledItemDelegate {
 public:
-    using QStyledItemDelegate::QStyledItemDelegate;
+  using QStyledItemDelegate::QStyledItemDelegate;
 
-    void paint(QPainter *painter, const QStyleOptionViewItem &option,
-                   const QModelIndex &index) const override
-    {
-        QStyledItemDelegate::paint(painter, option, index);
+  void paint(QPainter *painter, const QStyleOptionViewItem &option,
+             const QModelIndex &index) const override {
+    QStyledItemDelegate::paint(painter, option, index);
 
-        bool hasError = index.data(ErrorRole).toBool();
-        if (hasError) {
-            painter->save();
-            painter->setPen(QPen(Qt::red, 2));
-            painter->drawRect(option.rect.adjusted(1, 1, -1, -1));
-            painter->restore();
-        }
+    bool hasError = index.data(ErrorRole).toBool();
+    if (hasError) {
+      painter->save();
+      painter->setPen(QPen(Qt::red, 2));
+      painter->drawRect(option.rect.adjusted(1, 1, -1, -1));
+      painter->restore();
     }
+  }
 
-    void setEditorData(QWidget *editor, const QModelIndex &index) const override {
-        if (auto *lineEdit = qobject_cast<QLineEdit*>(editor)) {
-            lineEdit->setText(index.data(FormulaRole).toString());
-        } else {
-            QStyledItemDelegate::setEditorData(editor, index);
-        }
+  void setEditorData(QWidget *editor, const QModelIndex &index) const override {
+    if (auto *lineEdit = qobject_cast<QLineEdit *>(editor)) {
+      lineEdit->setText(index.data(FormulaRole).toString());
+    } else {
+      QStyledItemDelegate::setEditorData(editor, index);
     }
+  }
 
-    void setModelData(QWidget *editor, QAbstractItemModel *model,
-                      const QModelIndex &index) const override {
-        if (auto *lineEdit = qobject_cast<QLineEdit*>(editor)) {
-            model->setData(index, lineEdit->text(), FormulaRole);
-        } else {
-            QStyledItemDelegate::setModelData(editor, model, index);
-        }
+  void setModelData(QWidget *editor, QAbstractItemModel *model,
+                    const QModelIndex &index) const override {
+    if (auto *lineEdit = qobject_cast<QLineEdit *>(editor)) {
+      model->setData(index, lineEdit->text(), FormulaRole);
+    } else {
+      QStyledItemDelegate::setModelData(editor, model, index);
     }
+  }
 };
-

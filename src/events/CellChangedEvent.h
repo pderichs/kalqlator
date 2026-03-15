@@ -16,9 +16,9 @@
 
 #pragma once
 
-#include <string>
 #include "CellEvent.h"
+#include <string>
 
-struct CellChangedEvent: public CellEvent {
-    std::string content;
+struct CellChangedEvent : public CellEvent {
+  std::string content;
 };

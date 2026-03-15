@@ -16,45 +16,44 @@
 
 #pragma once
 
-#include <QWidget>
+#include "../model/search/SearchOptions.h"
+#include "KalqWorksheetPanel.h"
+#include <QPushButton>
 #include <QTabWidget>
 #include <QTreeWidget>
-#include <QPushButton>
-#include "KalqWorksheetPanel.h"
-#include "../model/search/SearchOptions.h"
+#include <QWidget>
 
 class KalqSidePanel : public QWidget {
-    Q_OBJECT
+  Q_OBJECT
 
 public:
-    explicit KalqSidePanel(QWidget *parent = nullptr);
+  explicit KalqSidePanel(QWidget *parent = nullptr);
 
-    [[nodiscard]] KalqWorksheetPanel *worksheetPanel() const;
+  [[nodiscard]] KalqWorksheetPanel *worksheetPanel() const;
 
-    [[nodiscard]] QTreeWidget *searchResultWidget() const;
+  [[nodiscard]] QTreeWidget *searchResultWidget() const;
 
-    void clearSearchResults();
+  void clearSearchResults();
 
-    void addSearchResult(const QString &foundString,
-                         const QString &sheet,
-                         const QString &cell,
-                         const SearchResultItemPtr& result_item);
+  void addSearchResult(const QString &foundString, const QString &sheet,
+                       const QString &cell,
+                       const SearchResultItemPtr &result_item);
 
 private slots:
-    void onSearchClicked();
+  void onSearchClicked();
 
-    static void onItemDoubleClicked(QTreeWidgetItem *item, int column);
+  static void onItemDoubleClicked(QTreeWidgetItem *item, int column);
 
 private:
-    void setupUi();
+  void setupUi();
 
-    QTabWidget *tab_widget_ = nullptr;
-    KalqWorksheetPanel *worksheet_panel_ = nullptr;
+  QTabWidget *tab_widget_ = nullptr;
+  KalqWorksheetPanel *worksheet_panel_ = nullptr;
 
-    // Search tab
-    QWidget *search_tab_ = nullptr;
-    QPushButton *btn_search_ = nullptr;
-    QTreeWidget *search_result_ = nullptr;
+  // Search tab
+  QWidget *search_tab_ = nullptr;
+  QPushButton *btn_search_ = nullptr;
+  QTreeWidget *search_result_ = nullptr;
 
-    std::optional<SearchOptions> search_options_;
+  std::optional<SearchOptions> search_options_;
 };

@@ -22,224 +22,228 @@
 #include <gmpxx.h>
 
 #include "../factories.h"
-#include "parser_error.h"
 #include "../tokenizer/syntax_checker.h"
 #include "../tokenizer/tokenizer.h"
+#include "parser_error.h"
 
 using namespace lisp;
 
-LispObjectPtr Parser::parse() const {
-    return parse_all().front();
-}
+LispObjectPtr Parser::parse() const { return parse_all().front(); }
 
 LispObjectPtrVector Parser::parse_all() const {
-    if (count_relevant_tokens() == 0) {
-        return {make_nil()};
+  if (count_relevant_tokens() == 0) {
+    return {make_nil()};
+  }
+
+  LispSyntaxChecker checker(_tokens);
+  checker.check();
+
+  std::stack<std::vector<LispObjectPtr>> stack;
+  stack.emplace(); // Empty vector
+
+  size_t ignore_token_count = 0;
+  size_t current_token_pos = 0;
+
+  for (auto const &token : _tokens) {
+    if (ignore_token_count > 0) {
+      ignore_token_count--;
+      current_token_pos++;
+      continue;
     }
 
-    LispSyntaxChecker checker(_tokens);
-    checker.check();
-
-    std::stack<std::vector<LispObjectPtr> > stack;
-    stack.emplace(); // Empty vector
-
-    size_t ignore_token_count = 0;
-    size_t current_token_pos = 0;
-
-    for (auto const &token: _tokens) {
-        if (ignore_token_count > 0) {
-            ignore_token_count--;
-            current_token_pos++;
-            continue;
-        }
-
-        switch (token.id) {
-            case OPEN_BRACKET: {
-                stack.emplace(); // Empty vector
-                break;
-            }
-
-            case CLOSE_BRACKET: {
-                auto elements = std::move(stack.top());
-                stack.pop();
-
-                if (elements.empty()) {
-                    // Empty list is nil
-                    stack.top().push_back(make_nil());
-                } else {
-                    auto list = vector_to_cons(elements);
-                    stack.top().push_back(list);
-                }
-                break;
-            }
-
-            case STRING: {
-                stack.top().push_back(make_string(std::any_cast<std::string>(token.content)));
-                break;
-            }
-
-            case NUMBER: {
-                stack.top().push_back(make_number(NumberRepresentation{std::any_cast<std::string>(token.content)}));
-                break;
-            }
-
-            case IDENTIFIER: {
-                auto symbolName = std::any_cast<std::string>(token.content);
-                if (symbolName == "nil") {
-                    stack.top().push_back(make_nil());
-                } else if (symbolName == "t") {
-                    stack.top().push_back(make_true());
-                } else if (symbolName == "'") {
-                    // Special case quoting: We recursively read the expression to be quoted and
-                    // put it into a quoted list. Advancement is done via ignore_token_count.
-                    LispTokens expression = read_expression(current_token_pos + 1, &ignore_token_count);
-                    Parser parser(expression);
-                    LispObjectPtr quoted_expression = parser.parse();
-                    LispObjectPtr cons = make_cons(
-                        make_symbol("quote"),
-                        make_cons(quoted_expression, make_nil()));
-                    stack.top().push_back(cons);
-                } else {
-                    stack.top().push_back(make_symbol(symbolName));
-                }
-                break;
-            }
-
-            default:
-                // Just continue.
-                break;
-        }
-
-        current_token_pos++;
+    switch (token.id) {
+    case OPEN_BRACKET: {
+      stack.emplace(); // Empty vector
+      break;
     }
 
-    auto top = stack.top();
-    return top;
+    case CLOSE_BRACKET: {
+      auto elements = std::move(stack.top());
+      stack.pop();
+
+      if (elements.empty()) {
+        // Empty list is nil
+        stack.top().push_back(make_nil());
+      } else {
+        auto list = vector_to_cons(elements);
+        stack.top().push_back(list);
+      }
+      break;
+    }
+
+    case STRING: {
+      stack.top().push_back(
+          make_string(std::any_cast<std::string>(token.content)));
+      break;
+    }
+
+    case NUMBER: {
+      stack.top().push_back(make_number(
+          NumberRepresentation{std::any_cast<std::string>(token.content)}));
+      break;
+    }
+
+    case IDENTIFIER: {
+      auto symbolName = std::any_cast<std::string>(token.content);
+      if (symbolName == "nil") {
+        stack.top().push_back(make_nil());
+      } else if (symbolName == "t") {
+        stack.top().push_back(make_true());
+      } else if (symbolName == "'") {
+        // Special case quoting: We recursively read the expression to be quoted
+        // and put it into a quoted list. Advancement is done via
+        // ignore_token_count.
+        LispTokens expression =
+            read_expression(current_token_pos + 1, &ignore_token_count);
+        Parser parser(expression);
+        LispObjectPtr quoted_expression = parser.parse();
+        LispObjectPtr cons = make_cons(
+            make_symbol("quote"), make_cons(quoted_expression, make_nil()));
+        stack.top().push_back(cons);
+      } else {
+        stack.top().push_back(make_symbol(symbolName));
+      }
+      break;
+    }
+
+    default:
+      // Just continue.
+      break;
+    }
+
+    current_token_pos++;
+  }
+
+  auto top = stack.top();
+  return top;
 }
 
-std::optional<size_t> Parser::find_dot_position(const LispObjectPtrVector &vector) {
-    size_t pos = 0;
-    for (auto const &element: vector) {
-        if (element->is_symbol() && element->as_symbol_name() == ".") {
-            return pos;
-        }
-
-        pos++;
+std::optional<size_t>
+Parser::find_dot_position(const LispObjectPtrVector &vector) {
+  size_t pos = 0;
+  for (auto const &element : vector) {
+    if (element->is_symbol() && element->as_symbol_name() == ".") {
+      return pos;
     }
 
-    return {};
+    pos++;
+  }
+
+  return {};
 }
 
-LispObjectPtr Parser::build_dotted_list(const LispObjectPtrVector &vector, unsigned long dot_position) {
-    LispObjectPtrVector left(vector.begin(), vector.begin() + dot_position);
+LispObjectPtr Parser::build_dotted_list(const LispObjectPtrVector &vector,
+                                        unsigned long dot_position) {
+  LispObjectPtrVector left(vector.begin(), vector.begin() + dot_position);
 
-    if (left.empty()) {
-        throw LispParserError("Nothing before '.'");
-    }
+  if (left.empty()) {
+    throw LispParserError("Nothing before '.'");
+  }
 
-    LispObjectPtrVector right(vector.begin() + dot_position + 1, vector.end());
-    if (right.size() > 1) {
-        throw LispParserError("Right part of . must be 1 element.");
-    }
+  LispObjectPtrVector right(vector.begin() + dot_position + 1, vector.end());
+  if (right.size() > 1) {
+    throw LispParserError("Right part of . must be 1 element.");
+  }
 
-    LispObjectPtr tail = right.back();
+  LispObjectPtr tail = right.back();
 
-    LispObjectPtr result = tail;
-    for (const auto &iterator: std::ranges::reverse_view(left)) {
-        result = make_cons(iterator, result);
-    }
+  LispObjectPtr result = tail;
+  for (const auto &iterator : std::ranges::reverse_view(left)) {
+    result = make_cons(iterator, result);
+  }
 
-    return result;
+  return result;
 }
 
 LispObjectPtr Parser::vector_to_cons(const LispObjectPtrVector &vector) {
-    if (vector.empty()) {
-        return make_nil();
+  if (vector.empty()) {
+    return make_nil();
+  }
+
+  LispObjectPtr result = make_nil();
+
+  // If there is a dot we need to provide a cons cell with the two accompanying
+  // elements. First check if we have this situation:
+  auto dot_position = find_dot_position(vector);
+  if (dot_position == std::nullopt) {
+    for (const auto &element : std::ranges::reverse_view(vector)) {
+      result = make_cons(element, result);
+    }
+  } else {
+    if (*dot_position != vector.size() - 2) {
+      throw LispParserError("Malformed dotted pair");
     }
 
-    LispObjectPtr result = make_nil();
+    result = build_dotted_list(vector, *dot_position);
+  }
 
-    // If there is a dot we need to provide a cons cell with the two accompanying elements.
-    // First check if we have this situation:
-    auto dot_position = find_dot_position(vector);
-    if (dot_position == std::nullopt) {
-        for (const auto &element: std::ranges::reverse_view(vector)) {
-            result = make_cons(element, result);
-        }
-    } else {
-        if (*dot_position != vector.size() - 2) {
-            throw LispParserError("Malformed dotted pair");
-        }
-
-        result = build_dotted_list(vector, *dot_position);
-    }
-
-    return result;
+  return result;
 }
 
-LispTokens Parser::read_expression(size_t current_token_pos, size_t *ignore_token_count) const {
-    LispTokens result;
+LispTokens Parser::read_expression(size_t current_token_pos,
+                                   size_t *ignore_token_count) const {
+  LispTokens result;
 
-    size_t pos_iterator = current_token_pos;
-    bool exit = false;
-    size_t in_list = 0;
+  size_t pos_iterator = current_token_pos;
+  bool exit = false;
+  size_t in_list = 0;
 
-    while (!exit && pos_iterator < _tokens.size()) {
-        const LispToken token = _tokens.at(pos_iterator);
+  while (!exit && pos_iterator < _tokens.size()) {
+    const LispToken token = _tokens.at(pos_iterator);
 
-        switch (token.id) {
-            case SPACE:
-                if (!result.empty() && in_list == 0) {
-                    exit = true;
-                } else {
-                    // Ignore
-                    pos_iterator++;
-                    continue;
-                }
-                break;
-            case OPEN_BRACKET:
-                in_list++;
-                result.push_back(token);
-                break;
-            case IDENTIFIER:
-            case NUMBER:
-            case STRING:
-                result.push_back(token);
-                break;
-            case CLOSE_BRACKET:
-                if (in_list > 0) {
-                    // If there were opened brackets within this run
-                    // we need to add this token.
-                    result.push_back(token);
-                    in_list--;
-                } else {
-                    // If there were no open brackets within
-                    // this scan, we can interpret this as the
-                    // end of the expression.
-                    exit = true;
-
-                    // Jump to condition of while directly without
-                    // increasing "i" here (closing bracket should
-                    // not be ignored!)
-                    continue;
-                }
-                break;
-        }
-
+    switch (token.id) {
+    case SPACE:
+      if (!result.empty() && in_list == 0) {
+        exit = true;
+      } else {
+        // Ignore
         pos_iterator++;
+        continue;
+      }
+      break;
+    case OPEN_BRACKET:
+      in_list++;
+      result.push_back(token);
+      break;
+    case IDENTIFIER:
+    case NUMBER:
+    case STRING:
+      result.push_back(token);
+      break;
+    case CLOSE_BRACKET:
+      if (in_list > 0) {
+        // If there were opened brackets within this run
+        // we need to add this token.
+        result.push_back(token);
+        in_list--;
+      } else {
+        // If there were no open brackets within
+        // this scan, we can interpret this as the
+        // end of the expression.
+        exit = true;
+
+        // Jump to condition of while directly without
+        // increasing "i" here (closing bracket should
+        // not be ignored!)
+        continue;
+      }
+      break;
     }
 
-    *ignore_token_count = pos_iterator - current_token_pos;
+    pos_iterator++;
+  }
 
-    return result;
+  *ignore_token_count = pos_iterator - current_token_pos;
+
+  return result;
 }
 
 size_t Parser::count_relevant_tokens() const {
-    size_t sum = 0;
-    for (auto const &token: _tokens) {
-        if (token.id != SPACE) {
-            sum++;
-        }
+  size_t sum = 0;
+  for (auto const &token : _tokens) {
+    if (token.id != SPACE) {
+      sum++;
     }
-    return sum;
+  }
+  return sum;
 }

@@ -19,22 +19,21 @@
 #include "../lisp/object.h"
 #include "../lisp/tools.h"
 
-
-LispObjectStringConverter::LispObjectStringConverter(lisp::LispObjectPtr object) : object_(std::move(object)) {
-}
+LispObjectStringConverter::LispObjectStringConverter(lisp::LispObjectPtr object)
+    : object_(std::move(object)) {}
 
 std::string LispObjectStringConverter::to_str() const {
-    std::string result;
+  std::string result;
 
-    if (object_->is_number()) {
-        result = to_decimal_string(object_->as_number());
-    } else if (object_->is_string()) {
-        result = object_->as_string();
-    } else if (object_->is_symbol()) {
-        result = object_->as_symbol_name();
-    } else {
-        result = "<value>";
-    }
+  if (object_->is_number()) {
+    result = to_decimal_string(object_->as_number());
+  } else if (object_->is_string()) {
+    result = object_->as_string();
+  } else if (object_->is_symbol()) {
+    result = object_->as_symbol_name();
+  } else {
+    result = "<value>";
+  }
 
-    return result;
+  return result;
 }

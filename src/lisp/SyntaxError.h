@@ -19,10 +19,9 @@
 #include <stdexcept>
 
 namespace lisp {
-    class SyntaxError : public std::runtime_error {
-    public:
-        explicit SyntaxError(const std::string &message) : std::runtime_error(message) {
-        }
-    };
-}
-
+class SyntaxError : public std::runtime_error {
+public:
+  explicit SyntaxError(const std::string &message)
+      : std::runtime_error(message) {}
+};
+} // namespace lisp

@@ -16,7 +16,4 @@
 
 #pragma once
 
-enum MoveSheetDirection {
-    UP,
-    DOWN
-};
+enum MoveSheetDirection { UP, DOWN };

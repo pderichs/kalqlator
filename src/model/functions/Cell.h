@@ -16,16 +16,16 @@
 
 #pragma once
 
+#include "../../lisp/ArgumentError.h"
 #include "../../lisp/object.h"
 #include "../../lisp/tools.h"
-#include "../../lisp/ArgumentError.h"
 
-const lisp::NativeFn FnCell = lisp::NativeFn{
-    [](const lisp::LispObjectPtr &args, const std::any&) -> lisp::LispObjectPtr {
-        if (countListElements(args) != 1) {
-            throw lisp::ArgumentError("Cell requires one argument");
-        }
+const lisp::NativeFn FnCell =
+    lisp::NativeFn{[](const lisp::LispObjectPtr &args,
+                      const std::any &) -> lisp::LispObjectPtr {
+      if (countListElements(args) != 1) {
+        throw lisp::ArgumentError("Cell requires one argument");
+      }
 
-        return args->car();
-    }
-};
+      return args->car();
+    }};

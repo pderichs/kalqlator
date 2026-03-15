@@ -22,39 +22,39 @@ class QLineEdit;
 class QPushButton;
 
 class FormulaBar : public QWidget {
-    Q_OBJECT
+  Q_OBJECT
 
 public:
-    explicit FormulaBar(QWidget *parent = nullptr);
+  explicit FormulaBar(QWidget *parent = nullptr);
 
-    void setFormula(const QString &formula);
-    [[nodiscard]] QString formula() const;
+  void setFormula(const QString &formula);
+  [[nodiscard]] QString formula() const;
 
-    void setCellReference(const QString &ref);
+  void setCellReference(const QString &ref);
 
-    signals:
-        void formulaChanged(const QString &formula);
-    void formulaEditingFinished();
-    void confirmClicked();
-    void cancelClicked();
+signals:
+  void formulaChanged(const QString &formula);
+  void formulaEditingFinished();
+  void confirmClicked();
+  void cancelClicked();
 
 public slots:
-    void clear();
+  void clear();
 
 private slots:
-    void onExpandClicked();
-    void onConfirmClicked();
-    void onCancelClicked();
+  void onExpandClicked();
+  void onConfirmClicked();
+  void onCancelClicked();
 
 private:
-    void createWidgets();
-    void createLayout();
+  void createWidgets();
+  void createLayout();
 
-    QLineEdit *m_cellRefLabel;
-    QLineEdit *m_formulaEdit;
-    QPushButton *m_expandButton;
-    QPushButton *m_confirmButton;
-    QPushButton *m_cancelButton;
+  QLineEdit *m_cellRefLabel;
+  QLineEdit *m_formulaEdit;
+  QPushButton *m_expandButton;
+  QPushButton *m_confirmButton;
+  QPushButton *m_cancelButton;
 
-    QString m_originalFormula;
+  QString m_originalFormula;
 };

@@ -18,8 +18,8 @@
 #include "../model/Cell.h"
 
 struct CellUpdateErrorEvent {
-    Cell* cell;
-    std::string content;
-    std::string error_message;
-    CellErrorType error_type;
+  Cell *cell;
+  std::string content;
+  std::string error_message;
+  CellErrorType error_type;
 };

@@ -12,25 +12,25 @@ class QLabel;
 QT_END_NAMESPACE
 
 class MacroEditorDialog : public QDialog {
-    Q_OBJECT
+  Q_OBJECT
 
 public:
-    explicit MacroEditorDialog(MacroMap *macros, QWidget *parent = nullptr);
+  explicit MacroEditorDialog(MacroMap *macros, QWidget *parent = nullptr);
 
-    MacroMap macros();
+  MacroMap macros();
 
 private slots:
-    void accept() override;
+  void accept() override;
 
 private:
-    void setupUi();
+  void setupUi();
 
-    void onTriggerChanged(const QString &trigger);
+  void onTriggerChanged(const QString &trigger);
 
-    QComboBox *m_triggerCombo{nullptr};
-    QPlainTextEdit *m_editor{nullptr};
-    QDialogButtonBox *m_buttonBox{nullptr};
+  QComboBox *m_triggerCombo{nullptr};
+  QPlainTextEdit *m_editor{nullptr};
+  QDialogButtonBox *m_buttonBox{nullptr};
 
-    MacroMap *m_macros;
-    std::string m_previousTrigger;
+  MacroMap *m_macros;
+  std::string m_previousTrigger;
 };

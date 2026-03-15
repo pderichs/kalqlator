@@ -18,15 +18,11 @@
 
 #include <string>
 
-enum class SearchScope {
-    ContentAndFormula,
-    OnlyContent,
-    OnlyFormula
-};
+enum class SearchScope { ContentAndFormula, OnlyContent, OnlyFormula };
 
 struct SearchOptions {
-    std::string searchString;
-    SearchScope scope;
-    bool caseSensitive;
-    bool useRegularExpression;
+  std::string searchString;
+  SearchScope scope;
+  bool caseSensitive;
+  bool useRegularExpression;
 };

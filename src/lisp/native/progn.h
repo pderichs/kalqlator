@@ -19,18 +19,16 @@
 #include "../factories.h"
 
 namespace lisp {
-    // Evaluator is already evaluating list parts. So our
-    // progn can be really simple.
-    const NativeFn FnProgn = NativeFn{
-        [](const LispObjectPtr &args, const std::any&) {
-            LispObjectPtr result = make_nil();
-            LispObjectPtr current = args;
-            while (current && !current->is_nil()) {
-                result = current->car();
-                current = current->cdr();
-            }
-            return result;
-        }
-    };
-}
-
+// Evaluator is already evaluating list parts. So our
+// progn can be really simple.
+const NativeFn FnProgn =
+    NativeFn{[](const LispObjectPtr &args, const std::any &) {
+      LispObjectPtr result = make_nil();
+      LispObjectPtr current = args;
+      while (current && !current->is_nil()) {
+        result = current->car();
+        current = current->cdr();
+      }
+      return result;
+    }};
+} // namespace lisp

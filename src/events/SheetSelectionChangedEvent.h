@@ -17,5 +17,5 @@
 #pragma once
 
 struct SheetSelectionChangedEvent {
-    int item_index;
+  int item_index;
 };

@@ -16,27 +16,28 @@
 
 #include "CellChangeCommand.h"
 
-CellChangeCommand::CellChangeCommand(DocumentPtr document, const int row, const int col,
-                                     std::string oldValue,
-                                     std::string newValue) : m_document(std::move(document)), m_row(row), m_col(col),
-                                                                    m_oldValue(std::move(oldValue)), m_newValue(std::move(newValue)) {
-    setText(QString("Zelle (%1,%2) ändern").arg(row).arg(col));
+CellChangeCommand::CellChangeCommand(DocumentPtr document, const int row,
+                                     const int col, std::string oldValue,
+                                     std::string newValue)
+    : m_document(std::move(document)), m_row(row), m_col(col),
+      m_oldValue(std::move(oldValue)), m_newValue(std::move(newValue)) {
+  setText(QString("Zelle (%1,%2) ändern").arg(row).arg(col));
 }
 
 void CellChangeCommand::redo() {
-    m_document->set_cell_content(m_row, m_col, m_newValue);
+  m_document->set_cell_content(m_row, m_col, m_newValue);
 }
 
 void CellChangeCommand::undo() {
-    m_document->set_cell_content(m_row, m_col, m_oldValue);
+  m_document->set_cell_content(m_row, m_col, m_oldValue);
 }
 
 bool CellChangeCommand::mergeWith(const QUndoCommand *other) {
-    const auto *cmd = dynamic_cast<const CellChangeCommand *>(other);
-    if (cmd == nullptr || cmd->m_row != m_row || cmd->m_col != m_col) {
-        return false;
-    }
+  const auto *cmd = dynamic_cast<const CellChangeCommand *>(other);
+  if (cmd == nullptr || cmd->m_row != m_row || cmd->m_col != m_col) {
+    return false;
+  }
 
-    m_newValue = cmd->m_newValue;
-    return true;
+  m_newValue = cmd->m_newValue;
+  return true;
 }

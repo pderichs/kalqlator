@@ -21,23 +21,23 @@
 #include <string>
 
 namespace lisp {
-    class UnknownSymbolError : public std::runtime_error {
-    public:
-        explicit UnknownSymbolError(const std::string& unknownSymbol)
-            : std::runtime_error(buildMessage(unknownSymbol))
-            , unknownSymbol_(unknownSymbol)
-        {}
+class UnknownSymbolError : public std::runtime_error {
+public:
+  explicit UnknownSymbolError(const std::string &unknownSymbol)
+      : std::runtime_error(buildMessage(unknownSymbol)),
+        unknownSymbol_(unknownSymbol) {}
 
-        [[nodiscard]] const std::string& symbol() const noexcept { return unknownSymbol_; }
+  [[nodiscard]] const std::string &symbol() const noexcept {
+    return unknownSymbol_;
+  }
 
-    private:
-        std::string unknownSymbol_;
+private:
+  std::string unknownSymbol_;
 
-        static std::string buildMessage(const std::string& symbol) {
-            std::ostringstream oss;
-            oss << "Unknown symbol: '" << symbol << "'";
-            return oss.str();
-        }
-    };
-}
-
+  static std::string buildMessage(const std::string &symbol) {
+    std::ostringstream oss;
+    oss << "Unknown symbol: '" << symbol << "'";
+    return oss.str();
+  }
+};
+} // namespace lisp

@@ -18,38 +18,39 @@
 
 #include <QTableWidget>
 
-#include "KalqlatorTableCellItemDelegate.h"
 #include "../events/CellUpdateDoneEvent.h"
 #include "../tools/location.h"
+#include "KalqlatorTableCellItemDelegate.h"
 
 class KalqlatorTableWidget : public QTableWidget {
-    Q_OBJECT
+  Q_OBJECT
 
 public:
-    explicit KalqlatorTableWidget(int rows, int cols, QWidget *parent = nullptr);
+  explicit KalqlatorTableWidget(int rows, int cols, QWidget *parent = nullptr);
 
-    QTableWidgetItem* query_item_or_create(int row, int col);
+  QTableWidgetItem *query_item_or_create(int row, int col);
 
-    void update_cell(Cell* cell);
+  void update_cell(Cell *cell);
 
-    void clearCell(const QModelIndex &index);
+  void clearCell(const QModelIndex &index);
 
-    void setSelectedCells(const LocationSet& selected_cells, const Location& current_selected_cell);
+  void setSelectedCells(const LocationSet &selected_cells,
+                        const Location &current_selected_cell);
 
-    void clearAndResetSizes();
+  void clearAndResetSizes();
 
 protected:
-    void keyPressEvent(QKeyEvent *event) override;
+  void keyPressEvent(QKeyEvent *event) override;
 
 private slots:
-    void onCellChanged(int row, int col) const;
+  void onCellChanged(int row, int col) const;
 
-    void onSelectionChanged() const;
+  void onSelectionChanged() const;
 
-    static void onColumnResized(int logicalIndex, int oldSize, int newSize);
+  static void onColumnResized(int logicalIndex, int oldSize, int newSize);
 
-    static void onRowResized(int logicalIndex, int oldSize, int newSize);
+  static void onRowResized(int logicalIndex, int oldSize, int newSize);
 
 private:
-    bool internal_cell_update_flag_;
+  bool internal_cell_update_flag_;
 };

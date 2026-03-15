@@ -24,27 +24,27 @@ class QListWidget;
 class QPushButton;
 
 class KalqWorksheetPanel : public QWidget {
-    Q_OBJECT
+  Q_OBJECT
 
 public:
-    explicit KalqWorksheetPanel(QWidget *parent);
+  explicit KalqWorksheetPanel(QWidget *parent);
 
-    [[nodiscard]] QListWidget *listWidget() const;
+  [[nodiscard]] QListWidget *listWidget() const;
 
 private slots:
-    static void onAddClicked();
-    static void onRemoveClicked();
-    static void onMoveUpClicked();
-    static void onMoveDownClicked();
-    static void onRenameClicked();
+  static void onAddClicked();
+  static void onRemoveClicked();
+  static void onMoveUpClicked();
+  static void onMoveDownClicked();
+  static void onRenameClicked();
 
 private:
-    void setupUi();
+  void setupUi();
 
-    QListWidget *list_widget_;
-    QPushButton *btn_add_;
-    QPushButton *btn_remove_;
-    QPushButton *btn_move_up_;
-    QPushButton *btn_move_down_;
-    QPushButton *btn_rename_;
+  QListWidget *list_widget_;
+  QPushButton *btn_add_;
+  QPushButton *btn_remove_;
+  QPushButton *btn_move_up_;
+  QPushButton *btn_move_down_;
+  QPushButton *btn_rename_;
 };

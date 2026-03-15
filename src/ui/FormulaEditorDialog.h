@@ -22,19 +22,19 @@ class QTextEdit;
 class QPushButton;
 
 class FormulaEditorDialog : public QDialog {
-    Q_OBJECT
+  Q_OBJECT
 
 public:
-    explicit FormulaEditorDialog(QWidget *parent = nullptr);
+  explicit FormulaEditorDialog(QWidget *parent = nullptr);
 
-    void setFormula(const QString &formula);
-    [[nodiscard]] QString formula() const;
+  void setFormula(const QString &formula);
+  [[nodiscard]] QString formula() const;
 
 private:
-    void createWidgets();
-    void createLayout();
+  void createWidgets();
+  void createLayout();
 
-    QTextEdit *m_textEdit;
-    QPushButton *m_okButton;
-    QPushButton *m_cancelButton;
+  QTextEdit *m_textEdit;
+  QPushButton *m_okButton;
+  QPushButton *m_cancelButton;
 };

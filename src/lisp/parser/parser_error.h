@@ -20,19 +20,18 @@
 #include <utility>
 
 namespace lisp {
-    /**
-     * Specialized exception class for parser errors.
-     */
-    class LispParserError : public std::runtime_error {
-    public:
-        explicit LispParserError(const std::string &msg)
-            : std::runtime_error(msg) {}
-        LispParserError(const std::string &msg, std::string item)
-            : std::runtime_error(msg), item_(std::move(item)) {}
+/**
+ * Specialized exception class for parser errors.
+ */
+class LispParserError : public std::runtime_error {
+public:
+  explicit LispParserError(const std::string &msg) : std::runtime_error(msg) {}
+  LispParserError(const std::string &msg, std::string item)
+      : std::runtime_error(msg), item_(std::move(item)) {}
 
-        [[nodiscard]] const std::string& item() const { return item_; }
+  [[nodiscard]] const std::string &item() const { return item_; }
 
-    private:
-        std::string item_;
-    };
-}
+private:
+  std::string item_;
+};
+} // namespace lisp

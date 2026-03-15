@@ -16,17 +16,15 @@
 
 #include <sstream>
 
-#include "syntax_checker.h"
 #include "../parser/parser_error.h"
+#include "syntax_checker.h"
 
 using lisp::LispSyntaxChecker;
 
 LispSyntaxChecker::LispSyntaxChecker(LispTokens tokens)
     : tokens_(std::move(tokens)) {}
 
-void LispSyntaxChecker::check() const {
-  check_matching_brackets();
-}
+void LispSyntaxChecker::check() const { check_matching_brackets(); }
 
 void LispSyntaxChecker::check_matching_brackets() const {
   int open_brackets = 0;
@@ -54,8 +52,7 @@ void LispSyntaxChecker::check_matching_brackets() const {
   if (open_brackets != closed_brackets) {
     std::stringstream error_message;
     error_message << "Brackets count mismatch: " << open_brackets << "/"
-       << closed_brackets;
+                  << closed_brackets;
     throw LispParserError(error_message.str());
   }
 }
-

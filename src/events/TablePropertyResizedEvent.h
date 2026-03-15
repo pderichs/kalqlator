@@ -17,7 +17,7 @@
 #pragma once
 
 struct TablePropertyResizedEvent {
-    int logical_index;
-    int old_size;
-    int new_size;
+  int logical_index;
+  int old_size;
+  int new_size;
 };

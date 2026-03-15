@@ -16,10 +16,10 @@
 
 #pragma once
 
-#include <string>
 #include "SheetRegistry.h"
+#include <string>
 
 struct TableContext {
-    std::string source_cell;
-    SheetRegistry* sheet_registry;
+  std::string source_cell;
+  SheetRegistry *sheet_registry;
 };

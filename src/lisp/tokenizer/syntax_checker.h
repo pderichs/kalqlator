@@ -19,19 +19,19 @@
 #include "tokens.h"
 
 namespace lisp {
-  /**
-   * Performs a few additional syntax checks based on a set of tokens.
-   */
-  class LispSyntaxChecker {
-  public:
-    explicit LispSyntaxChecker(LispTokens tokens);
+/**
+ * Performs a few additional syntax checks based on a set of tokens.
+ */
+class LispSyntaxChecker {
+public:
+  explicit LispSyntaxChecker(LispTokens tokens);
 
-    void check() const;
+  void check() const;
 
-  private:
-    void check_matching_brackets() const;
+private:
+  void check_matching_brackets() const;
 
-  private:
-    LispTokens tokens_;
-  };
-}
+private:
+  LispTokens tokens_;
+};
+} // namespace lisp

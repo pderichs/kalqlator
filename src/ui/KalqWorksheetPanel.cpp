@@ -18,115 +18,118 @@
 
 #include <QDebug>
 #include <QFontDatabase>
-#include <QVBoxLayout>
 #include <QListWidget>
 #include <QPushButton>
+#include <QVBoxLayout>
 
 #include "../events/SheetSelectionChangedEvent.h"
 #include "../messagebus/event_dispatcher.h"
 
-KalqWorksheetPanel::KalqWorksheetPanel(QWidget *parent)
-    : QWidget(parent) {
-    setupUi();
+KalqWorksheetPanel::KalqWorksheetPanel(QWidget *parent) : QWidget(parent) {
+  setupUi();
 
-    connect(btn_add_, &QPushButton::clicked, this, &KalqWorksheetPanel::onAddClicked);
-    connect(btn_remove_, &QPushButton::clicked, this, &KalqWorksheetPanel::onRemoveClicked);
-    connect(btn_move_up_, &QPushButton::clicked, this, &KalqWorksheetPanel::onMoveUpClicked);
-    connect(btn_move_down_, &QPushButton::clicked, this, &KalqWorksheetPanel::onMoveDownClicked);
-    connect(btn_rename_, &QPushButton::clicked, this, &KalqWorksheetPanel::onRenameClicked);
+  connect(btn_add_, &QPushButton::clicked, this,
+          &KalqWorksheetPanel::onAddClicked);
+  connect(btn_remove_, &QPushButton::clicked, this,
+          &KalqWorksheetPanel::onRemoveClicked);
+  connect(btn_move_up_, &QPushButton::clicked, this,
+          &KalqWorksheetPanel::onMoveUpClicked);
+  connect(btn_move_down_, &QPushButton::clicked, this,
+          &KalqWorksheetPanel::onMoveDownClicked);
+  connect(btn_rename_, &QPushButton::clicked, this,
+          &KalqWorksheetPanel::onRenameClicked);
 
-    connect(list_widget_, &QListWidget::currentItemChanged,
-            this, [this](QListWidgetItem *current, QListWidgetItem *) {
-                if (current != nullptr) {
-                    EventDispatcher::dispatch("ui:sheet_selection_changed",
-                                              SheetSelectionChangedEvent{list_widget_->row(current)});
-                }
-            });
+  connect(list_widget_, &QListWidget::currentItemChanged, this,
+          [this](QListWidgetItem *current, QListWidgetItem *) {
+            if (current != nullptr) {
+              EventDispatcher::dispatch(
+                  "ui:sheet_selection_changed",
+                  SheetSelectionChangedEvent{list_widget_->row(current)});
+            }
+          });
 }
 
-QListWidget *KalqWorksheetPanel::listWidget() const {
-    return list_widget_;
-}
+QListWidget *KalqWorksheetPanel::listWidget() const { return list_widget_; }
 
 void KalqWorksheetPanel::onAddClicked() {
-    // std::stringstream ss;
-    //
-    // ss << "Table";
-    // ss << document_->sheets().size() + 1;
-    // document_->add_sheet(ss.str());
-    EventDispatcher::dispatch("ui:sheet_add");
+  // std::stringstream ss;
+  //
+  // ss << "Table";
+  // ss << document_->sheets().size() + 1;
+  // document_->add_sheet(ss.str());
+  EventDispatcher::dispatch("ui:sheet_add");
 }
 
 void KalqWorksheetPanel::onRemoveClicked() {
-    EventDispatcher::dispatch("ui:sheet_remove");
+  EventDispatcher::dispatch("ui:sheet_remove");
 }
 
 void KalqWorksheetPanel::onMoveUpClicked() {
-    EventDispatcher::dispatch("ui:sheet_move_up");
+  EventDispatcher::dispatch("ui:sheet_move_up");
 }
 
 void KalqWorksheetPanel::onMoveDownClicked() {
-    EventDispatcher::dispatch("ui:sheet_move_down");
+  EventDispatcher::dispatch("ui:sheet_move_down");
 }
 
 void KalqWorksheetPanel::onRenameClicked() {
-    EventDispatcher::dispatch("ui:sheet_rename");
+  EventDispatcher::dispatch("ui:sheet_rename");
 }
 
 void KalqWorksheetPanel::setupUi() {
-    QFont iconFont("Material Icons", 12);
-    QString arrowUpward("\ue5d8");
-    QString arrowDownward("\ue5db");
-    QString rename("\ue3c9");
-    QString add("\ue145");
-    QString remove("\ue15b");
+  QFont iconFont("Material Icons", 12);
+  QString arrowUpward("\ue5d8");
+  QString arrowDownward("\ue5db");
+  QString rename("\ue3c9");
+  QString add("\ue145");
+  QString remove("\ue15b");
 
-    // Buttons
-    btn_add_ = new QPushButton(this);
-    btn_remove_ = new QPushButton(this);
-    btn_move_up_ = new QPushButton(this);
-    btn_move_down_ = new QPushButton(this);
-    btn_rename_ = new QPushButton(this);
+  // Buttons
+  btn_add_ = new QPushButton(this);
+  btn_remove_ = new QPushButton(this);
+  btn_move_up_ = new QPushButton(this);
+  btn_move_down_ = new QPushButton(this);
+  btn_rename_ = new QPushButton(this);
 
-    btn_add_->setFont(iconFont);
-    btn_remove_->setFont(iconFont);
-    btn_move_up_->setFont(iconFont);
-    btn_move_down_->setFont(iconFont);
-    btn_rename_->setFont(iconFont);
+  btn_add_->setFont(iconFont);
+  btn_remove_->setFont(iconFont);
+  btn_move_up_->setFont(iconFont);
+  btn_move_down_->setFont(iconFont);
+  btn_rename_->setFont(iconFont);
 
-    btn_add_->setText(add);
-    btn_remove_->setText(remove);
-    btn_move_up_->setText(arrowUpward);
-    btn_move_down_->setText(arrowDownward);
-    btn_rename_->setText(rename);
+  btn_add_->setText(add);
+  btn_remove_->setText(remove);
+  btn_move_up_->setText(arrowUpward);
+  btn_move_down_->setText(arrowDownward);
+  btn_rename_->setText(rename);
 
-    // TODO: Tooltips / Statusbar hints
+  // TODO: Tooltips / Statusbar hints
 
-    constexpr int button_size = 24;
-    btn_add_->setFixedSize(button_size, button_size);
-    btn_remove_->setFixedSize(button_size, button_size);
-    btn_move_up_->setFixedSize(button_size, button_size);
-    btn_move_down_->setFixedSize(button_size, button_size);
-    btn_rename_->setFixedSize(button_size, button_size);
+  constexpr int button_size = 24;
+  btn_add_->setFixedSize(button_size, button_size);
+  btn_remove_->setFixedSize(button_size, button_size);
+  btn_move_up_->setFixedSize(button_size, button_size);
+  btn_move_down_->setFixedSize(button_size, button_size);
+  btn_rename_->setFixedSize(button_size, button_size);
 
-    // Toolbar
-    auto *buttonLayout = new QHBoxLayout;
-    buttonLayout->setContentsMargins(0, 0, 0, 0);
-    buttonLayout->setSpacing(2);
-    buttonLayout->addStretch();
-    buttonLayout->addWidget(btn_add_);
-    buttonLayout->addWidget(btn_remove_);
-    buttonLayout->addWidget(btn_move_up_);
-    buttonLayout->addWidget(btn_move_down_);
-    buttonLayout->addWidget(btn_rename_);
+  // Toolbar
+  auto *buttonLayout = new QHBoxLayout;
+  buttonLayout->setContentsMargins(0, 0, 0, 0);
+  buttonLayout->setSpacing(2);
+  buttonLayout->addStretch();
+  buttonLayout->addWidget(btn_add_);
+  buttonLayout->addWidget(btn_remove_);
+  buttonLayout->addWidget(btn_move_up_);
+  buttonLayout->addWidget(btn_move_down_);
+  buttonLayout->addWidget(btn_rename_);
 
-    // List
-    list_widget_ = new QListWidget(this);
+  // List
+  list_widget_ = new QListWidget(this);
 
-    // Main Layout
-    auto *mainLayout = new QVBoxLayout(this);
-    mainLayout->setContentsMargins(0, 0, 0, 0);
-    mainLayout->setSpacing(2);
-    mainLayout->addLayout(buttonLayout);
-    mainLayout->addWidget(list_widget_);
+  // Main Layout
+  auto *mainLayout = new QVBoxLayout(this);
+  mainLayout->setContentsMargins(0, 0, 0, 0);
+  mainLayout->setSpacing(2);
+  mainLayout->addLayout(buttonLayout);
+  mainLayout->addWidget(list_widget_);
 }

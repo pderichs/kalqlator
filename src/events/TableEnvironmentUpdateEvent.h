@@ -16,12 +16,12 @@
 
 #pragma once
 
-#include <string>
 #include "../lisp/object.h"
 #include "../tools/tools.h"
+#include <string>
 
 struct TableEnvironmentUpdateEvent {
-    std::string name;
-    lisp::LispObjectPtr value;
-    pdtools::StringVector dependencies_in_topological_order;
+  std::string name;
+  lisp::LispObjectPtr value;
+  pdtools::StringVector dependencies_in_topological_order;
 };

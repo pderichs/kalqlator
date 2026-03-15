@@ -18,10 +18,8 @@
 
 #include <stdexcept>
 
-class NotImplementedError: public std::runtime_error {
+class NotImplementedError : public std::runtime_error {
 public:
-    explicit NotImplementedError(const std::string &__arg)
-        : runtime_error(__arg) {
-    }
+  explicit NotImplementedError(const std::string &__arg)
+      : runtime_error(__arg) {}
 };
-

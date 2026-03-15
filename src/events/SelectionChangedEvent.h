@@ -18,7 +18,6 @@
 #include "../tools/location.h"
 
 struct SelectionChangedEvent {
-    LocationSet selection;
-    Location current_cell;
+  LocationSet selection;
+  Location current_cell;
 };
-

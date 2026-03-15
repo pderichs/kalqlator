@@ -17,6 +17,6 @@
 #pragma once
 
 struct CellEvent {
-    int row;
-    int col;
+  int row;
+  int col;
 };

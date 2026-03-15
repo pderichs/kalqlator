@@ -14,7 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-
 #include "DefaultEnvironment.h"
 #include "native/calculation.h"
 #include "native/car.h"
@@ -22,36 +21,36 @@
 #include "native/eq.h"
 #include "native/greater.h"
 #include "native/list.h"
-#include "native/progn.h"
 #include "native/number_equality.h"
+#include "native/progn.h"
 #include "native/smaller.h"
 
 namespace lisp {
-    DefaultEnvironment::DefaultEnvironment() : Environment(nullptr) {
-        // Initialize all default functions
-        set("+", make_native_fn(FnAddition));
-        set("-", make_native_fn(FnSubtraction));
-        set("*", make_native_fn(FnMultiplication));
-        set("/", make_native_fn(FnDivision));
+DefaultEnvironment::DefaultEnvironment() : Environment(nullptr) {
+  // Initialize all default functions
+  set("+", make_native_fn(FnAddition));
+  set("-", make_native_fn(FnSubtraction));
+  set("*", make_native_fn(FnMultiplication));
+  set("/", make_native_fn(FnDivision));
 
-        set("=", make_native_fn(FnNumberEquality));
+  set("=", make_native_fn(FnNumberEquality));
 
-        set("eq", make_native_fn(FnEq));
+  set("eq", make_native_fn(FnEq));
 
-        set("eql", make_native_fn(FnEql));
-        // TODO: "=" function
+  set("eql", make_native_fn(FnEql));
+  // TODO: "=" function
 
-        set("progn", make_native_fn(FnProgn));
+  set("progn", make_native_fn(FnProgn));
 
-        set("car", make_native_fn(FnCar));
-        set("cdr", make_native_fn(FnCdr));
+  set("car", make_native_fn(FnCar));
+  set("cdr", make_native_fn(FnCdr));
 
-        set(">", make_native_fn(FnGreater));
-        set("<", make_native_fn(FnSmaller));
+  set(">", make_native_fn(FnGreater));
+  set("<", make_native_fn(FnSmaller));
 
-        set(">=", make_native_fn(FnNumbersEqualOrGreater));
-        set("<=", make_native_fn(FnNumbersEqualOrSmaller));
+  set(">=", make_native_fn(FnNumbersEqualOrGreater));
+  set("<=", make_native_fn(FnNumbersEqualOrSmaller));
 
-        set("list", make_native_fn(FnList));
-    }
+  set("list", make_native_fn(FnList));
 }
+} // namespace lisp

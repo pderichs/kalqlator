@@ -16,26 +16,26 @@
 
 #pragma once
 
-
 #include <variant>
 
+#include "TypeError.h"
 #include "factories.h"
 #include "object.h"
 #include "tools.h"
-#include "TypeError.h"
 #include "types.h"
 
 namespace lisp {
-    template<typename Op>
-    LispObjectPtr numeric_fold(const LispObjectPtr &args, Op operation, mpq_class start_value) {
-        mpq_class acc = start_value;
-        LispObjectPtr current = args;
+template <typename Op>
+LispObjectPtr numeric_fold(const LispObjectPtr &args, Op operation,
+                           mpq_class start_value) {
+  mpq_class acc = start_value;
+  LispObjectPtr current = args;
 
-        while (current && !current->is_nil()) {
-            acc = operation(acc, to_numeric(current->car()));
-            current = current->cdr();
-        }
+  while (current && !current->is_nil()) {
+    acc = operation(acc, to_numeric(current->car()));
+    current = current->cdr();
+  }
 
-        return make_number(NumberRepresentation{ acc.get_str() });
-    }
-} // lisp
+  return make_number(NumberRepresentation{acc.get_str()});
+}
+} // namespace lisp

@@ -16,32 +16,30 @@
 
 #pragma once
 
+#include "../ArgumentError.h"
 #include "../factories.h"
 #include "../object.h"
 #include "../tools.h"
 #include "../types.h"
-#include "../ArgumentError.h"
 
 namespace lisp {
-    const NativeFn FnGreater = NativeFn{
-        [](const LispObjectPtr &args, const std::any&) -> LispObjectPtr {
-            if (countListElements(args) < 1) {
-                throw ArgumentError("> requires at least one argument");
-            }
+const NativeFn FnGreater =
+    NativeFn{[](const LispObjectPtr &args, const std::any &) -> LispObjectPtr {
+      if (countListElements(args) < 1) {
+        throw ArgumentError("> requires at least one argument");
+      }
 
-            LispObjectPtr first = args->car();
-            if (args->cdr()->is_nil()) {
-                return make_true();
-            }
+      LispObjectPtr first = args->car();
+      if (args->cdr()->is_nil()) {
+        return make_true();
+      }
 
-            LispObjectPtr second = args->cdr()->car();
+      LispObjectPtr second = args->cdr()->car();
 
-            if (numeric_greater(first, second)) {
-                return make_true();
-            }
+      if (numeric_greater(first, second)) {
+        return make_true();
+      }
 
-            return make_nil();
-        }
-    };
-}
-
+      return make_nil();
+    }};
+} // namespace lisp

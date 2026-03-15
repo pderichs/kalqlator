@@ -19,10 +19,9 @@
 #include <stdexcept>
 
 namespace lisp {
-    class TypeError : public std::runtime_error {
-    public:
-        explicit TypeError(const std::string &message) : std::runtime_error(message) {
-        }
-    };
-}
-
+class TypeError : public std::runtime_error {
+public:
+  explicit TypeError(const std::string &message)
+      : std::runtime_error(message) {}
+};
+} // namespace lisp

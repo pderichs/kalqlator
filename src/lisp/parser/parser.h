@@ -23,26 +23,29 @@
 #include "../tokenizer/tokens.h"
 
 namespace lisp {
-    class Parser {
-    public:
-        explicit Parser(LispTokens  tokens): _tokens(std::move(tokens)) {}
+class Parser {
+public:
+  explicit Parser(LispTokens tokens) : _tokens(std::move(tokens)) {}
 
-        [[nodiscard]] LispObjectPtr parse() const;
+  [[nodiscard]] LispObjectPtr parse() const;
 
-        [[nodiscard]] LispObjectPtrVector parse_all() const;
+  [[nodiscard]] LispObjectPtrVector parse_all() const;
 
-    private:
-        LispTokens _tokens;
+private:
+  LispTokens _tokens;
 
-        static std::optional<size_t> find_dot_position(const LispObjectPtrVector & vector);
+  static std::optional<size_t>
+  find_dot_position(const LispObjectPtrVector &vector);
 
-        static LispObjectPtr build_dotted_list(const LispObjectPtrVector & vector, unsigned long dot_position);
+  static LispObjectPtr build_dotted_list(const LispObjectPtrVector &vector,
+                                         unsigned long dot_position);
 
-        static LispObjectPtr vector_to_cons(const std::vector<std::shared_ptr<LispObject>> & vector);
+  static LispObjectPtr
+  vector_to_cons(const std::vector<std::shared_ptr<LispObject>> &vector);
 
-        LispTokens read_expression(size_t current_token_pos, size_t * ignore_token_count) const;
+  LispTokens read_expression(size_t current_token_pos,
+                             size_t *ignore_token_count) const;
 
-        [[nodiscard]] size_t count_relevant_tokens() const;
-    };
-}
-
+  [[nodiscard]] size_t count_relevant_tokens() const;
+};
+} // namespace lisp

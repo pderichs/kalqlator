@@ -16,48 +16,56 @@
 
 #pragma once
 
-#include "types.h"
-#include "object.h"
 #include "TypeError.h"
+#include "object.h"
+#include "types.h"
 
-#include "tokenizer/tokenizer.h"
 #include "parser/parser.h"
+#include "tokenizer/tokenizer.h"
 
 namespace lisp {
-    // TODO: Eval
-    inline mpq_class to_numeric(const LispObjectPtr &value, mpq_class default_value = {0}) {
-        if (value->is_number()) { return mpq_class(value->as_number()); }
-        if (value->is_nil()) { return default_value; }
-        throw TypeError("Only numbers are allowed.");
-    }
-
-    inline size_t countListElements(const LispObjectPtr &list) {
-        size_t count = 0;
-        LispObjectPtr current = list;
-        while (current && current->is_cons()) {
-            count++;
-            current = current->cdr();
-        }
-        return count;
-    }
-
-    inline bool numeric_equal(const LispObjectPtr &first, const LispObjectPtr &second) {
-        return first->as_number() == second->as_number();
-    }
-
-    inline bool numeric_greater(const LispObjectPtr &first, const LispObjectPtr &second) {
-        return first->as_number() > second->as_number();
-    }
-
-    inline bool numeric_smaller(const LispObjectPtr &first, const LispObjectPtr &second) {
-        return first->as_number() < second->as_number();
-    }
-
-    inline LispObjectPtrVector parse_all_string(const std::string &input) {
-        Tokenizer tokenizer(input);
-        LispTokens tokens = tokenizer.scan();
-        Parser parser(tokens);
-        return parser.parse_all();
-    }
-
+// TODO: Eval
+inline mpq_class to_numeric(const LispObjectPtr &value,
+                            mpq_class default_value = {0}) {
+  if (value->is_number()) {
+    return mpq_class(value->as_number());
+  }
+  if (value->is_nil()) {
+    return default_value;
+  }
+  throw TypeError("Only numbers are allowed.");
 }
+
+inline size_t countListElements(const LispObjectPtr &list) {
+  size_t count = 0;
+  LispObjectPtr current = list;
+  while (current && current->is_cons()) {
+    count++;
+    current = current->cdr();
+  }
+  return count;
+}
+
+inline bool numeric_equal(const LispObjectPtr &first,
+                          const LispObjectPtr &second) {
+  return first->as_number() == second->as_number();
+}
+
+inline bool numeric_greater(const LispObjectPtr &first,
+                            const LispObjectPtr &second) {
+  return first->as_number() > second->as_number();
+}
+
+inline bool numeric_smaller(const LispObjectPtr &first,
+                            const LispObjectPtr &second) {
+  return first->as_number() < second->as_number();
+}
+
+inline LispObjectPtrVector parse_all_string(const std::string &input) {
+  Tokenizer tokenizer(input);
+  LispTokens tokens = tokenizer.scan();
+  Parser parser(tokens);
+  return parser.parse_all();
+}
+
+} // namespace lisp

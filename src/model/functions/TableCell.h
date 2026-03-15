@@ -16,41 +16,42 @@
 
 #pragma once
 
-#include "../../lisp/object.h"
-#include "../../lisp/tools.h"
 #include "../../lisp/ArgumentError.h"
 #include "../../lisp/factories.h"
+#include "../../lisp/object.h"
+#include "../../lisp/tools.h"
 #include "../SheetRegistry.h"
 
-const lisp::NativeFn FnTableCell = lisp::NativeFn{
-    [](const lisp::LispObjectPtr &args, const std::any &context_param) -> lisp::LispObjectPtr {
-        if (countListElements(args) != 2) {
-            throw lisp::ArgumentError("TableCell requires two arguments");
-        }
+const lisp::NativeFn FnTableCell =
+    lisp::NativeFn{[](const lisp::LispObjectPtr &args,
+                      const std::any &context_param) -> lisp::LispObjectPtr {
+      if (countListElements(args) != 2) {
+        throw lisp::ArgumentError("TableCell requires two arguments");
+      }
 
-        const auto &table = args->car();
-        const auto &cell_ref = args->cdr()->car();
+      const auto &table = args->car();
+      const auto &cell_ref = args->cdr()->car();
 
-        if (!table->is_string()) {
-            throw lisp::ArgumentError("Table reference must be of type string.");
-        }
+      if (!table->is_string()) {
+        throw lisp::ArgumentError("Table reference must be of type string.");
+      }
 
-        if (!cell_ref->is_string()) {
-            throw lisp::ArgumentError("Cell reference must be of type string.");
-        }
+      if (!cell_ref->is_string()) {
+        throw lisp::ArgumentError("Cell reference must be of type string.");
+      }
 
-        const std::string table_ref = table->as_string();
-        // Future: we could also parse here for a prefix like "id:" to support also id references.
+      const std::string table_ref = table->as_string();
+      // Future: we could also parse here for a prefix like "id:" to support
+      // also id references.
 
-        const auto &context = std::any_cast<TableContext>(context_param);
+      const auto &context = std::any_cast<TableContext>(context_param);
 
-        auto *const sheet = context.sheet_registry->sheet_by_name(table_ref);
-        const auto &cell_symbol = cell_ref->as_string();
-        const auto &env = sheet->environment();
-        if (!env->is_defined(cell_symbol)) {
-            throw lisp::ArgumentError("Cell value must be defined.");
-        }
+      auto *const sheet = context.sheet_registry->sheet_by_name(table_ref);
+      const auto &cell_symbol = cell_ref->as_string();
+      const auto &env = sheet->environment();
+      if (!env->is_defined(cell_symbol)) {
+        throw lisp::ArgumentError("Cell value must be defined.");
+      }
 
-        return env->lookup(cell_symbol);
-    }
-};
+      return env->lookup(cell_symbol);
+    }};

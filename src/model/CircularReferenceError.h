@@ -20,11 +20,11 @@
 
 class CircularReferenceError : public std::runtime_error {
 public:
-    CircularReferenceError(const std::string &message, std::string from_cell,
-                           std::string to_cell) : std::runtime_error(message), from_cell(std::move(from_cell)),
-                                                         to_cell(std::move(to_cell)) {
-    }
+  CircularReferenceError(const std::string &message, std::string from_cell,
+                         std::string to_cell)
+      : std::runtime_error(message), from_cell(std::move(from_cell)),
+        to_cell(std::move(to_cell)) {}
 
-    std::string from_cell;
-    std::string to_cell;
+  std::string from_cell;
+  std::string to_cell;
 };

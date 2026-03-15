@@ -20,34 +20,26 @@
 #include <vector>
 
 namespace lisp {
-  /**
-   * Each token has a specific id. The tokenizer implements the logic to
-   * identify these.
-   */
-  enum TokenID {
-    OPEN_BRACKET,
-    CLOSE_BRACKET,
-    IDENTIFIER,
-    STRING,
-    NUMBER,
-    SPACE
-  };
+/**
+ * Each token has a specific id. The tokenizer implements the logic to
+ * identify these.
+ */
+enum TokenID { OPEN_BRACKET, CLOSE_BRACKET, IDENTIFIER, STRING, NUMBER, SPACE };
 
-  /**
-   * Combines a token id with the actual content from the string.
-   */
-  struct LispToken {
-    TokenID id;
-    std::any content;
+/**
+ * Combines a token id with the actual content from the string.
+ */
+struct LispToken {
+  TokenID id;
+  std::any content;
 
-    [[nodiscard]] bool is_space() const { return id == SPACE; }
-    [[nodiscard]] bool is_identifier() const { return id == IDENTIFIER; }
-    [[nodiscard]] bool is_string() const { return id == STRING; }
-    [[nodiscard]] bool is_number() const { return id == NUMBER; }
-    [[nodiscard]] bool is_open_bracket() const { return id == OPEN_BRACKET; }
-    [[nodiscard]] bool is_closed_bracket() const { return id == CLOSE_BRACKET; }
-  };
+  [[nodiscard]] bool is_space() const { return id == SPACE; }
+  [[nodiscard]] bool is_identifier() const { return id == IDENTIFIER; }
+  [[nodiscard]] bool is_string() const { return id == STRING; }
+  [[nodiscard]] bool is_number() const { return id == NUMBER; }
+  [[nodiscard]] bool is_open_bracket() const { return id == OPEN_BRACKET; }
+  [[nodiscard]] bool is_closed_bracket() const { return id == CLOSE_BRACKET; }
+};
 
-  using LispTokens = std::vector<LispToken>;
-}
-
+using LispTokens = std::vector<LispToken>;
+} // namespace lisp

@@ -19,5 +19,5 @@
 #include "../model/Cell.h"
 
 struct SelectedCellChangedEvent {
-    Cell* cell;
+  Cell *cell;
 };

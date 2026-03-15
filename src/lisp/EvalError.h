@@ -19,9 +19,8 @@
 #include <stdexcept>
 
 namespace lisp {
-    class EvalError: public std::runtime_error {
-    public:
-        explicit EvalError(const std::string &message): runtime_error(message) {}
-    };
-}
-
+class EvalError : public std::runtime_error {
+public:
+  explicit EvalError(const std::string &message) : runtime_error(message) {}
+};
+} // namespace lisp

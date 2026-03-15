@@ -22,12 +22,12 @@
 #include <any>
 #include <memory>
 
-#include "../model/Document.h"
-#include "KalqlatorTableWidget.h"
-#include "KalqSidePanel.h"
-#include "KalqWorksheetPanel.h"
 #include "../events/SelectedCellChangedEvent.h"
 #include "../messagebus/event_sink.h"
+#include "../model/Document.h"
+#include "KalqSidePanel.h"
+#include "KalqWorksheetPanel.h"
+#include "KalqlatorTableWidget.h"
 
 class QTableWidget;
 class QListWidget;
@@ -37,113 +37,111 @@ class QMenu;
 class QAction;
 class FormulaBar;
 
-
 class MainWindow : public QMainWindow, public EventSink {
-    Q_OBJECT
+  Q_OBJECT
 
 public:
-    void registerEventHandlers();
+  void registerEventHandlers();
 
-    explicit MainWindow(QWidget *parent = nullptr);
-    ~MainWindow() override = default;
+  explicit MainWindow(QWidget *parent = nullptr);
+  ~MainWindow() override = default;
 
-    std::string getNewSheetName();
+  std::string getNewSheetName();
 
-    void updateCellSelectionByDocument();
+  void updateCellSelectionByDocument();
 
-    void onEvent(const std::string &name, const std::any& param) override;
+  void onEvent(const std::string &name, const std::any &param) override;
 
 protected:
-    bool hasUnsavedChanges() const;
+  bool hasUnsavedChanges() const;
 
-    void closeEvent(QCloseEvent *event) override;
-
+  void closeEvent(QCloseEvent *event) override;
 
 private slots:
-    void newFile();
-    void openFile();
-    void saveFile();
-    void cut();
-    void copy() const;
-    void paste() const;
+  void newFile();
+  void openFile();
+  void saveFile();
+  void cut();
+  void copy() const;
+  void paste() const;
 
-    void openMacroEditor();
+  void openMacroEditor();
 
-    void about();
+  void about();
 
-    // Formula bar slots
-    void onCellSelectionChanged(const SelectedCellChangedEvent& cell_selection_changed_event) const;
-    void onFormulaEditingFinished();
-    void onFormulaCancelled();
+  // Formula bar slots
+  void onCellSelectionChanged(
+      const SelectedCellChangedEvent &cell_selection_changed_event) const;
+  void onFormulaEditingFinished();
+  void onFormulaCancelled();
 
 private:
-    void updateSheetSizesByDocument();
-    void updateUIAfterSheetChange();
+  void updateSheetSizesByDocument();
+  void updateUIAfterSheetChange();
 
-    template<typename TEvent>
-    void on(const std::string& name, std::function<void(const TEvent&)> handler) {
-        m_handlers[name] = [handler](const std::any& param) {
-            handler(std::any_cast<TEvent>(param));
-        };
-    }
+  template <typename TEvent>
+  void on(const std::string &name,
+          std::function<void(const TEvent &)> handler) {
+    m_handlers[name] = [handler](const std::any &param) {
+      handler(std::any_cast<TEvent>(param));
+    };
+  }
 
-    void on(const std::string& name, std::function<void()> handler) {
-        m_handlers[name] = [handler](const std::any&) {
-            handler();
-        };
-    }
+  void on(const std::string &name, std::function<void()> handler) {
+    m_handlers[name] = [handler](const std::any &) { handler(); };
+  }
 
-    void createActions();
-    void createMenus();
-    void createToolBar();
-    void createFormulaBar();
-    void createCentralWidget();
-    void createDockWidget();
-    void createNewDocument();
-    void updateSheetsList() const;
+  void createActions();
+  void createMenus();
+  void createToolBar();
+  void createFormulaBar();
+  void createCentralWidget();
+  void createDockWidget();
+  void createNewDocument();
+  void updateSheetsList() const;
 
-    // Menus
-    QMenu *m_fileMenu;
-    QMenu *m_editMenu;
-    QMenu *m_viewMenu;
-    QMenu *m_helpMenu;
+  // Menus
+  QMenu *m_fileMenu;
+  QMenu *m_editMenu;
+  QMenu *m_viewMenu;
+  QMenu *m_helpMenu;
 
-    // Toolbar
-    QToolBar *m_toolBar;
+  // Toolbar
+  QToolBar *m_toolBar;
 
-    // Central widgets
-    QWidget *m_centralContainer;
-    FormulaBar *m_formulaBar;
-    KalqlatorTableWidget *m_tableWidget;
+  // Central widgets
+  QWidget *m_centralContainer;
+  FormulaBar *m_formulaBar;
+  KalqlatorTableWidget *m_tableWidget;
 
-    // Dock
-    QDockWidget *m_dockWidget;
-    KalqWorksheetPanel *m_worksheetPanel;
-    QListWidget *m_listWidget;
-    KalqSidePanel *m_sidePanel;
+  // Dock
+  QDockWidget *m_dockWidget;
+  KalqWorksheetPanel *m_worksheetPanel;
+  QListWidget *m_listWidget;
+  KalqSidePanel *m_sidePanel;
 
-    bool model_cell_selection_update_;
+  bool model_cell_selection_update_;
 
-    // Actions
-    QAction *m_newAction;
-    QAction *m_openAction;
-    QAction *m_saveAction;
-    QAction *m_exitAction;
-    QAction *m_undoAction;
-    QAction *m_redoAction;
-    QAction *m_cutAction;
-    QAction *m_copyAction;
-    QAction *m_pasteAction;
-    QAction *m_toggleDockAction;
-    QAction *m_aboutAction;
-    QAction *m_editMacros;
+  // Actions
+  QAction *m_newAction;
+  QAction *m_openAction;
+  QAction *m_saveAction;
+  QAction *m_exitAction;
+  QAction *m_undoAction;
+  QAction *m_redoAction;
+  QAction *m_cutAction;
+  QAction *m_copyAction;
+  QAction *m_pasteAction;
+  QAction *m_toggleDockAction;
+  QAction *m_aboutAction;
+  QAction *m_editMacros;
 
-    // Event handling
-    using EventHandler = std::function<void(const std::any&)>;
-    std::unordered_map<std::string, EventHandler> m_handlers;
+  // Event handling
+  using EventHandler = std::function<void(const std::any &)>;
+  std::unordered_map<std::string, EventHandler> m_handlers;
 
-    QUndoStack* m_undoStack;
+  QUndoStack *m_undoStack;
 
-    // Current document
-    DocumentPtr document_;
+  // Current document
+  DocumentPtr document_;
 };

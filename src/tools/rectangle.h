@@ -115,4 +115,3 @@ public:
     return result;
   }
 };
-

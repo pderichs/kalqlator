@@ -16,8 +16,8 @@
 
 #pragma once
 
-#include <QDialog>
 #include "../model/search/SearchOptions.h"
+#include <QDialog>
 
 class QLineEdit;
 class QComboBox;
@@ -25,32 +25,33 @@ class QCheckBox;
 class QPushButton;
 
 class SearchDialog : public QDialog {
-    Q_OBJECT
+  Q_OBJECT
 
 public:
-    explicit SearchDialog(QWidget *parent = nullptr);
+  explicit SearchDialog(QWidget *parent = nullptr);
 
-    explicit SearchDialog(const SearchOptions &initialOptions, QWidget *parent = nullptr);
+  explicit SearchDialog(const SearchOptions &initialOptions,
+                        QWidget *parent = nullptr);
 
-    [[nodiscard]] SearchOptions searchOptions() const;
+  [[nodiscard]] SearchOptions searchOptions() const;
 
 private slots:
-    void onUseRegexToggled(bool checked);
+  void onUseRegexToggled(bool checked);
 
-    void onClearClicked();
+  void onClearClicked();
 
 private:
-    void setupUi();
+  void setupUi();
 
-    void setupConnections();
+  void setupConnections();
 
-    void applyOptions(const SearchOptions &options);
+  void applyOptions(const SearchOptions &options);
 
-    QLineEdit *m_searchInput;
-    QComboBox *m_scopeCombo;
-    QCheckBox *m_caseSensitiveCheck;
-    QCheckBox *m_useRegexCheck;
-    QPushButton *m_okButton;
-    QPushButton *m_cancelButton;
-    QPushButton *m_clearButton;
+  QLineEdit *m_searchInput;
+  QComboBox *m_scopeCombo;
+  QCheckBox *m_caseSensitiveCheck;
+  QCheckBox *m_useRegexCheck;
+  QPushButton *m_okButton;
+  QPushButton *m_cancelButton;
+  QPushButton *m_clearButton;
 };

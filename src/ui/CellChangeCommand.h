@@ -20,21 +20,21 @@
 
 #include "../model/Document.h"
 
-class CellChangeCommand: public QUndoCommand {
+class CellChangeCommand : public QUndoCommand {
 public:
-    CellChangeCommand(DocumentPtr document, int row, int col, std::string oldValue, std::string newValue);
+  CellChangeCommand(DocumentPtr document, int row, int col,
+                    std::string oldValue, std::string newValue);
 
-    void redo() override;
-    void undo() override;
+  void redo() override;
+  void undo() override;
 
-    // Merge changes
-    bool mergeWith(const QUndoCommand* other) override;
+  // Merge changes
+  bool mergeWith(const QUndoCommand *other) override;
 
-    [[nodiscard]] int id() const override { return 1; } // required for mergeWith
+  [[nodiscard]] int id() const override { return 1; } // required for mergeWith
 
 private:
-    DocumentPtr m_document;
-    int m_row, m_col;
-    std::string m_oldValue, m_newValue;
+  DocumentPtr m_document;
+  int m_row, m_col;
+  std::string m_oldValue, m_newValue;
 };
-

@@ -16,262 +16,270 @@
 
 #include "Document.h"
 
-#include "triggers.h"
 #include "../events/MacroErrorEvent.h"
-#include "../ui/user_interface_tools.h"
-#include "../messagebus/event_dispatcher.h"
-#include "../lisp/tokenizer/tokenizer.h"
 #include "../lisp/parser/parser.h"
+#include "../lisp/tokenizer/tokenizer.h"
 #include "../lisp/tools.h"
+#include "../messagebus/event_dispatcher.h"
+#include "../ui/user_interface_tools.h"
+#include "triggers.h"
 
 void Document::initialize(const bool add_initial_sheet) {
-    if (add_initial_sheet) {
-        add_next_sheet();
-    }
+  if (add_initial_sheet) {
+    add_next_sheet();
+  }
 
-    set_changed_flag(false);
-    set_active_sheet(0);
-    filename_.clear();
+  set_changed_flag(false);
+  set_active_sheet(0);
+  filename_.clear();
 }
 
 size_t Document::add_sheet(std::string identifier, std::string name) {
-    const size_t result = sheets_.size();
+  const size_t result = sheets_.size();
 
-    auto sheet = std::make_unique<Sheet>(identifier, name, this);
-    sheets_.push_back(std::move(sheet));
+  auto sheet = std::make_unique<Sheet>(identifier, name, this);
+  sheets_.push_back(std::move(sheet));
 
-    set_changed_flag(true);
+  set_changed_flag(true);
 
-    if (macros_.contains(Trigger_OnLoad)) {
-        if (!parsed_macro_cache_.contains(Trigger_OnLoad)) {
-            parsed_macro_cache_[Trigger_OnLoad] = lisp::parse_all_string(macros_.at(Trigger_OnLoad));
-        }
-        const auto &lisp = parsed_macro_cache_.at(Trigger_OnLoad);
-
-        sheet.get()->run_macros_by_trigger(Trigger_OnLoad, lisp);
+  if (macros_.contains(Trigger_OnLoad)) {
+    if (!parsed_macro_cache_.contains(Trigger_OnLoad)) {
+      parsed_macro_cache_[Trigger_OnLoad] =
+          lisp::parse_all_string(macros_.at(Trigger_OnLoad));
     }
+    const auto &lisp = parsed_macro_cache_.at(Trigger_OnLoad);
 
-    return result;
+    sheet.get()->run_macros_by_trigger(Trigger_OnLoad, lisp);
+  }
+
+  return result;
 }
 
 void Document::remove_sheet(size_t index) {
-    sheets_.erase(sheets_.begin() + index);
-    set_changed_flag(true);
+  sheets_.erase(sheets_.begin() + index);
+  set_changed_flag(true);
 }
 
-template<typename Predicate>
+template <typename Predicate>
 Sheet *Document::find_sheet(Predicate pred) const {
-    auto iterator = std::ranges::find_if(sheets_, [&](const auto &sheet) { return pred(sheet.get()); });
-    return iterator != sheets_.end() ? iterator->get() : nullptr;
+  auto iterator = std::ranges::find_if(
+      sheets_, [&](const auto &sheet) { return pred(sheet.get()); });
+  return iterator != sheets_.end() ? iterator->get() : nullptr;
 }
 
 Sheet *Document::get_sheet_by_name(const std::string &name) const {
-    return find_sheet([&](Sheet *sheet) { return sheet->name() == name; });
+  return find_sheet([&](Sheet *sheet) { return sheet->name() == name; });
 }
 
 Sheet *Document::get_sheet_by_id(const std::string &identifier) const {
-    return find_sheet([&](const Sheet *sheet) { return sheet->id() == identifier; });
+  return find_sheet(
+      [&](const Sheet *sheet) { return sheet->id() == identifier; });
 }
 
 Sheet *Document::current_sheet() const {
-    return sheets_.at(current_sheet_index_).get();
+  return sheets_.at(current_sheet_index_).get();
 }
 
-void Document::set_cell_content(int row, int column, const std::string &content) {
-    Sheet *sheet = current_sheet();
-    set_cell_content(sheet, row, column, content);
+void Document::set_cell_content(int row, int column,
+                                const std::string &content) {
+  Sheet *sheet = current_sheet();
+  set_cell_content(sheet, row, column, content);
 
-    set_changed_flag(true);
+  set_changed_flag(true);
 }
 
 void Document::update_all_cells() const {
-    Sheet *sheet = current_sheet();
-    sheet->update_all_cells();
+  Sheet *sheet = current_sheet();
+  sheet->update_all_cells();
 }
 
-void Document::refresh_cells(const std::string &name, const lisp::LispObjectPtr &value,
+void Document::refresh_cells(const std::string &name,
+                             const lisp::LispObjectPtr &value,
                              const pdtools::StringVector &dependencies) const {
-    Sheet *sheet = current_sheet();
-    sheet->refresh_cells(name, value, dependencies);
+  Sheet *sheet = current_sheet();
+  sheet->refresh_cells(name, value, dependencies);
 }
 
 int Document::add_next_sheet() {
-    const int next_index = sheets_.size();
+  const int next_index = sheets_.size();
 
-    std::stringstream sheet_name;
-    sheet_name << "Table ";
-    sheet_name << (next_index + 1);
+  std::stringstream sheet_name;
+  sheet_name << "Table ";
+  sheet_name << (next_index + 1);
 
-    add_sheet(pdtools::generate_uuid(), sheet_name.str());
+  add_sheet(pdtools::generate_uuid(), sheet_name.str());
 
-    set_changed_flag(true);
+  set_changed_flag(true);
 
-    return next_index;
+  return next_index;
 }
 
 void Document::remove_current_sheet() {
-    if (sheets_.size() > 1) {
-        remove_sheet(current_sheet_index_);
-        set_active_sheet(0);
-
-        set_changed_flag(true);
-    }
-}
-
-
-void Document::move_current_sheet(MoveSheetDirection direction) {
-    if (direction == UP) {
-        if (current_sheet_index_ == 0) {
-            return;
-        }
-        std::swap(sheets_[current_sheet_index_], sheets_[current_sheet_index_ - 1]);
-        current_sheet_index_--;
-    } else {
-        // DOWN
-        if (current_sheet_index_ == (sheets_.size() - 1)) {
-            return;
-        }
-        std::swap(sheets_[current_sheet_index_], sheets_[current_sheet_index_ + 1]);
-        current_sheet_index_++;
-    }
+  if (sheets_.size() > 1) {
+    remove_sheet(current_sheet_index_);
+    set_active_sheet(0);
 
     set_changed_flag(true);
+  }
+}
+
+void Document::move_current_sheet(MoveSheetDirection direction) {
+  if (direction == UP) {
+    if (current_sheet_index_ == 0) {
+      return;
+    }
+    std::swap(sheets_[current_sheet_index_], sheets_[current_sheet_index_ - 1]);
+    current_sheet_index_--;
+  } else {
+    // DOWN
+    if (current_sheet_index_ == (sheets_.size() - 1)) {
+      return;
+    }
+    std::swap(sheets_[current_sheet_index_], sheets_[current_sheet_index_ + 1]);
+    current_sheet_index_++;
+  }
+
+  set_changed_flag(true);
 }
 
 void Document::rename_current_sheet(const std::string &name) {
-    if (name.empty()) {
-        return;
-    }
+  if (name.empty()) {
+    return;
+  }
 
-    Sheet *sheet = current_sheet();
-    sheet->set_name(name);
+  Sheet *sheet = current_sheet();
+  sheet->set_name(name);
 
-    set_changed_flag(true);
+  set_changed_flag(true);
 }
 
 void Document::set_selected_cells(const LocationSet &selected_cells) {
-    Sheet *sheet = current_sheet();
-    sheet->set_selected_cells(selected_cells);
+  Sheet *sheet = current_sheet();
+  sheet->set_selected_cells(selected_cells);
 
-    set_changed_flag(true);
+  set_changed_flag(true);
 }
 
-void Document::set_cell_content(Sheet *sheet, int row, int column, const std::string &content) {
-    sheet->set_cell_content(row, column, content);
+void Document::set_cell_content(Sheet *sheet, int row, int column,
+                                const std::string &content) {
+  sheet->set_cell_content(row, column, content);
 
-    set_changed_flag(true);
+  set_changed_flag(true);
 }
 
 void Document::set_current_cell(const Location &location) {
-    Sheet *sheet = current_sheet();
-    sheet->set_current_cell(location);
+  Sheet *sheet = current_sheet();
+  sheet->set_current_cell(location);
 
-    set_changed_flag(true);
+  set_changed_flag(true);
 }
 
 void Document::clear(bool add_initial_sheet) {
-    sheets_.clear();
-    macros_.clear();
-    initialize(add_initial_sheet);
+  sheets_.clear();
+  macros_.clear();
+  initialize(add_initial_sheet);
 }
 
 Location Document::get_current_selected_cell() const {
-    const Sheet *sheet = current_sheet();
-    return sheet->get_current_selected_cell();
+  const Sheet *sheet = current_sheet();
+  return sheet->get_current_selected_cell();
 }
 
 LocationSet Document::get_selected_cells() const {
-    const Sheet *sheet = current_sheet();
-    return sheet->get_selected_cells();
+  const Sheet *sheet = current_sheet();
+  return sheet->get_selected_cells();
 }
 
 void Document::set_row_height(size_t row_index, size_t height) const {
-    Sheet *sheet = current_sheet();
-    sheet->set_row_height(row_index, height);
+  Sheet *sheet = current_sheet();
+  sheet->set_row_height(row_index, height);
 }
 
 void Document::set_column_width(size_t column_index, size_t width) const {
-    Sheet *sheet = current_sheet();
-    sheet->set_column_width(column_index, width);
+  Sheet *sheet = current_sheet();
+  sheet->set_column_width(column_index, width);
 }
 
 std::unordered_map<size_t, size_t> Document::sheet_row_heights() const {
-    const Sheet *sheet = current_sheet();
-    return sheet->get_row_heights();
+  const Sheet *sheet = current_sheet();
+  return sheet->get_row_heights();
 }
 
 std::unordered_map<size_t, size_t> Document::sheet_column_widths() const {
-    const Sheet *sheet = current_sheet();
-    return sheet->get_column_widths();
+  const Sheet *sheet = current_sheet();
+  return sheet->get_column_widths();
 }
 
 SearchResultItems Document::search(const SearchOptions &options) const {
-    SearchResultItems result;
+  SearchResultItems result;
 
-    for (const auto &sheet: sheets_) {
-        const auto sheet_result = sheet->search(options);
-        if (!sheet_result.empty()) {
-            result.reserve(result.size() + sheet_result.size());
-            result.insert(result.end(), sheet_result.begin(), sheet_result.end());
-        }
+  for (const auto &sheet : sheets_) {
+    const auto sheet_result = sheet->search(options);
+    if (!sheet_result.empty()) {
+      result.reserve(result.size() + sheet_result.size());
+      result.insert(result.end(), sheet_result.begin(), sheet_result.end());
     }
+  }
 
-    return result;
+  return result;
 }
 
 int Document::get_sheet_index(const Sheet *sheet) const {
-    for (size_t i = 0; i < sheets_.size(); ++i) {
-        if (sheets_[i].get() == sheet) {
-            return static_cast<int>(i);
-        }
+  for (size_t i = 0; i < sheets_.size(); ++i) {
+    if (sheets_[i].get() == sheet) {
+      return static_cast<int>(i);
     }
+  }
 
-    return -1;
+  return -1;
 }
 
-void Document::select_sheet_and_cell(const std::string &table_name, const Location &cell_location) {
-    auto *const sheet = get_sheet_by_name(table_name);
+void Document::select_sheet_and_cell(const std::string &table_name,
+                                     const Location &cell_location) {
+  auto *const sheet = get_sheet_by_name(table_name);
 
-    int index = get_sheet_index(sheet);
-    if (index < 0) {
-        // Something is off.
-        return;
-    }
+  int index = get_sheet_index(sheet);
+  if (index < 0) {
+    // Something is off.
+    return;
+  }
 
-    set_active_sheet(index);
+  set_active_sheet(index);
 
-    EventDispatcher::dispatch("model:sheet_selection_changed");
-    sheet->set_current_cell(cell_location);
+  EventDispatcher::dispatch("model:sheet_selection_changed");
+  sheet->set_current_cell(cell_location);
 }
 
 std::string Document::get_cell_raw_content(int row, int col) const {
-    const auto *const sheet = current_sheet();
-    const auto *const cell = sheet->get_cell(row, col);
+  const auto *const sheet = current_sheet();
+  const auto *const cell = sheet->get_cell(row, col);
 
-    if (cell == nullptr) {
-        return "";
-    }
+  if (cell == nullptr) {
+    return "";
+  }
 
-    return cell->raw_content_;
+  return cell->raw_content_;
 }
 
 void Document::run_macros_by_trigger(const std::string &trigger) {
-    if (!macros_.contains(trigger)) {
-        return;
-    }
+  if (!macros_.contains(trigger)) {
+    return;
+  }
 
-    const auto &def = macros_.at(trigger);
-    if (def.empty()) {
-        return;
-    }
+  const auto &def = macros_.at(trigger);
+  if (def.empty()) {
+    return;
+  }
 
-    try {
-        lisp::LispObjectPtrVector lisp = lisp::parse_all_string(def);
+  try {
+    lisp::LispObjectPtrVector lisp = lisp::parse_all_string(def);
 
-        for (const auto &sheet: sheets_) {
-            sheet->run_macros_by_trigger(trigger, lisp);
-        }
-    } catch (const std::runtime_error &e) {
-        EventDispatcher::dispatch("model:macro-error", MacroErrorEvent{.macro=trigger, .def=def, .message=e.what()});
+    for (const auto &sheet : sheets_) {
+      sheet->run_macros_by_trigger(trigger, lisp);
     }
+  } catch (const std::runtime_error &e) {
+    EventDispatcher::dispatch(
+        "model:macro-error",
+        MacroErrorEvent{.macro = trigger, .def = def, .message = e.what()});
+  }
 }

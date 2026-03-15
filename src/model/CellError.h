@@ -18,8 +18,8 @@
 #include "CellErrorType.h"
 
 struct CellError {
-    CellErrorType error_type;
-    std::string message;
+  CellErrorType error_type;
+  std::string message;
 };
 
 using CellErrorPtr = std::shared_ptr<CellError>;

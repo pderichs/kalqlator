@@ -19,5 +19,5 @@
 #include "../model/search/SearchOptions.h"
 
 struct SearchEvent {
-    SearchOptions search_options;
+  SearchOptions search_options;
 };

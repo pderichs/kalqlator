@@ -22,10 +22,10 @@
 #include "../../tools/location.h"
 
 struct SearchResultItem {
-    int table_index;
-    std::string table_name;
-    Location cell;
-    std::string complete_match;
+  int table_index;
+  std::string table_name;
+  Location cell;
+  std::string complete_match;
 };
 
 using SearchResultItemPtr = std::shared_ptr<SearchResultItem>;

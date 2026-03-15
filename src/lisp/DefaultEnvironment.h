@@ -16,12 +16,11 @@
 
 #pragma once
 
-
 #include "environment.h"
 
 namespace lisp {
-    class DefaultEnvironment: public Environment {
-    public:
-        DefaultEnvironment();
-    };
-}
+class DefaultEnvironment : public Environment {
+public:
+  DefaultEnvironment();
+};
+} // namespace lisp

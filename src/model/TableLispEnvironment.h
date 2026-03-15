@@ -26,57 +26,61 @@ using NameReferencesMap = std::map<std::string, pdtools::StringSet>;
  */
 class TableLispEnvironment : public lisp::DefaultEnvironment {
 public:
-    void initialize();
+  void initialize();
 
-    TableLispEnvironment() = default;
+  TableLispEnvironment() = default;
 
-    void define(const std::string &name, lisp::LispObjectPtr value) override;
+  void define(const std::string &name, lisp::LispObjectPtr value) override;
 
-    void remove_references(const std::string &name);
+  void remove_references(const std::string &name);
 
-    void set(const std::string &name, const lisp::LispObjectPtr &value) override;
+  void set(const std::string &name, const lisp::LispObjectPtr &value) override;
 
+  void update_references(const std::string &from_cell,
+                         const std::string &to_cell);
 
-    void update_references(const std::string &from_cell, const std::string &to_cell);
-
-    /**
-     * This is called before function arguments are evaluated.
-     *
-     * @param function_name Function name
-     * @param args Function arguments about to be evaluated
-     * @param context_param Context specific parameter from Evaluator
-     */
-    void on_pre_function_eval_args(const std::string &function_name, const lisp::LispObjectPtr &args,
-                                   const std::any &context_param) override;
+  /**
+   * This is called before function arguments are evaluated.
+   *
+   * @param function_name Function name
+   * @param args Function arguments about to be evaluated
+   * @param context_param Context specific parameter from Evaluator
+   */
+  void on_pre_function_eval_args(const std::string &function_name,
+                                 const lisp::LispObjectPtr &args,
+                                 const std::any &context_param) override;
 
 private:
-    void dfs(const std::string &cell, pdtools::StringSet &visited, pdtools::StringVector &result);
+  void dfs(const std::string &cell, pdtools::StringSet &visited,
+           pdtools::StringVector &result);
 
-    pdtools::StringVector dependency_chain_in_topological_order(const std::string &cell);
+  pdtools::StringVector
+  dependency_chain_in_topological_order(const std::string &cell);
 
-    bool is_reachable(const std::string &start, const std::string &target);
+  bool is_reachable(const std::string &start, const std::string &target);
 
-    void signal_environment_update(const std::string &name, lisp::LispObjectPtr value);
+  void signal_environment_update(const std::string &name,
+                                 lisp::LispObjectPtr value);
 
-    /**
-     * This map stores all cells which are referenced by the key cell
-     *
-     * example: Cell A1 has the formula "=(cell A2)"
-     * So the entry here is:
-     * "A1": { "A2" }
-     */
-    NameReferencesMap references_;
+  /**
+   * This map stores all cells which are referenced by the key cell
+   *
+   * example: Cell A1 has the formula "=(cell A2)"
+   * So the entry here is:
+   * "A1": { "A2" }
+   */
+  NameReferencesMap references_;
 
-    /**
-     * This map stores all cells which reference the key cell
-     *
-     * example: Cell A1 has the formula "=(cell A2)"
-     * So the entry here is:
-     * "A2": { "A1" }
-     */
-    NameReferencesMap referenced_by_;
+  /**
+   * This map stores all cells which reference the key cell
+   *
+   * example: Cell A1 has the formula "=(cell A2)"
+   * So the entry here is:
+   * "A2": { "A1" }
+   */
+  NameReferencesMap referenced_by_;
 
-    bool initializing_{false};
+  bool initializing_{false};
 };
 
 using TableLispEnvironmentPtr = std::shared_ptr<TableLispEnvironment>;

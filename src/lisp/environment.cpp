@@ -16,54 +16,54 @@
 
 #include "environment.h"
 
-#include <utility>
-#include "factories.h"
 #include "UnknownSymbolError.h"
+#include "factories.h"
+#include <utility>
 
 using namespace lisp;
 
-Environment::Environment(EnvironmentPtr parent): parent_(std::move(parent)) {
-}
+Environment::Environment(EnvironmentPtr parent) : parent_(std::move(parent)) {}
 
 void Environment::define(const std::string &name, LispObjectPtr value) {
-    definitions_[name] = std::move(value);
+  definitions_[name] = std::move(value);
 }
 
 void Environment::set(const std::string &name, const LispObjectPtr &value) {
-    if (try_update(name, value)) {
-        return;
-    }
+  if (try_update(name, value)) {
+    return;
+  }
 
-    define(name, value);
+  define(name, value);
 }
 
 bool Environment::is_defined(const std::string &name) const {
-    return definitions_.contains(name);
+  return definitions_.contains(name);
 }
 
 LispObjectPtr Environment::lookup(const std::string &name) {
-    auto iterator = definitions_.find(name);
-    if (iterator != definitions_.end()) {
-        return iterator->second;
-    }
+  auto iterator = definitions_.find(name);
+  if (iterator != definitions_.end()) {
+    return iterator->second;
+  }
 
-    if (parent_) {
-        return parent_->lookup(name);
-    }
+  if (parent_) {
+    return parent_->lookup(name);
+  }
 
-    throw UnknownSymbolError(name);
+  throw UnknownSymbolError(name);
 }
 
-bool Environment::try_update(const std::string &name, const LispObjectPtr &value) {
-    if (is_defined(name)) {
-        // Update
-        define(name, value);
-        return true;
-    }
+bool Environment::try_update(const std::string &name,
+                             const LispObjectPtr &value) {
+  if (is_defined(name)) {
+    // Update
+    define(name, value);
+    return true;
+  }
 
-    if (parent_) {
-        return parent_->try_update(name, value);
-    }
+  if (parent_) {
+    return parent_->try_update(name, value);
+  }
 
-    return false;
+  return false;
 }

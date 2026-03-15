@@ -16,23 +16,20 @@
 
 #pragma once
 
-
-#include "../tools.h"
 #include "../ArgumentError.h"
+#include "../tools.h"
 
 namespace lisp {
-    const NativeFn FnCar = NativeFn{
-        [](const LispObjectPtr &args, const std::any&) -> LispObjectPtr {
-            if (countListElements(args) < 1) {
-                throw ArgumentError("car requires at least one argument");
-            }
+const NativeFn FnCar =
+    NativeFn{[](const LispObjectPtr &args, const std::any &) -> LispObjectPtr {
+      if (countListElements(args) < 1) {
+        throw ArgumentError("car requires at least one argument");
+      }
 
-            if (!args->car()->is_cons()) {
-                throw ArgumentError("car can only operate on lists");
-            }
+      if (!args->car()->is_cons()) {
+        throw ArgumentError("car can only operate on lists");
+      }
 
-            return args->car()->car();
-        }
-    };
-}
-
+      return args->car()->car();
+    }};
+} // namespace lisp

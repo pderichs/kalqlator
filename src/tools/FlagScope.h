@@ -18,9 +18,9 @@
 
 class FlagScope {
 public:
-    explicit FlagScope(bool *flag) : flag_(flag) { *flag_ = true; }
-    ~FlagScope() { *flag_ = false; }
+  explicit FlagScope(bool *flag) : flag_(flag) { *flag_ = true; }
+  ~FlagScope() { *flag_ = false; }
 
 private:
-    bool *flag_;
+  bool *flag_;
 };

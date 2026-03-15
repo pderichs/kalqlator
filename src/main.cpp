@@ -14,17 +14,16 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include <QApplication>
 #include "ui/MainWindow.h"
+#include <QApplication>
 
-int main(int argc, char *argv[])
-{
-    QApplication app(argc, argv);
-    app.setApplicationName("KalQlator");
-    app.setOrganizationName("Patrick Derichs");
+int main(int argc, char *argv[]) {
+  QApplication app(argc, argv);
+  app.setApplicationName("KalQlator");
+  app.setOrganizationName("Patrick Derichs");
 
-    MainWindow mainWindow;
-    mainWindow.show();
+  MainWindow mainWindow;
+  mainWindow.show();
 
-    return app.exec();
+  return app.exec();
 }

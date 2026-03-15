@@ -16,17 +16,15 @@
 
 #pragma once
 
-
 #include "../factories.h"
 #include "../tools.h"
 
 namespace lisp {
-    const NativeFn FnList = NativeFn{
-        [](const LispObjectPtr &args, const std::any&) -> LispObjectPtr {
-            if (!args || args->is_nil()) {
-                return make_nil();
-            }
-            return args;
-        }
-    };
-}
+const NativeFn FnList =
+    NativeFn{[](const LispObjectPtr &args, const std::any &) -> LispObjectPtr {
+      if (!args || args->is_nil()) {
+        return make_nil();
+      }
+      return args;
+    }};
+} // namespace lisp

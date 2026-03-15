@@ -20,64 +20,61 @@
 #include "../tools.h"
 
 namespace lisp {
-    const NativeFn FnNumberEquality = NativeFn{
-        [](const LispObjectPtr &args, const std::any&) -> LispObjectPtr {
-            LispObjectPtr reference;
-            LispObjectPtr current = args;
+const NativeFn FnNumberEquality =
+    NativeFn{[](const LispObjectPtr &args, const std::any &) -> LispObjectPtr {
+      LispObjectPtr reference;
+      LispObjectPtr current = args;
 
-            while (current && !current->is_nil()) {
-                if (reference) {
-                    if (!numeric_equal(reference, current->car())) {
-                        return make_nil();
-                    }
-                } else {
-                    reference = current->car();
-                }
-
-                current = current->cdr();
-            }
-
-            return make_true();
+      while (current && !current->is_nil()) {
+        if (reference) {
+          if (!numeric_equal(reference, current->car())) {
+            return make_nil();
+          }
+        } else {
+          reference = current->car();
         }
-    };
 
-    const NativeFn FnNumbersEqualOrGreater = NativeFn{
-        [](const LispObjectPtr &args, const std::any&) -> LispObjectPtr {
-            LispObjectPtr previous;
-            LispObjectPtr current = args;
+        current = current->cdr();
+      }
 
-            while (current && !current->is_nil()) {
-                if (previous) {
-                    if (previous->as_number() < current->car()->as_number()) {
-                        return make_nil();
-                    }
-                }
+      return make_true();
+    }};
 
-                previous = current->car();
-                current = current->cdr();
-            }
+const NativeFn FnNumbersEqualOrGreater =
+    NativeFn{[](const LispObjectPtr &args, const std::any &) -> LispObjectPtr {
+      LispObjectPtr previous;
+      LispObjectPtr current = args;
 
-            return make_true();
+      while (current && !current->is_nil()) {
+        if (previous) {
+          if (previous->as_number() < current->car()->as_number()) {
+            return make_nil();
+          }
         }
-    };
 
-    const NativeFn FnNumbersEqualOrSmaller = NativeFn{
-        [](const LispObjectPtr &args, const std::any&) -> LispObjectPtr {
-            LispObjectPtr previous;
-            LispObjectPtr current = args;
+        previous = current->car();
+        current = current->cdr();
+      }
 
-            while (current && !current->is_nil()) {
-                if (previous) {
-                    if (previous->as_number() > current->car()->as_number()) {
-                        return make_nil();
-                    }
-                }
+      return make_true();
+    }};
 
-                previous = current->car();
-                current = current->cdr();
-            }
+const NativeFn FnNumbersEqualOrSmaller =
+    NativeFn{[](const LispObjectPtr &args, const std::any &) -> LispObjectPtr {
+      LispObjectPtr previous;
+      LispObjectPtr current = args;
 
-            return make_true();
+      while (current && !current->is_nil()) {
+        if (previous) {
+          if (previous->as_number() > current->car()->as_number()) {
+            return make_nil();
+          }
         }
-    };
-}
+
+        previous = current->car();
+        current = current->cdr();
+      }
+
+      return make_true();
+    }};
+} // namespace lisp

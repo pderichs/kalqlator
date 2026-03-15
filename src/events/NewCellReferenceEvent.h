@@ -19,6 +19,6 @@
 #include <string>
 
 struct NewCellReferenceEvent {
-    std::string from_cell;
-    std::string to_cell;
+  std::string from_cell;
+  std::string to_cell;
 };

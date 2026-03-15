@@ -19,5 +19,5 @@
 #include "../model/search/SearchResultItem.h"
 
 struct SearchResultEvent {
-    SearchResultItems search_result_items;
+  SearchResultItems search_result_items;
 };

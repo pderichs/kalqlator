@@ -16,7 +16,4 @@
 
 #pragma once
 
-enum CellErrorType {
-    ERROR_GENERAL,
-    ERROR_CIRCREF
-};
+enum CellErrorType { ERROR_GENERAL, ERROR_CIRCREF };

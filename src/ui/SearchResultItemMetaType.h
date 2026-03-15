@@ -15,8 +15,8 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #pragma once
-#include <QMetaType>
 #include "../model/search/SearchResultItem.h"
+#include <QMetaType>
 
 // Required for QVariant usage
 Q_DECLARE_METATYPE(SearchResultItemPtr)
