@@ -29,5 +29,5 @@ description = "Run all linters (clang-tidy + cppcheck)"
 depends = ["lint", "cppcheck"]
 
 [tasks.fmt]
-run = "find src -name '*.cpp' -o -name '*.h' | xargs clang-format -i"
+run = "find src tests -name '*.cpp' -o -name '*.h' | xargs clang-format -i"
 description = "Format source files"
