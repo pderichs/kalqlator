@@ -25,6 +25,7 @@ jobs:
             qt6-tools-dev-tools \
             libqt6test6 \
             clang \
+            clang-format \
             cppcheck \
             clang-tidy
 
@@ -43,6 +44,11 @@ jobs:
 
       - name: Checks (cppcheck)
         run: scripts/run-cppcheck
+
+      - name: Check formatting
+        run: |
+          find src -type f \( -name '*.cpp' -o -name '*.h' \) -print0 \
+          | xargs -0 clang-format --dry-run --Werror
 
       - name: Run tests (CTest)
         working-directory: build
