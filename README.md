@@ -12,7 +12,9 @@ I created a similar project before using wxWidgets. You can find it here: https:
 
 ### Prerequisites
 
-Qt 6 development libraries are required to build this project. For lint jobs you also need `clang-tidy` and `cppcheck`.
+#### Libraries
+
+Some development libraries are required to build this project. For lint jobs you also need `clang-tidy` and `cppcheck`.
 
 For e.g. Debian based systems you can use
 
@@ -22,22 +24,17 @@ sudo apt install \                                                              
   qt6-base-dev-tools \
   qt6-tools-dev \
   qt6-tools-dev-tools \
+  libgmp-dev libgmpxx4ldbl \
   libqt6test6 
 ```
 
-For GMP:
-
-```bash
-sudo apt install libgmp-dev libgmpxx4ldbl
-```
-
-Lint tools:
+#### Lint tools
 
 ```bash
   sudo apt install clang-tidy cppcheck
 ```
 
-### Build
+### Build commands
 
 ```bash
 mise install # optional - tools can be installed manually as well
