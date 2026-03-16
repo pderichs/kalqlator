@@ -31,6 +31,9 @@ void Document::initialize(const bool add_initial_sheet) {
 
   set_changed_flag(false);
   set_active_sheet(0);
+
+
+
   filename_.clear();
 }
 

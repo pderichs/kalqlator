@@ -44,7 +44,6 @@
 #include "../events/MacroEditorErrorEvent.h"
 #include "../events/MacroErrorEvent.h"
 #include "../events/SearchEvent.h"
-#include "../events/SearchResultEvent.h"
 #include "../events/SelectSheetAndCellEvent.h"
 #include "../events/SelectionChangedEvent.h"
 #include "../events/SheetSelectionChangedEvent.h"
@@ -448,6 +447,8 @@ void MainWindow::createNewDocument() {
   document_->initialize();
   m_tableWidget->setDisabled(false);
   document_->update_all_cells();
+
+  m_formulaBar->setCellReference("A1");
 }
 
 void MainWindow::onCellSelectionChanged(

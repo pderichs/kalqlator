@@ -40,7 +40,7 @@ Sheet::Sheet(std::string identifier, std::string name,
       sheet_registry_(sheet_registry) {
   table_lisp_environment_->initialize();
 
-  current_selected_cell_ = Location(0, 0);
+  set_current_cell(Location(0, 0));
   selected_cells_.insert(current_selected_cell_);
 }
 
