@@ -210,6 +210,7 @@ void MainWindow::registerEventHandlers() {
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   QFontDatabase::addApplicationFont(":/fonts/MaterialIcons-Regular.ttf");
+  QFontDatabase::addApplicationFont(":/fonts/MaterialSymbolsSharp.ttf");
 
   model_cell_selection_update_ = false;
 
@@ -237,8 +238,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
 }
 
 void MainWindow::createActions() {
-  const QString newDocument_icon("\ue89c");
+  const QString newDocument_icon("\ue66d");
   const QString openDocument_icon("\ueaf3");
+  const QString save_icon("\ue161");
   const QString copy_icon("\ue173");
   const QString cut_icon("\ue14e");
   const QString exit_icon("\ue879");
@@ -248,7 +250,7 @@ void MainWindow::createActions() {
   // File actions
   m_newAction = new QAction(tr("&New"), this);
   m_newAction->setShortcut(QKeySequence::New);
-  m_newAction->setIcon(iconFromFont(newDocument_icon));
+  m_newAction->setIcon(iconFromFont(newDocument_icon, 24, Qt::black, "Material Symbols Sharp"));
   m_newAction->setStatusTip(tr("Create a new table"));
   connect(m_newAction, &QAction::triggered, this, &MainWindow::newFile);
 
@@ -260,7 +262,7 @@ void MainWindow::createActions() {
 
   m_saveAction = new QAction(tr("&Save"), this);
   m_saveAction->setShortcut(QKeySequence::Save);
-  m_saveAction->setIcon(iconFromFont(newDocument_icon, 24, Qt::black));
+  m_saveAction->setIcon(iconFromFont(save_icon, 24, Qt::black));
   m_saveAction->setStatusTip(tr("Save file"));
   connect(m_saveAction, &QAction::triggered, this, &MainWindow::saveFile);
 

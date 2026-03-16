@@ -73,7 +73,7 @@ KalQlator uses Open Source Software:
 
 - **[Qt](https://www.qt.io/)** – Cross-platform Application Framework
 - **[GMP – GNU Multiple Precision Arithmetic Library](https://gmplib.org/)** – Arbitrary-precision arithmetic
-- **[Material Icons Font](https://fonts.google.com/icons)** – Icons
+- **[Material Icons and Symbols Font](https://fonts.google.com/icons)** – Icons
 
 Please see their respective Licenses for more information.
 
@@ -90,5 +90,5 @@ This project uses the GNU Multiple Precision Arithmetic Library (GMP) (https://g
 GMP is licensed under the GNU Lesser General Public License v3.0 (LGPLv3).
 See: https://www.gnu.org/licenses/lgpl-3.0.html
 
-This project uses Material Icons Font (https://fonts.google.com/icons)  
+This project uses Material Icons Font and Material Symbols Font (https://fonts.google.com/icons)  
 by Google, licensed under the [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0).
