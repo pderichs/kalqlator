@@ -508,7 +508,7 @@ void MainWindow::newFile() {
 }
 
 void MainWindow::openFile() {
-  if (document_->changed()) {
+  if (hasUnsavedChanges()) {
     const QMessageBox::StandardButton reply = QMessageBox::question(
         this, tr("Open file"),
         tr("The current workbook contains unsaved changes.\n"
@@ -548,20 +548,6 @@ void MainWindow::saveFile() {
 
   if (fileName.isEmpty()) {
     return;
-  }
-
-  // TODO Remove - this is already handled in Qt's Filedialog
-  if (QFile::exists(fileName)) {
-    const QMessageBox::StandardButton reply =
-        QMessageBox::question(this, tr("Overwrite File confirmation"),
-                              tr("File '%1' already exists.\n"
-                                 "Overwrite existing file?")
-                                  .arg(fileName),
-                              QMessageBox::Yes | QMessageBox::No);
-
-    if (reply == QMessageBox::No) {
-      return;
-    }
   }
 
   DocumentJsonSerializer serializer(document_, fileName.toStdString());
@@ -720,15 +706,19 @@ bool MainWindow::hasUnsavedChanges() const { return document_->changed(); }
 void MainWindow::closeEvent(QCloseEvent *event) {
   if (hasUnsavedChanges()) {
     const auto result = QMessageBox::question(
-        this, tr("Quit Application?"),
-        tr("The current document has unsaved changes. Do you really want to "
-           "close the app and lose those changes?"),
-        QMessageBox::Yes | QMessageBox::No);
+        this, tr("Quit Application"),
+        tr("The current document has unsaved changes.\n\nDo you want to "
+           "save the changes before closing the application?"),
+        QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
 
-    if (result == QMessageBox::Yes) {
-      event->accept();
-    } else {
+    if (result == QMessageBox::Cancel) {
       event->ignore();
+    } else {
+      if (result == QMessageBox::Yes) {
+        saveFile();
+      }
+
+      event->accept();
     }
   } else {
     event->accept();
