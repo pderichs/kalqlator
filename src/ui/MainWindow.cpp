@@ -249,7 +249,8 @@ void MainWindow::createActions() {
   // File actions
   m_newAction = new QAction(tr("&New"), this);
   m_newAction->setShortcut(QKeySequence::New);
-  m_newAction->setIcon(iconFromFont(newDocument_icon, 24, Qt::black, "Material Symbols Sharp"));
+  m_newAction->setIcon(
+      iconFromFont(newDocument_icon, 24, Qt::black, "Material Symbols Sharp"));
   m_newAction->setStatusTip(tr("Create a new table"));
   connect(m_newAction, &QAction::triggered, this, &MainWindow::newFile);
 

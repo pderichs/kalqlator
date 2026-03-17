@@ -78,7 +78,8 @@ inline bool is_function(const std::string &str) {
 }
 
 inline QIcon iconFromFont(const QString &text, int size = 24,
-                          const QColor &color = Qt::black, const QString& font_name = "Material Icons") {
+                          const QColor &color = Qt::black,
+                          const QString &font_name = "Material Icons") {
   QPixmap pixmap(size, size);
   pixmap.fill(Qt::transparent);
 
