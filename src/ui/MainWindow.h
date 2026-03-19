@@ -25,10 +25,10 @@
 #include "../events/SelectedCellChangedEvent.h"
 #include "../messagebus/event_sink.h"
 #include "../model/Document.h"
+#include "../viewmodel/SpreadsheetModel.h"
 #include "KalqSidePanel.h"
 #include "KalqWorksheetPanel.h"
 #include "KalqlatorTableWidget.h"
-#include "../viewmodel/SpreadsheetModel.h"
 
 class QTableView;
 class QListWidget;

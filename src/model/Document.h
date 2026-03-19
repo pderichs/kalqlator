@@ -132,7 +132,7 @@ public:
   size_t row_count() const;
   size_t column_count() const;
 
-  Cell* get_cell(int row, int column) const;
+  Cell *get_cell(int row, int column) const;
 
 private:
   std::string filename_;

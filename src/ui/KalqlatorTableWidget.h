@@ -43,7 +43,8 @@ private slots:
 
   void onSelectionChanged() const;
 
-  static void onCurrentChanged(const QModelIndex& current, const QModelIndex& /*previous*/) ;
+  static void onCurrentChanged(const QModelIndex &current,
+                               const QModelIndex & /*previous*/);
 
   static void onColumnResized(int logicalIndex, int oldSize, int newSize);
 

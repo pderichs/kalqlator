@@ -135,7 +135,7 @@ public:
   SearchResultItems search(const SearchOptions &options) const;
 
 private:
-  LocationSet collect_reference_cells(const std::string& cell_name);
+  LocationSet collect_reference_cells(const std::string &cell_name);
 
   FormulaResult evaluate_formula(const std::string &formula_text,
                                  const lisp::EnvironmentPtr &env,

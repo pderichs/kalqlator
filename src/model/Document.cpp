@@ -82,7 +82,7 @@ Sheet *Document::current_sheet() const {
 }
 
 LocationSet Document::set_cell_content(int row, int column,
-                                const std::string &content) {
+                                       const std::string &content) {
   Sheet *sheet = current_sheet();
   auto result = sheet->set_cell_content(row, column, content);
   set_changed_flag(true);
@@ -289,7 +289,7 @@ size_t Document::column_count() const {
   return sheet->column_count();
 }
 
-Cell * Document::get_cell(int row, int column) const {
+Cell *Document::get_cell(int row, int column) const {
   const auto *const sheet = current_sheet();
   return sheet->get_cell(row, column);
 }
