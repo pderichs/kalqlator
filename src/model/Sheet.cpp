@@ -333,17 +333,12 @@ void Sheet::set_cell_content(const Cell *cell, const std::string &content) {
   set_cell_content(cell->row_, cell->column_, content);
 }
 
-LocationSet Sheet::set_cell_content(int row, int column, const std::string &content) {
-  const std::string cell_name = get_cell_name_by_coordinates(column, row);
-
-  update_cell(row, column, cell_name, content);
-
-  // Return all referring cells
-  // TODO Refactor
-  auto name = get_cell_name_by_coordinates(column, row);
+LocationSet Sheet::collect_reference_cells(const std::string& cell_name) {
   pdtools::StringSet cells;
-  auto references = table_lisp_environment_->get_references(name);
-  auto referenced_by = table_lisp_environment_->get_referenced_by(name);
+
+  auto references = table_lisp_environment_->get_references(cell_name);
+  auto referenced_by = table_lisp_environment_->get_referenced_by(cell_name);
+
   cells.insert(references.begin(), references.end());
   cells.insert(referenced_by.begin(), referenced_by.end());
 
@@ -354,6 +349,14 @@ LocationSet Sheet::set_cell_content(int row, int column, const std::string &cont
   }
 
   return locations;
+}
+
+LocationSet Sheet::set_cell_content(int row, int column, const std::string &content) {
+  const std::string cell_name = get_cell_name_by_coordinates(column, row);
+
+  update_cell(row, column, cell_name, content);
+
+  return collect_reference_cells(cell_name);
 }
 
 void Sheet::set_current_cell(const Location &location) {
