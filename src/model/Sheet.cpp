@@ -133,6 +133,14 @@ void Sheet::run_macros_by_trigger(const std::string & /*unused*/,
   evaluator.evaluate(lisp);
 }
 
+size_t Sheet::row_count() const {
+  return row_count_;
+}
+
+size_t Sheet::column_count() const {
+  return column_count_;
+}
+
 bool Sheet::field_matches_search(const SearchOptions &options,
                                  const std::string &field_content,
                                  std::string *out_complete_match) {
@@ -325,10 +333,27 @@ void Sheet::set_cell_content(const Cell *cell, const std::string &content) {
   set_cell_content(cell->row_, cell->column_, content);
 }
 
-void Sheet::set_cell_content(int row, int column, const std::string &content) {
+LocationSet Sheet::set_cell_content(int row, int column, const std::string &content) {
   const std::string cell_name = get_cell_name_by_coordinates(column, row);
 
   update_cell(row, column, cell_name, content);
+
+  // Return all referring cells
+  // TODO Refactor
+  auto name = get_cell_name_by_coordinates(column, row);
+  pdtools::StringSet cells;
+  auto references = table_lisp_environment_->get_references(name);
+  auto referenced_by = table_lisp_environment_->get_referenced_by(name);
+  cells.insert(references.begin(), references.end());
+  cells.insert(referenced_by.begin(), referenced_by.end());
+
+  LocationSet locations;
+
+  for (const auto& cell: cells) {
+    locations.insert(get_cell_location_by_name(cell));
+  }
+
+  return locations;
 }
 
 void Sheet::set_current_cell(const Location &location) {

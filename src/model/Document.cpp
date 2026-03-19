@@ -81,12 +81,13 @@ Sheet *Document::current_sheet() const {
   return sheets_.at(current_sheet_index_).get();
 }
 
-void Document::set_cell_content(int row, int column,
+LocationSet Document::set_cell_content(int row, int column,
                                 const std::string &content) {
   Sheet *sheet = current_sheet();
-  set_cell_content(sheet, row, column, content);
-
+  auto result = sheet->set_cell_content(row, column, content);
   set_changed_flag(true);
+
+  return result;
 }
 
 void Document::update_all_cells() const {
@@ -102,7 +103,7 @@ void Document::refresh_cells(const std::string &name,
 }
 
 int Document::add_next_sheet() {
-  const int next_index = sheets_.size();
+  const int next_index = static_cast<int>(sheets_.size());
 
   std::stringstream sheet_name;
   sheet_name << "Table ";
@@ -157,13 +158,6 @@ void Document::rename_current_sheet(const std::string &name) {
 void Document::set_selected_cells(const LocationSet &selected_cells) {
   Sheet *sheet = current_sheet();
   sheet->set_selected_cells(selected_cells);
-
-  set_changed_flag(true);
-}
-
-void Document::set_cell_content(Sheet *sheet, int row, int column,
-                                const std::string &content) {
-  sheet->set_cell_content(row, column, content);
 
   set_changed_flag(true);
 }
@@ -283,4 +277,19 @@ void Document::run_macros_by_trigger(const std::string &trigger) {
         "model:macro-error",
         MacroErrorEvent{.macro = trigger, .def = def, .message = e.what()});
   }
+}
+
+size_t Document::row_count() const {
+  const auto *const sheet = current_sheet();
+  return sheet->row_count();
+}
+
+size_t Document::column_count() const {
+  const auto *const sheet = current_sheet();
+  return sheet->column_count();
+}
+
+Cell * Document::get_cell(int row, int column) const {
+  const auto *const sheet = current_sheet();
+  return sheet->get_cell(row, column);
 }

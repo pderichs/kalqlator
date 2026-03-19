@@ -59,7 +59,7 @@ public:
 
   [[nodiscard]] Sheet *current_sheet() const;
 
-  void set_cell_content(int row, int column, const std::string &content);
+  LocationSet set_cell_content(int row, int column, const std::string &content);
 
   void update_all_cells() const;
 
@@ -77,9 +77,6 @@ public:
   void rename_current_sheet(const std::string &name);
 
   void set_selected_cells(const LocationSet &selected_cells);
-
-  void set_cell_content(Sheet *sheet, int row, int column,
-                        const std::string &content);
 
   void set_current_cell(const Location &location);
 
@@ -131,6 +128,11 @@ public:
   }
 
   void run_macros_by_trigger(const std::string &trigger);
+
+  size_t row_count() const;
+  size_t column_count() const;
+
+  Cell* get_cell(int row, int column) const;
 
 private:
   std::string filename_;

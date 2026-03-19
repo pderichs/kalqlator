@@ -28,8 +28,9 @@
 #include "KalqSidePanel.h"
 #include "KalqWorksheetPanel.h"
 #include "KalqlatorTableWidget.h"
+#include "../viewmodel/SpreadsheetModel.h"
 
-class QTableWidget;
+class QTableView;
 class QListWidget;
 class QDockWidget;
 class QToolBar;
@@ -101,46 +102,48 @@ private:
   void updateSheetsList() const;
 
   // Menus
-  QMenu *m_fileMenu;
-  QMenu *m_editMenu;
-  QMenu *m_viewMenu;
-  QMenu *m_helpMenu;
+  QMenu *m_fileMenu{};
+  QMenu *m_editMenu{};
+  QMenu *m_viewMenu{};
+  QMenu *m_helpMenu{};
 
   // Toolbar
-  QToolBar *m_toolBar;
+  QToolBar *m_toolBar{};
 
   // Central widgets
-  QWidget *m_centralContainer;
-  FormulaBar *m_formulaBar;
-  KalqlatorTableWidget *m_tableWidget;
+  QWidget *m_centralContainer{};
+  FormulaBar *m_formulaBar{};
+  KalqlatorTableWidget *m_tableWidget{};
 
   // Dock
-  QDockWidget *m_dockWidget;
-  KalqWorksheetPanel *m_worksheetPanel;
-  QListWidget *m_listWidget;
-  KalqSidePanel *m_sidePanel;
+  QDockWidget *m_dockWidget{};
+  KalqWorksheetPanel *m_worksheetPanel{};
+  QListWidget *m_listWidget{};
+  KalqSidePanel *m_sidePanel{};
 
   bool model_cell_selection_update_;
 
   // Actions
-  QAction *m_newAction;
-  QAction *m_openAction;
-  QAction *m_saveAction;
-  QAction *m_exitAction;
-  QAction *m_undoAction;
-  QAction *m_redoAction;
-  QAction *m_cutAction;
-  QAction *m_copyAction;
-  QAction *m_pasteAction;
-  QAction *m_toggleDockAction;
-  QAction *m_aboutAction;
-  QAction *m_editMacros;
+  QAction *m_newAction{};
+  QAction *m_openAction{};
+  QAction *m_saveAction{};
+  QAction *m_exitAction{};
+  QAction *m_undoAction{};
+  QAction *m_redoAction{};
+  QAction *m_cutAction{};
+  QAction *m_copyAction{};
+  QAction *m_pasteAction{};
+  QAction *m_toggleDockAction{};
+  QAction *m_aboutAction{};
+  QAction *m_editMacros{};
 
   // Event handling
   using EventHandler = std::function<void(const std::any &)>;
   std::unordered_map<std::string, EventHandler> m_handlers;
 
   QUndoStack *m_undoStack;
+
+  std::shared_ptr<SpreadsheetModel> m_sheetModel;
 
   // Current document
   DocumentPtr document_;

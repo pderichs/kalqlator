@@ -67,7 +67,7 @@ public:
 
   void set_cell_content(const Cell *cell, const std::string &content);
 
-  void set_cell_content(int row, int column, const std::string &content);
+  LocationSet set_cell_content(int row, int column, const std::string &content);
 
   void set_current_cell(const Location &location);
 
@@ -122,6 +122,9 @@ public:
   void run_macros_by_trigger(const std::string &string,
                              const lisp::LispObjectPtrVector &lisp);
 
+  size_t row_count() const;
+  size_t column_count() const;
+
   static bool field_matches_search(const SearchOptions &options,
                                    const std::string &field_content,
                                    std::string *out_complete_match);
@@ -163,6 +166,9 @@ private:
   LocationSet selected_cells_;
   Location current_selected_cell_;
   SheetRegistry *sheet_registry_;
+
+  size_t row_count_{100};
+  size_t column_count_{26};
 
   std::unordered_map<size_t, size_t> column_widths_;
   std::unordered_map<size_t, size_t> row_heights_;

@@ -22,30 +22,28 @@
 #include "../tools/location.h"
 #include "KalqlatorTableCellItemDelegate.h"
 
-class KalqlatorTableWidget : public QTableWidget {
+class KalqlatorTableWidget : public QTableView {
   Q_OBJECT
 
 public:
-  explicit KalqlatorTableWidget(int rows, int cols, QWidget *parent = nullptr);
+  explicit KalqlatorTableWidget(QWidget *parent = nullptr);
 
-  QTableWidgetItem *query_item_or_create(int row, int col);
-
-  void update_cell(Cell *cell);
+  void setModel(QAbstractItemModel *model) override;
 
   void clearCell(const QModelIndex &index);
 
   void setSelectedCells(const LocationSet &selected_cells,
                         const Location &current_selected_cell);
 
-  void clearAndResetSizes();
-
 protected:
   void keyPressEvent(QKeyEvent *event) override;
 
 private slots:
-  void onCellChanged(int row, int col) const;
+  // void onCellChanged(int row, int col) const;
 
   void onSelectionChanged() const;
+
+  static void onCurrentChanged(const QModelIndex& current, const QModelIndex& /*previous*/) ;
 
   static void onColumnResized(int logicalIndex, int oldSize, int newSize);
 

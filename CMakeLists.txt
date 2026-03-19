@@ -118,6 +118,8 @@ add_executable(kalqlator src/main.cpp
         src/events/MacroErrorEvent.h
         src/events/MacroEditorErrorEvent.h
         src/lisp/gmp_tools.h
+        src/viewmodel/SpreadsheetModel.cpp
+        src/viewmodel/SpreadsheetModel.h
 )
 
 target_link_libraries(kalqlator
