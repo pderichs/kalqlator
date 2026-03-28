@@ -20,7 +20,6 @@
 #include <algorithm>
 #include <iomanip>
 
-#include "../events/CellUpdateDoneEvent.h"
 #include "../events/CellUpdateErrorEvent.h"
 #include "../events/SelectedCellChangedEvent.h"
 #include "../lisp/Evaluator.h"
@@ -87,11 +86,9 @@ void Sheet::update_all_cells() {
   });
 }
 
-void Sheet::refresh_cells(const std::string &name,
+void Sheet::refresh_cells(const std::string & name,
                           const lisp::LispObjectPtr & /*unused*/,
-                          const pdtools::StringVector &dependencies) {
-  std::vector<CellUpdateDoneEvent> events;
-
+                          const pdtools::StringVector & dependencies) {
   for (const auto &dependency_cell_name : dependencies) {
     if (dependency_cell_name == name) {
       continue;
@@ -101,14 +98,7 @@ void Sheet::refresh_cells(const std::string &name,
     auto *cell = get_cell(location.y(), location.x());
     if (cell != nullptr) {
       refresh_cell(cell);
-
-      events.push_back(
-          CellUpdateDoneEvent{{.row = cell->row_, .col = cell->column_}, cell});
     }
-  }
-
-  for (const auto &event : events) {
-    EventDispatcher::dispatch("model:cell_update_done", event);
   }
 }
 
@@ -299,7 +289,6 @@ void Sheet::update_cell(int row, int column, const std::string &cell_name,
     cell_p->visible_content_ = content;
 
     EventDispatcher::dispatch(
-        "model:cell_update_error",
         CellUpdateErrorEvent{.cell = cell_p,
                              .content = content,
                              .error_message = circular_reference_error.what(),
@@ -313,16 +302,15 @@ void Sheet::update_cell(int row, int column, const std::string &cell_name,
     cell_p->visible_content_ = content;
 
     EventDispatcher::dispatch(
-        "model:cell_update_error",
         CellUpdateErrorEvent{.cell = cell_p,
                              .content = content,
                              .error_message = e.what(),
                              .error_type = ERROR_GENERAL});
   }
 
-  EventDispatcher::dispatch(
-      "model:cell_update_done",
-      CellUpdateDoneEvent{{.row = row, .col = column}, cell_p});
+  // TODO: Check CellUpdateDoneEvent
+  // EventDispatcher::dispatch(
+  //     CellUpdateDoneEvent{{.row = row, .col = column}, cell_p});
 }
 
 void Sheet::set_cell_content(const Cell *cell, const std::string &content) {
@@ -359,6 +347,5 @@ LocationSet Sheet::set_cell_content(int row, int column,
 void Sheet::set_current_cell(const Location &location) {
   current_selected_cell_ = location;
   auto *const cell_p = get_or_create_cell_by_pos(location.y(), location.x());
-  EventDispatcher::dispatch("model:selected_cell_changed",
-                            SelectedCellChangedEvent{cell_p});
+  EventDispatcher::dispatch(SelectedCellChangedEvent{cell_p});
 }

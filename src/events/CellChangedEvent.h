@@ -20,5 +20,6 @@
 #include <string>
 
 struct CellChangedEvent : public CellEvent {
+  static constexpr std::string_view event_name = "ui:cell_changed";
   std::string content;
 };

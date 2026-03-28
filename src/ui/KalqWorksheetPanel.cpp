@@ -23,6 +23,11 @@
 #include <QVBoxLayout>
 
 #include "../events/SheetSelectionChangedEvent.h"
+#include "../events/UISheetAddEvent.h"
+#include "../events/UISheetMoveDownEvent.h"
+#include "../events/UISheetMoveUpEvent.h"
+#include "../events/UISheetRemoveEvent.h"
+#include "../events/UISheetRenameEvent.h"
 #include "../messagebus/event_dispatcher.h"
 
 KalqWorksheetPanel::KalqWorksheetPanel(QWidget *parent) : QWidget(parent) {
@@ -43,7 +48,6 @@ KalqWorksheetPanel::KalqWorksheetPanel(QWidget *parent) : QWidget(parent) {
           [this](QListWidgetItem *current, QListWidgetItem *) {
             if (current != nullptr) {
               EventDispatcher::dispatch(
-                  "ui:sheet_selection_changed",
                   SheetSelectionChangedEvent{list_widget_->row(current)});
             }
           });
@@ -57,23 +61,23 @@ void KalqWorksheetPanel::onAddClicked() {
   // ss << "Table";
   // ss << document_->sheets().size() + 1;
   // document_->add_sheet(ss.str());
-  EventDispatcher::dispatch("ui:sheet_add");
+  EventDispatcher::dispatch(UISheetAddEvent{});
 }
 
 void KalqWorksheetPanel::onRemoveClicked() {
-  EventDispatcher::dispatch("ui:sheet_remove");
+  EventDispatcher::dispatch(UISheetRemoveEvent{});
 }
 
 void KalqWorksheetPanel::onMoveUpClicked() {
-  EventDispatcher::dispatch("ui:sheet_move_up");
+  EventDispatcher::dispatch(UISheetMoveUpEvent{});
 }
 
 void KalqWorksheetPanel::onMoveDownClicked() {
-  EventDispatcher::dispatch("ui:sheet_move_down");
+  EventDispatcher::dispatch(UISheetMoveDownEvent{});
 }
 
 void KalqWorksheetPanel::onRenameClicked() {
-  EventDispatcher::dispatch("ui:sheet_rename");
+  EventDispatcher::dispatch(UISheetRenameEvent{});
 }
 
 void KalqWorksheetPanel::setupUi() {

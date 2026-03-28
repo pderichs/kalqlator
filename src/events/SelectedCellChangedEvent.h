@@ -19,5 +19,7 @@
 #include "../model/Cell.h"
 
 struct SelectedCellChangedEvent {
+  static constexpr std::string_view event_name = "model:selected_cell_changed";
+
   Cell *cell;
 };

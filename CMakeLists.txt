@@ -65,7 +65,6 @@ add_executable(kalqlator src/main.cpp
         src/ui/KalqlatorTableWidget.cpp
         src/ui/KalqlatorTableWidget.h
         src/events/CellChangedEvent.h
-        src/events/CellUpdateDoneEvent.h
         src/model/LispObjectStringConverter.cpp
         src/model/LispObjectStringConverter.h
         src/ui/FormulaBar.cpp
@@ -120,6 +119,7 @@ add_executable(kalqlator src/main.cpp
         src/lisp/gmp_tools.h
         src/viewmodel/SpreadsheetModel.cpp
         src/viewmodel/SpreadsheetModel.h
+        src/events/SheetListUpdateRequestEvent.h
 )
 
 target_link_libraries(kalqlator

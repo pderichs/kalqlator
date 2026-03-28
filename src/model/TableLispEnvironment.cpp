@@ -90,12 +90,10 @@ void TableLispEnvironment::signal_environment_update(
   const pdtools::StringVector dependencies =
       dependency_chain_in_topological_order(name);
 
-  EventDispatcher::dispatch(
-      "model:table_environment_update",
-      TableEnvironmentUpdateEvent{.name = name,
-                                  .value = std::move(value),
-                                  .dependencies_in_topological_order =
-                                      dependencies});
+  EventDispatcher::dispatch(TableEnvironmentUpdateEvent{
+      .name = name,
+      .value = std::move(value),
+      .dependencies_in_topological_order = dependencies});
 }
 
 void TableLispEnvironment::define(const std::string &name,

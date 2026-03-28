@@ -19,5 +19,7 @@
 #include "../model/search/SearchOptions.h"
 
 struct SearchEvent {
+  static constexpr std::string_view event_name = "ui:search";
+
   SearchOptions search_options;
 };

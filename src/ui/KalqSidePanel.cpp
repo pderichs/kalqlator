@@ -67,7 +67,7 @@ void KalqSidePanel::onSearchClicked() {
   if (dlg->exec() == QDialog::Accepted) {
     auto opts = dlg->searchOptions();
 
-    EventDispatcher::dispatch("ui:search", SearchEvent{opts});
+    EventDispatcher::dispatch(SearchEvent{opts});
 
     // Copy for next call
     search_options_ = opts;
@@ -79,7 +79,6 @@ void KalqSidePanel::onItemDoubleClicked(QTreeWidgetItem *item, int /*unused*/) {
       item->data(0, Qt::UserRole).value<SearchResultItemPtr>();
   if (search_result) {
     EventDispatcher::dispatch(
-        "ui:select_sheet_and_cell",
         SelectSheetAndCellEvent{.table_name = search_result->table_name,
                                 .cell_location = search_result->cell});
   }

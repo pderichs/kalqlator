@@ -22,7 +22,9 @@
 
 #include "../events/CellChangedEvent.h"
 #include "../events/SelectionChangedEvent.h"
+#include "../events/TableColumnResizedEvent.h"
 #include "../events/TablePropertyResizedEvent.h"
+#include "../events/TableRowResizedEvent.h"
 #include "../messagebus/event_dispatcher.h"
 #include "../tools/location.h"
 #include "TableErrorDelegate.h"
@@ -107,10 +109,8 @@ void KalqlatorTableWidget::onSelectionChanged() const {
 
   const Location current_cell(current.column(), current.row());
 
-  EventDispatcher::dispatch(
-      "ui:cell_selection_changed",
-      SelectionChangedEvent{.selection = selected_cells,
-                            .current_cell = current_cell});
+  EventDispatcher::dispatch(SelectionChangedEvent{
+      .selection = selected_cells, .current_cell = current_cell});
 }
 
 void KalqlatorTableWidget::onCurrentChanged(const QModelIndex &current,
@@ -122,23 +122,21 @@ void KalqlatorTableWidget::onCurrentChanged(const QModelIndex &current,
   const Location current_cell(current.column(), current.row());
 
   EventDispatcher::dispatch(
-      "ui:cell_selection_changed",
       SelectionChangedEvent{.selection = {}, .current_cell = current_cell});
 }
 
 void KalqlatorTableWidget::onColumnResized(int logicalIndex, int oldSize,
                                            int newSize) {
-  EventDispatcher::dispatch(
-      "ui:column_resized",
+  EventDispatcher::dispatch(TableColumnResizedEvent{
       TablePropertyResizedEvent{.logical_index = logicalIndex,
                                 .old_size = oldSize,
-                                .new_size = newSize});
+                                .new_size = newSize}});
 }
 
 void KalqlatorTableWidget::onRowResized(int logicalIndex, int oldSize,
                                         int newSize) {
-  EventDispatcher::dispatch(
-      "ui:row_resized", TablePropertyResizedEvent{.logical_index = logicalIndex,
-                                                  .old_size = oldSize,
-                                                  .new_size = newSize});
+  EventDispatcher::dispatch(TableRowResizedEvent{
+      TablePropertyResizedEvent{.logical_index = logicalIndex,
+                                .old_size = oldSize,
+                                .new_size = newSize}});
 }

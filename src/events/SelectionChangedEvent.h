@@ -18,6 +18,8 @@
 #include "../tools/location.h"
 
 struct SelectionChangedEvent {
+  static constexpr std::string_view event_name = "ui:cell_selection_changed";
+
   LocationSet selection;
   Location current_cell;
 };

@@ -17,5 +17,7 @@
 #pragma once
 
 struct SheetSelectionChangedEvent {
+  static constexpr std::string_view event_name = "ui:sheet_selection_changed";
+
   int item_index;
 };

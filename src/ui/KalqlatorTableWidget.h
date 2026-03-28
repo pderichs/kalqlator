@@ -18,7 +18,6 @@
 
 #include <QTableWidget>
 
-#include "../events/CellUpdateDoneEvent.h"
 #include "../tools/location.h"
 #include "KalqlatorTableCellItemDelegate.h"
 

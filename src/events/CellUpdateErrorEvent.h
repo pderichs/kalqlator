@@ -18,6 +18,8 @@
 #include "../model/Cell.h"
 
 struct CellUpdateErrorEvent {
+  static constexpr std::string_view event_name = "model:cell_update_error";
+
   Cell *cell;
   std::string content;
   std::string error_message;

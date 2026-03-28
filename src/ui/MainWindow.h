@@ -81,15 +81,11 @@ private:
   void updateUIAfterSheetChange();
 
   template <typename TEvent>
-  void on(const std::string &name,
-          std::function<void(const TEvent &)> handler) {
-    m_handlers[name] = [handler](const std::any &param) {
-      handler(std::any_cast<TEvent>(param));
-    };
-  }
-
-  void on(const std::string &name, std::function<void()> handler) {
-    m_handlers[name] = [handler](const std::any &) { handler(); };
+  void on(std::function<void(const TEvent &)> handler) {
+    m_handlers[std::string(TEvent::event_name)] =
+        [handler](const std::any &param) {
+          handler(std::any_cast<TEvent>(param));
+        };
   }
 
   void createActions();

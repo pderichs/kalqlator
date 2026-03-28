@@ -42,12 +42,20 @@
 #include "../events/DocumentLoadedEvent.h"
 #include "../events/MacroEditorErrorEvent.h"
 #include "../events/MacroErrorEvent.h"
+#include "../events/ModelSheetSelectionChangedEvent.h"
 #include "../events/SearchEvent.h"
 #include "../events/SelectSheetAndCellEvent.h"
 #include "../events/SelectionChangedEvent.h"
+#include "../events/SheetListUpdateRequestEvent.h"
 #include "../events/SheetSelectionChangedEvent.h"
+#include "../events/TableColumnResizedEvent.h"
 #include "../events/TableEnvironmentUpdateEvent.h"
-#include "../events/TablePropertyResizedEvent.h"
+#include "../events/TableRowResizedEvent.h"
+#include "../events/UISheetAddEvent.h"
+#include "../events/UISheetMoveDownEvent.h"
+#include "../events/UISheetMoveUpEvent.h"
+#include "../events/UISheetRemoveEvent.h"
+#include "../events/UISheetRenameEvent.h"
 #include "../file/DocumentJsonSerializer.h"
 #include "../messagebus/event_dispatcher.h"
 #include "../model/triggers.h"
@@ -55,7 +63,7 @@
 #include "MacroEditorDialog.h"
 
 void MainWindow::registerEventHandlers() {
-  on<CellChangedEvent>("ui:cell_changed", [this](const auto &event) {
+  on<CellChangedEvent>([this](const auto &event) {
     // User changed cell in UI
     auto old_content = document_->get_cell_raw_content(event.row, event.col);
 
@@ -67,33 +75,30 @@ void MainWindow::registerEventHandlers() {
                                             old_content, event.content));
   });
 
-  on<SelectionChangedEvent>("ui:cell_selection_changed",
-                            [this](const auto &event) {
-                              if (model_cell_selection_update_) {
-                                return;
-                              }
-                              document_->set_current_cell(event.current_cell);
-                              document_->set_selected_cells(event.selection);
-                            });
+  on<SelectionChangedEvent>([this](const auto &event) {
+    if (model_cell_selection_update_) {
+      return;
+    }
+    document_->set_current_cell(event.current_cell);
+    document_->set_selected_cells(event.selection);
+  });
 
   on<SelectedCellChangedEvent>(
-      "model:selected_cell_changed",
       [this](const auto &event) { this->onCellSelectionChanged(event); });
 
-  on<CellUpdateErrorEvent>(
-      "model:cell_update_error", [this](const auto &event) {
-        if (event.error_type == ERROR_CIRCREF) {
-          QMessageBox::warning(
-              this, "Error",
-              "Circular reference detected.\n\nPlease fix your formula.");
-        } else {
-          QMessageBox::warning(
-              this, "Error",
-              "Your input contains one or more errors.\n\nPlease fix them.");
-        }
-      });
+  on<CellUpdateErrorEvent>([this](const auto &event) {
+    if (event.error_type == ERROR_CIRCREF) {
+      QMessageBox::warning(
+          this, "Error",
+          "Circular reference detected.\n\nPlease fix your formula.");
+    } else {
+      QMessageBox::warning(
+          this, "Error",
+          "Your input contains one or more errors.\n\nPlease fix them.");
+    }
+  });
 
-  on<DocumentLoadedEvent>("document_loaded", [this](const auto &) {
+  on<DocumentLoadedEvent>([this](const auto &) {
     updateSheetsList();
     updateCellSelectionByDocument();
     updateSheetSizesByDocument();
@@ -101,66 +106,64 @@ void MainWindow::registerEventHandlers() {
     document_->update_all_cells();
   });
 
-  on<TableEnvironmentUpdateEvent>(
-      "model:table_environment_update", [this](const auto &event) {
-        document_->refresh_cells(event.name, event.value,
-                                 event.dependencies_in_topological_order);
-      });
+  on<TableEnvironmentUpdateEvent>([this](const auto &event) {
+    document_->refresh_cells(event.name, event.value,
+                             event.dependencies_in_topological_order);
+  });
 
-  on("ui:sheet_add", [this]() {
+  on<UISheetAddEvent>([this](const auto &) {
     int index = document_->add_next_sheet();
     document_->set_active_sheet(index);
-    EventDispatcher::dispatch("ui:sheet_list_update");
+    EventDispatcher::dispatch(SheetListUpdateRequestEvent{});
   });
 
-  on("ui:sheet_remove", [this]() {
+  on<UISheetRemoveEvent>([this](const auto &) {
     document_->remove_current_sheet();
-    EventDispatcher::dispatch("ui:sheet_list_update");
+    EventDispatcher::dispatch(SheetListUpdateRequestEvent{});
   });
 
-  on("ui:sheet_move_up", [this]() {
+  on<UISheetMoveUpEvent>([this](const auto &) {
     document_->move_current_sheet(UP);
-    EventDispatcher::dispatch("ui:sheet_list_update");
+    EventDispatcher::dispatch(SheetListUpdateRequestEvent{});
   });
 
-  on("ui:sheet_move_down", [this]() {
+  on<UISheetMoveDownEvent>([this](const auto &) {
     document_->move_current_sheet(DOWN);
-    EventDispatcher::dispatch("ui:sheet_list_update");
+    EventDispatcher::dispatch(SheetListUpdateRequestEvent{});
   });
 
-  on("ui:sheet_rename", [this]() {
+  on<UISheetRenameEvent>([this](const auto &) {
     const std::string new_sheet_name(getNewSheetName());
     if (new_sheet_name.empty()) {
       return;
     }
     document_->rename_current_sheet(new_sheet_name);
-    EventDispatcher::dispatch("ui:sheet_list_update");
+    EventDispatcher::dispatch(SheetListUpdateRequestEvent{});
   });
 
-  on("ui:sheet_list_update", [this]() { updateSheetsList(); });
+  on<SheetListUpdateRequestEvent>([this](const auto &) { updateSheetsList(); });
 
-  on<SheetSelectionChangedEvent>("ui:sheet_selection_changed",
-                                 [this](const auto &event) {
-                                   auto [item_index] = event;
-                                   document_->set_active_sheet(item_index);
-                                   m_sheetModel->resetFromDocument();
-                                   updateUIAfterSheetChange();
-                                 });
+  on<SheetSelectionChangedEvent>([this](const auto &event) {
+    auto [item_index] = event;
+    document_->set_active_sheet(item_index);
+    m_sheetModel->resetFromDocument();
+    updateUIAfterSheetChange();
+  });
 
-  on("model:sheet_selection_changed",
-     [this]() { this->updateUIAfterSheetChange(); });
+  on<ModelSheetSelectionChangedEvent>(
+      [this](const auto &) { this->updateUIAfterSheetChange(); });
 
-  on<TablePropertyResizedEvent>("ui:column_resized", [this](const auto &event) {
+  on<TableRowResizedEvent>([this](const auto &event) {
     document_->set_row_height(event.logical_index, event.new_size);
     document_->set_changed_flag(true);
   });
 
-  on<TablePropertyResizedEvent>("ui:row_resized", [this](const auto &event) {
+  on<TableColumnResizedEvent>([this](const auto &event) {
     document_->set_column_width(event.logical_index, event.new_size);
     document_->set_changed_flag(true);
   });
 
-  on<SearchEvent>("ui:search", [this](const auto &event) {
+  on<SearchEvent>([this](const auto &event) {
     auto result = document_->search(event.search_options);
 
     m_sidePanel->clearSearchResults();
@@ -173,13 +176,12 @@ void MainWindow::registerEventHandlers() {
     }
   });
 
-  on<SelectSheetAndCellEvent>(
-      "ui:select_sheet_and_cell", [this](const auto &event) {
-        document_->select_sheet_and_cell(event.table_name, event.cell_location);
-        updateSheetsList();
-      });
+  on<SelectSheetAndCellEvent>([this](const auto &event) {
+    document_->select_sheet_and_cell(event.table_name, event.cell_location);
+    updateSheetsList();
+  });
 
-  on<MacroErrorEvent>("model:macro-error", [this](const auto &event) {
+  on<MacroErrorEvent>([this](const auto &event) {
     std::stringstream message;
     message << "Error in macro: \"" << event.macro << "\".\n"
             << "Message: " << event.message << ".\n\n"
@@ -189,7 +191,7 @@ void MainWindow::registerEventHandlers() {
                          QString::fromStdString(message.str()));
   });
 
-  on<MacroEditorErrorEvent>("ui:macro_editor_error", [this](const auto &event) {
+  on<MacroEditorErrorEvent>([this](const auto &event) {
     std::stringstream message;
     message << "Error in macro: \"" << event.macro << "\".\n"
             << "Message: " << event.message << ".\n\n"
@@ -528,7 +530,7 @@ void MainWindow::openFile() {
   }
 
   m_sheetModel->resetFromDocument();
-  EventDispatcher::dispatch("document_loaded", DocumentLoadedEvent{});
+  EventDispatcher::dispatch(DocumentLoadedEvent{});
 }
 
 void MainWindow::saveFile() {

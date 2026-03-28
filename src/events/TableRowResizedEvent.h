@@ -1,4 +1,4 @@
-// KalQlator - TableEnvironmentUpdateEvent.h
+// KalQlator - TableRowResizedEvent.h
 // Copyright (C) 2026  pderichs
 //
 // This program is free software: you can redistribute it and/or modify
@@ -16,15 +16,9 @@
 
 #pragma once
 
-#include "../lisp/object.h"
-#include "../tools/tools.h"
-#include <string>
+#include "TablePropertyResizedEvent.h"
+#include <string_view>
 
-struct TableEnvironmentUpdateEvent {
-  static constexpr std::string_view event_name =
-      "model:table_environment_update";
-
-  std::string name;
-  lisp::LispObjectPtr value;
-  pdtools::StringVector dependencies_in_topological_order;
+struct TableRowResizedEvent : public TablePropertyResizedEvent {
+  static constexpr std::string_view event_name = "ui:row_resized";
 };

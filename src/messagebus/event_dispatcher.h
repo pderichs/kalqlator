@@ -16,7 +16,6 @@
 
 #pragma once
 
-#include <any>
 #include <string>
 
 #include "event_sink.h"
@@ -25,9 +24,9 @@ class EventDispatcher {
 public:
   static void registerSink(EventSink *sink) { instance() = sink; }
 
-  static void dispatch(const std::string &name, std::any payload = {}) {
+  template <typename TEvent> static void dispatch(TEvent event) {
     if (auto *sink = instance()) {
-      sink->onEvent(name, std::move(payload));
+      sink->onEvent(std::string(TEvent::event_name), std::move(event));
     }
   }
 

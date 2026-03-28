@@ -1,4 +1,4 @@
-// KalQlator - CellUpdateDoneEvent.h
+// KalQlator - UISheetMoveDownEvent.h
 // Copyright (C) 2026  pderichs
 //
 // This program is free software: you can redistribute it and/or modify
@@ -15,9 +15,9 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #pragma once
-#include "../model/Cell.h"
-#include "CellEvent.h"
 
-struct CellUpdateDoneEvent : CellEvent {
-  Cell *cell;
+#include <string_view>
+
+struct UISheetMoveDownEvent {
+  static constexpr std::string_view event_name = "ui:sheet_move_down";
 };

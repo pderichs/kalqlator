@@ -59,10 +59,8 @@ bool SpreadsheetModel::setData(const QModelIndex &index, const QVariant &value,
   const auto new_content = value.toString().toStdString();
 
   // Throw ui:cell_changed event for undo / redo handling
-  EventDispatcher::dispatch(
-      "ui:cell_changed",
-      CellChangedEvent{CellEvent{.row = index.row(), .col = index.column()},
-                       new_content});
+  EventDispatcher::dispatch(CellChangedEvent{
+      CellEvent{.row = index.row(), .col = index.column()}, new_content});
 
   // Update domain model
   auto dirty =

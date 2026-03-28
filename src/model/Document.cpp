@@ -17,6 +17,7 @@
 #include "Document.h"
 
 #include "../events/MacroErrorEvent.h"
+#include "../events/ModelSheetSelectionChangedEvent.h"
 #include "../lisp/parser/parser.h"
 #include "../lisp/tokenizer/tokenizer.h"
 #include "../lisp/tools.h"
@@ -241,7 +242,7 @@ void Document::select_sheet_and_cell(const std::string &table_name,
 
   set_active_sheet(index);
 
-  EventDispatcher::dispatch("model:sheet_selection_changed");
+  EventDispatcher::dispatch(ModelSheetSelectionChangedEvent{});
   sheet->set_current_cell(cell_location);
 }
 
@@ -274,7 +275,6 @@ void Document::run_macros_by_trigger(const std::string &trigger) {
     }
   } catch (const std::runtime_error &e) {
     EventDispatcher::dispatch(
-        "model:macro-error",
         MacroErrorEvent{.macro = trigger, .def = def, .message = e.what()});
   }
 }

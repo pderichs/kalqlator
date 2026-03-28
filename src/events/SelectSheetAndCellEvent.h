@@ -19,6 +19,8 @@
 #include "../tools/location.h"
 
 struct SelectSheetAndCellEvent {
+  static constexpr std::string_view event_name = "ui:select_sheet_and_cell";
+
   std::string table_name;
   Location cell_location;
 };
