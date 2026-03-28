@@ -10,12 +10,12 @@
 #include <QPushButton>
 #include <QVBoxLayout>
 
-#include "../events/MacroEditorErrorEvent.h"
-#include "../events/MacroErrorEvent.h"
 #include "../lisp/Evaluator.h"
 #include "../lisp/tools.h"
 #include "../messagebus/event_dispatcher.h"
+#include "../model/events/MacroErrorEvent.h"
 #include "../model/triggers.h"
+#include "events/MacroEditorErrorEvent.h"
 
 MacroEditorDialog::MacroEditorDialog(MacroMap *macros, QWidget *parent)
     : QDialog(parent), m_macros(macros) {

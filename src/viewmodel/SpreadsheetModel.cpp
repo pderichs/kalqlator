@@ -3,8 +3,8 @@
 #include "../ui/TableCellTypes.h"
 #include <utility>
 
-#include "../events/CellChangedEvent.h"
 #include "../messagebus/event_dispatcher.h"
+#include "events/CellChangedEvent.h"
 
 SpreadsheetModel::SpreadsheetModel(DocumentPtr doc, QObject *parent)
     : QAbstractTableModel(parent), m_doc(std::move(doc)) {}

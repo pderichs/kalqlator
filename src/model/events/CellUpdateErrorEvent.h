@@ -15,7 +15,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #pragma once
-#include "../model/Cell.h"
+#include "../Cell.h"
 
 struct CellUpdateErrorEvent {
   static constexpr std::string_view event_name = "model:cell_update_error";

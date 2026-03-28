@@ -1,4 +1,4 @@
-// KalQlator - SheetSelectionChangedEvent.h
+// KalQlator - SearchEvent.h
 // Copyright (C) 2026  pderichs
 //
 // This program is free software: you can redistribute it and/or modify
@@ -16,8 +16,10 @@
 
 #pragma once
 
-struct SheetSelectionChangedEvent {
-  static constexpr std::string_view event_name = "ui:sheet_selection_changed";
+#include "../../model/search/SearchOptions.h"
 
-  int item_index;
+struct SearchEvent {
+  static constexpr std::string_view event_name = "ui:search";
+
+  SearchOptions search_options;
 };

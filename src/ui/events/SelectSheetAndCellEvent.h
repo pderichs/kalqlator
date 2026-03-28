@@ -1,4 +1,4 @@
-// KalQlator - SearchEvent.h
+// KalQlator - SelectSheetAndCellEvent.h
 // Copyright (C) 2026  pderichs
 //
 // This program is free software: you can redistribute it and/or modify
@@ -16,10 +16,11 @@
 
 #pragma once
 
-#include "../model/search/SearchOptions.h"
+#include "../../tools/location.h"
 
-struct SearchEvent {
-  static constexpr std::string_view event_name = "ui:search";
+struct SelectSheetAndCellEvent {
+  static constexpr std::string_view event_name = "ui:select_sheet_and_cell";
 
-  SearchOptions search_options;
+  std::string table_name;
+  Location cell_location;
 };

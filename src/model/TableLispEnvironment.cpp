@@ -21,7 +21,6 @@
 #include <unordered_set>
 #include <utility>
 
-#include "../events/TableEnvironmentUpdateEvent.h"
 #include "../lisp/factories.h"
 #include "../lisp/tools.h"
 #include "../messagebus/event_dispatcher.h"
@@ -29,6 +28,7 @@
 #include "../ui/user_interface_tools.h"
 #include "CircularReferenceError.h"
 #include "TableContext.h"
+#include "events/TableEnvironmentUpdateEvent.h"
 #include "functions/Cell.h"
 #include "functions/TableCell.h"
 

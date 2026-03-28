@@ -16,13 +16,13 @@
 
 #include "Document.h"
 
-#include "../events/MacroErrorEvent.h"
-#include "../events/ModelSheetSelectionChangedEvent.h"
 #include "../lisp/parser/parser.h"
 #include "../lisp/tokenizer/tokenizer.h"
 #include "../lisp/tools.h"
 #include "../messagebus/event_dispatcher.h"
 #include "../ui/user_interface_tools.h"
+#include "events/MacroErrorEvent.h"
+#include "events/ModelSheetSelectionChangedEvent.h"
 #include "triggers.h"
 
 void Document::initialize(const bool add_initial_sheet) {

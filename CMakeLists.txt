@@ -64,26 +64,25 @@ add_executable(kalqlator src/main.cpp
         src/ui/user_interface_tools.h
         src/ui/KalqlatorTableWidget.cpp
         src/ui/KalqlatorTableWidget.h
-        src/events/CellChangedEvent.h
+        src/viewmodel/events/CellChangedEvent.h
         src/lisp/LispObjectStringConverter.cpp
         src/lisp/LispObjectStringConverter.h
         src/ui/FormulaBar.cpp
         src/ui/FormulaBar.h
         src/ui/FormulaEditorDialog.cpp
         src/ui/FormulaEditorDialog.h
-        src/events/CellEvent.h
-        src/events/SelectedCellChangedEvent.h
+        src/viewmodel/events/CellEvent.h
+        src/model/events/SelectedCellChangedEvent.h
         src/tools/FlagScope.h
         src/ui/KalqlatorTableCellItemDelegate.h
         src/model/functions/Cell.h
-        src/events/NewCellReferenceEvent.h
-        src/events/CellUpdateErrorEvent.h
+        src/model/events/CellUpdateErrorEvent.h
         src/file/DocumentJsonSerializer.cpp
         src/file/DocumentJsonSerializer.h
-        src/events/DocumentLoadedEvent.h
+        src/ui/events/DocumentLoadedEvent.h
         src/messagebus/event_sink.h
         src/messagebus/event_dispatcher.h
-        src/events/TableEnvironmentUpdateEvent.h
+        src/model/events/TableEnvironmentUpdateEvent.h
         src/model/TableContext.h
         src/model/CircularReferenceError.h
         src/model/CellError.h
@@ -93,33 +92,32 @@ add_executable(kalqlator src/main.cpp
         src/ui/KalqWorksheetPanel.cpp
         src/ui/KalqWorksheetPanel.h
         src/model/MoveSheetDirection.h
-        src/events/SheetSelectionChangedEvent.h
+        src/ui/events/SheetSelectionChangedEvent.h
         resources/icons.qrc
-        src/events/SelectionChangedEvent.h
+        src/ui/events/SelectionChangedEvent.h
         src/model/SheetRegistry.h
         src/model/functions/TableCell.h
-        src/events/TablePropertyResizedEvent.h
+        src/ui/events/TablePropertyResizedEvent.h
         src/ui/KalqSidePanel.cpp
         src/ui/KalqSidePanel.h
         src/ui/SearchDialog.cpp
         src/ui/SearchDialog.h
         src/model/search/SearchOptions.h
         src/model/search/SearchResultItem.h
-        src/events/SearchEvent.h
-        src/events/SearchResultEvent.h
+        src/ui/events/SearchEvent.h
         src/ui/SearchResultItemMetaType.h
-        src/events/SelectSheetAndCellEvent.h
+        src/ui/events/SelectSheetAndCellEvent.h
         src/ui/CellChangeCommand.cpp
         src/ui/CellChangeCommand.h
         src/ui/MacroEditorDialog.cpp
         src/ui/MacroEditorDialog.h
         src/model/triggers.h
-        src/events/MacroErrorEvent.h
-        src/events/MacroEditorErrorEvent.h
+        src/model/events/MacroErrorEvent.h
+        src/ui/events/MacroEditorErrorEvent.h
         src/lisp/gmp_tools.h
         src/viewmodel/SpreadsheetModel.cpp
         src/viewmodel/SpreadsheetModel.h
-        src/events/SheetListUpdateRequestEvent.h
+        src/ui/events/SheetListUpdateRequestEvent.h
 )
 
 target_link_libraries(kalqlator

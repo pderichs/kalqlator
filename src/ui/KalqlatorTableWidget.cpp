@@ -20,14 +20,13 @@
 
 #include "KalqlatorTableWidget.h"
 
-#include "../events/CellChangedEvent.h"
-#include "../events/SelectionChangedEvent.h"
-#include "../events/TableColumnResizedEvent.h"
-#include "../events/TablePropertyResizedEvent.h"
-#include "../events/TableRowResizedEvent.h"
 #include "../messagebus/event_dispatcher.h"
 #include "../tools/location.h"
 #include "TableErrorDelegate.h"
+#include "events/SelectionChangedEvent.h"
+#include "events/TableColumnResizedEvent.h"
+#include "events/TablePropertyResizedEvent.h"
+#include "events/TableRowResizedEvent.h"
 
 KalqlatorTableWidget::KalqlatorTableWidget(QWidget *parent)
     : QTableView(parent) {

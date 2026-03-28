@@ -22,13 +22,13 @@
 #include <QPushButton>
 #include <QVBoxLayout>
 
-#include "../events/SheetSelectionChangedEvent.h"
-#include "../events/UISheetAddEvent.h"
-#include "../events/UISheetMoveDownEvent.h"
-#include "../events/UISheetMoveUpEvent.h"
-#include "../events/UISheetRemoveEvent.h"
-#include "../events/UISheetRenameEvent.h"
 #include "../messagebus/event_dispatcher.h"
+#include "events/SheetSelectionChangedEvent.h"
+#include "events/UISheetAddEvent.h"
+#include "events/UISheetMoveDownEvent.h"
+#include "events/UISheetMoveUpEvent.h"
+#include "events/UISheetRemoveEvent.h"
+#include "events/UISheetRenameEvent.h"
 
 KalqWorksheetPanel::KalqWorksheetPanel(QWidget *parent) : QWidget(parent) {
   setupUi();

@@ -1,4 +1,4 @@
-// KalQlator - NewCellReferenceEvent.h
+// KalQlator - SelectedCellChangedEvent.h
 // Copyright (C) 2026  pderichs
 //
 // This program is free software: you can redistribute it and/or modify
@@ -16,9 +16,10 @@
 
 #pragma once
 
-#include <string>
+#include "../Cell.h"
 
-struct NewCellReferenceEvent {
-  std::string from_cell;
-  std::string to_cell;
+struct SelectedCellChangedEvent {
+  static constexpr std::string_view event_name = "model:selected_cell_changed";
+
+  Cell *cell;
 };

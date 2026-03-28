@@ -20,8 +20,6 @@
 #include <algorithm>
 #include <iomanip>
 
-#include "../events/CellUpdateErrorEvent.h"
-#include "../events/SelectedCellChangedEvent.h"
 #include "../lisp/Evaluator.h"
 #include "../lisp/LispObjectStringConverter.h"
 #include "../lisp/parser/parser.h"
@@ -30,6 +28,8 @@
 #include "../tools/tools.h"
 #include "CircularReferenceError.h"
 #include "TableContext.h"
+#include "events/CellUpdateErrorEvent.h"
+#include "events/SelectedCellChangedEvent.h"
 #include "search/SearchOptions.h"
 
 Sheet::Sheet(std::string identifier, std::string name,
@@ -308,10 +308,6 @@ void Sheet::update_cell(int row, int column, const std::string &cell_name,
                              .error_message = e.what(),
                              .error_type = ERROR_GENERAL});
   }
-
-  // TODO: Check CellUpdateDoneEvent
-  // EventDispatcher::dispatch(
-  //     CellUpdateDoneEvent{{.row = row, .col = column}, cell_p});
 }
 
 void Sheet::set_cell_content(const Cell *cell, const std::string &content) {

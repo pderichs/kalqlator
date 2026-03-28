@@ -19,10 +19,10 @@
 #include <QHeaderView>
 #include <QVBoxLayout>
 
-#include "../events/SearchEvent.h"
-#include "../events/SelectSheetAndCellEvent.h"
 #include "../messagebus/event_dispatcher.h"
 #include "SearchDialog.h"
+#include "events/SearchEvent.h"
+#include "events/SelectSheetAndCellEvent.h"
 
 #include "SearchResultItemMetaType.h"
 

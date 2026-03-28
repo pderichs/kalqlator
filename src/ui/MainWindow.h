@@ -22,9 +22,9 @@
 #include <any>
 #include <memory>
 
-#include "../events/SelectedCellChangedEvent.h"
 #include "../messagebus/event_sink.h"
 #include "../model/Document.h"
+#include "../model/events/SelectedCellChangedEvent.h"
 #include "../viewmodel/SpreadsheetModel.h"
 #include "KalqSidePanel.h"
 #include "KalqWorksheetPanel.h"

@@ -16,6 +16,8 @@
 
 #pragma once
 
+#include <string_view>
+
 struct DocumentLoadedEvent {
   static constexpr std::string_view event_name = "document_loaded";
 };

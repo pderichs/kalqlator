@@ -1,4 +1,4 @@
-// KalQlator - SelectionChangedEvent.h
+// KalQlator - TableEnvironmentUpdateEvent.h
 // Copyright (C) 2026  pderichs
 //
 // This program is free software: you can redistribute it and/or modify
@@ -15,11 +15,16 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #pragma once
-#include "../tools/location.h"
 
-struct SelectionChangedEvent {
-  static constexpr std::string_view event_name = "ui:cell_selection_changed";
+#include "../../lisp/object.h"
+#include "../../tools/tools.h"
+#include <string>
 
-  LocationSet selection;
-  Location current_cell;
+struct TableEnvironmentUpdateEvent {
+  static constexpr std::string_view event_name =
+      "model:table_environment_update";
+
+  std::string name;
+  lisp::LispObjectPtr value;
+  pdtools::StringVector dependencies_in_topological_order;
 };
