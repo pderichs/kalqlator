@@ -21,6 +21,8 @@ set(ADDITIONAL_DEPS
         ../src/tools/location.h
         ../src/tools/rectangle.h
         ../src/lisp/tokenizer/syntax_checker.cpp
+        ../src/lisp/LispObjectStringConverter.h
+        ../src/lisp/LispObjectStringConverter.cpp
         ../src/lisp/Evaluator.cpp
         ../src/lisp/Evaluator.h
         ../src/lisp/EvalError.h
@@ -37,6 +39,7 @@ set(ADDITIONAL_DEPS
 )
 
 set(TESTS
+        test_lisp_object_string_converter
         test_lisp_comparison
         test_lisp_lambda
         test_lisp_if

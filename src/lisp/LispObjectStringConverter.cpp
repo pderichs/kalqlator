@@ -1,4 +1,4 @@
-// KalQlator - LispObjectStringConverter.h
+// KalQlator - LispObjectStringConverter.cpp
 // Copyright (C) 2026  pderichs
 //
 // This program is free software: you can redistribute it and/or modify
@@ -14,15 +14,27 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#pragma once
-#include "../lisp/types.h"
+#include "LispObjectStringConverter.h"
 
-class LispObjectStringConverter {
-public:
-  explicit LispObjectStringConverter(lisp::LispObjectPtr object);
+#include "object.h"
 
-  [[nodiscard]] std::string to_str() const;
+namespace lisp {
+LispObjectStringConverter::LispObjectStringConverter(lisp::LispObjectPtr object)
+    : object_(std::move(object)) {}
 
-private:
-  lisp::LispObjectPtr object_;
-};
+std::string LispObjectStringConverter::to_str() const {
+  std::string result;
+
+  if (object_->is_number()) {
+    result = to_decimal_string(object_->as_number());
+  } else if (object_->is_string()) {
+    result = object_->as_string();
+  } else if (object_->is_symbol()) {
+    result = object_->as_symbol_name();
+  } else {
+    result = "<value>";
+  }
+
+  return result;
+}
+} // namespace lisp

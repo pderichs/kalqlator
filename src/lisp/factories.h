@@ -17,7 +17,6 @@
 #pragma once
 
 #include <format>
-#include <gmpxx.h>
 #include <utility>
 
 #include "object.h"

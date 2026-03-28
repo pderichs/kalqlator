@@ -24,25 +24,28 @@ inline mpq_class mpq_class_from_decimal_or_int(const std::string &number) {
 
 inline std::string to_decimal_string(const mpq_class &value_source,
                                      int precision = 10) {
-  mpf_class float_value(value_source, 256); // Convert to float
+  mpf_class float_value(value_source, 256);
   mp_exp_t exp;
-
   std::string float_string = float_value.get_str(exp, 10, precision);
 
   if (float_string.empty()) {
     return "0";
   }
 
-  // exp is the position of the decimal delimiter dot
+  // Vorzeichen separat behandeln
+  std::string sign;
+  if (float_string[0] == '-') {
+    sign = "-";
+    float_string = float_string.substr(1);
+  }
+
   if (exp <= 0) {
     float_string = "0." + std::string(-exp, '0') + float_string;
   } else if (exp >= static_cast<int>(float_string.size())) {
-    // Integer with trailing zeros
     float_string += std::string(exp - float_string.size(), '0');
   } else {
-    // Float number
     float_string.insert(exp, ".");
   }
 
-  return float_string;
+  return sign + float_string;
 }

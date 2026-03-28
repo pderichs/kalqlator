@@ -65,8 +65,8 @@ add_executable(kalqlator src/main.cpp
         src/ui/KalqlatorTableWidget.cpp
         src/ui/KalqlatorTableWidget.h
         src/events/CellChangedEvent.h
-        src/model/LispObjectStringConverter.cpp
-        src/model/LispObjectStringConverter.h
+        src/lisp/LispObjectStringConverter.cpp
+        src/lisp/LispObjectStringConverter.h
         src/ui/FormulaBar.cpp
         src/ui/FormulaBar.h
         src/ui/FormulaEditorDialog.cpp

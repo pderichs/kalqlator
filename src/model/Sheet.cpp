@@ -23,12 +23,12 @@
 #include "../events/CellUpdateErrorEvent.h"
 #include "../events/SelectedCellChangedEvent.h"
 #include "../lisp/Evaluator.h"
+#include "../lisp/LispObjectStringConverter.h"
 #include "../lisp/parser/parser.h"
 #include "../lisp/tokenizer/tokenizer.h"
 #include "../messagebus/event_dispatcher.h"
 #include "../tools/tools.h"
 #include "CircularReferenceError.h"
-#include "LispObjectStringConverter.h"
 #include "TableContext.h"
 #include "search/SearchOptions.h"
 
@@ -86,9 +86,9 @@ void Sheet::update_all_cells() {
   });
 }
 
-void Sheet::refresh_cells(const std::string & name,
+void Sheet::refresh_cells(const std::string &name,
                           const lisp::LispObjectPtr & /*unused*/,
-                          const pdtools::StringVector & dependencies) {
+                          const pdtools::StringVector &dependencies) {
   for (const auto &dependency_cell_name : dependencies) {
     if (dependency_cell_name == name) {
       continue;
@@ -245,7 +245,8 @@ void Sheet::update_cell_contents(const std::string &content, const bool is_func,
   cell_p->tokens_ = std::move(evaluation.tokens);
   cell_p->formula_ = std::move(evaluation.formula);
   cell_p->visible_content_ =
-      is_func ? LispObjectStringConverter(evaluation.result).to_str() : content;
+      is_func ? lisp::LispObjectStringConverter(evaluation.result).to_str()
+              : content;
   cell_p->raw_formula_ = is_func ? content : "";
 }
 
