@@ -51,7 +51,6 @@
 #include "../file/DocumentJsonSerializer.h"
 #include "../messagebus/event_dispatcher.h"
 #include "../model/triggers.h"
-#include "../tools/FlagScope.h"
 #include "CellChangeCommand.h"
 #include "MacroEditorDialog.h"
 
@@ -208,6 +207,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   model_cell_selection_update_ = false;
 
   m_undoStack = new QUndoStack(this);
+  connect(m_undoStack, &QUndoStack::indexChanged, this,
+          [this](int) { m_tableWidget->viewport()->update(); });
 
   setWindowTitle(tr("KalQlator"));
   resize(1200, 800);

@@ -21,11 +21,9 @@
 #include "KalqlatorTableWidget.h"
 
 #include "../events/CellChangedEvent.h"
-#include "../events/CellEvent.h"
 #include "../events/SelectionChangedEvent.h"
 #include "../events/TablePropertyResizedEvent.h"
 #include "../messagebus/event_dispatcher.h"
-#include "../tools/FlagScope.h"
 #include "../tools/location.h"
 #include "TableErrorDelegate.h"
 

@@ -3,6 +3,9 @@
 #include "../ui/TableCellTypes.h"
 #include <utility>
 
+#include "../events/CellChangedEvent.h"
+#include "../messagebus/event_dispatcher.h"
+
 SpreadsheetModel::SpreadsheetModel(DocumentPtr doc, QObject *parent)
     : QAbstractTableModel(parent), m_doc(std::move(doc)) {}
 
@@ -53,9 +56,17 @@ bool SpreadsheetModel::setData(const QModelIndex &index, const QVariant &value,
     return false;
   }
 
+  const auto new_content = value.toString().toStdString();
+
+  // Throw ui:cell_changed event for undo / redo handling
+  EventDispatcher::dispatch(
+      "ui:cell_changed",
+      CellChangedEvent{CellEvent{.row = index.row(), .col = index.column()},
+                       new_content});
+
   // Update domain model
-  auto dirty = m_doc->set_cell_content(index.row(), index.column(),
-                                       value.toString().toStdString());
+  auto dirty =
+      m_doc->set_cell_content(index.row(), index.column(), new_content);
 
   // Signal changed cells to view
   emit dataChanged(index, index, {Qt::DisplayRole});
