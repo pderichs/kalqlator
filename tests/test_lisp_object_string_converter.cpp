@@ -56,6 +56,56 @@ private slots:
     QCOMPARE(conv.to_str(), std::string("-1000000"));
   }
 
+  static void test_decimal_input() {
+    auto obj = make_number({"3.14"});
+    LispObjectStringConverter conv(obj);
+    QCOMPARE(conv.to_str(), std::string("3.14"));
+  }
+
+  static void test_decimal_input_zero_point_one() {
+    auto obj = make_number({"0.1"});
+    LispObjectStringConverter conv(obj);
+    QCOMPARE(conv.to_str(), std::string("0.1"));
+  }
+
+  static void test_negative_decimal_input() {
+    auto obj = make_number({"-0.5"});
+    LispObjectStringConverter conv(obj);
+    QCOMPARE(conv.to_str(), std::string("-0.5"));
+  }
+
+  static void test_repeating_decimal() {
+    // 1/3 rounds to 10 significant digits
+    auto obj = make_number({"1/3"});
+    LispObjectStringConverter conv(obj);
+    QCOMPARE(conv.to_str(), std::string("0.3333333333"));
+  }
+
+  static void test_negative_repeating_decimal() {
+    auto obj = make_number({"-2/3"});
+    LispObjectStringConverter conv(obj);
+    QCOMPARE(conv.to_str(), std::string("-0.6666666667"));
+  }
+
+  static void test_small_fraction() {
+    // 1/1000 = 0.001 — requires leading zeros after decimal point
+    auto obj = make_number({"1/1000"});
+    LispObjectStringConverter conv(obj);
+    QCOMPARE(conv.to_str(), std::string("0.001"));
+  }
+
+  static void test_exact_fraction_three_quarters() {
+    auto obj = make_number({"3/4"});
+    LispObjectStringConverter conv(obj);
+    QCOMPARE(conv.to_str(), std::string("0.75"));
+  }
+
+  static void test_exact_fraction_three_eighths() {
+    auto obj = make_number({"3/8"});
+    LispObjectStringConverter conv(obj);
+    QCOMPARE(conv.to_str(), std::string("0.375"));
+  }
+
   // --- Strings ---
   static void test_string_value() {
     auto obj = make_string("hello");

@@ -169,8 +169,8 @@ private:
   Location current_selected_cell_;
   SheetRegistry *sheet_registry_;
 
-  size_t row_count_{100};
-  size_t column_count_{26};
+  size_t row_count_{1000};
+  size_t column_count_{52};
 
   std::unordered_map<size_t, size_t> column_widths_;
   std::unordered_map<size_t, size_t> row_heights_;

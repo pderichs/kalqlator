@@ -653,10 +653,28 @@ void MainWindow::openMacroEditor() {
 }
 
 void MainWindow::about() {
-  QMessageBox::about(this, tr("About KalQlator"),
-                     tr("<h2>KalQlator 0.1</h2>"
-                        "<p>A simple spreadsheet application with a lisp like "
-                        "language for formulas.</p>"));
+  QMessageBox::about(
+      this, tr("About KalQlator"),
+      tr("<h2>KalQlator 0.1</h2>"
+         "<p>A simple spreadsheet application with a Lisp-inspired language "
+         "for formulas.</p>"
+         "<p><a href=\"https://github.com/pderichs/kalqlator\">"
+         "https://github.com/pderichs/kalqlator</a></p>"
+         "<p>Licensed under the "
+         "<a href=\"https://www.gnu.org/licenses/gpl-3.0\">"
+         "GNU General Public License v3.0</a>.</p>"
+         "<h3>Built With</h3>"
+         "<p>KalQlator uses the following open source projects:</p>"
+         "<ul>"
+         "<li><b><a href=\"https://www.qt.io/\">Qt</a></b> &ndash; "
+         "Cross-platform Application Framework (LGPLv3)</li>"
+         "<li><b><a href=\"https://gmplib.org/\">GMP &ndash; GNU Multiple "
+         "Precision Arithmetic Library</a></b> &ndash; Arbitrary-precision "
+         "arithmetic (LGPLv3)</li>"
+         "<li><b><a href=\"https://fonts.google.com/icons\">Material Icons "
+         "and Symbols Font</a></b> &ndash; Icons by Google (Apache 2.0)</li>"
+         "</ul>"
+         "<p>Please see their respective licenses for more information.</p>"));
 }
 
 std::string MainWindow::getNewSheetName() {

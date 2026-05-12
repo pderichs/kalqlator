@@ -35,5 +35,12 @@ tests/test_lisp_tokenizer
 tests/test_lisp_tokenizer_autogen/
 tests/test_location
 tests/test_location_autogen/
+/tests/test_lisp_object_string_converter
+/tests/test_lisp_object_string_converter_autogen/
 *.cmake
 Testing/
+.claude/
+.cache/
+AGENTS.md
+CLAUDE.md
+
