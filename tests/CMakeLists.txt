@@ -38,6 +38,11 @@ set(ADDITIONAL_DEPS
         TestBase.h
         ../src/model/TableLispEnvironment.cpp
         ../src/model/TableLispEnvironment.h
+        ../src/model/Document.cpp
+        ../src/model/Document.h
+        ../src/model/Sheet.cpp
+        ../src/model/Sheet.h
+        ../src/model/Cell.h
 )
 
 set(TESTS
@@ -54,6 +59,7 @@ set(TESTS
         test_lisp_parser
         test_location
         test_table_lisp_environment
+        test_document_integration
 )
 
 foreach(test ${TESTS})
