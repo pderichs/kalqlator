@@ -97,7 +97,7 @@ void TableLispEnvironment::signal_environment_update(
       .dependencies_in_topological_order = dependencies});
 }
 
-bool TableLispEnvironment::is_cell_name(const std::string &name) const {
+bool TableLispEnvironment::is_cell_name(const std::string &name) {
   if (name.length() >= 2) {
     static const std::regex pattern(R"(([A-Z]+)(\d+))");
     std::smatch match;

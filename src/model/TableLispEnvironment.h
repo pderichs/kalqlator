@@ -70,7 +70,7 @@ private:
   void signal_environment_update(const std::string &name,
                                  lisp::LispObjectPtr value);
 
-  bool is_cell_name(const std::string &name) const;
+  [[nodiscard]] static bool is_cell_name(const std::string &name);
 
   /**
    * This map stores all cells which are referenced by the key cell
