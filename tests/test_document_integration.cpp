@@ -148,7 +148,8 @@ void DocumentIntegrationTests::circularReferenceProducesCircRefError() {
   if (cell_a2 == nullptr) {
     QFAIL("A2 must exist after input");
   }
-  QVERIFY2(cell_a2->has_errors(), "A2 must be flagged when it closes the cycle");
+  QVERIFY2(cell_a2->has_errors(),
+           "A2 must be flagged when it closes the cycle");
 
   const auto error = cell_a2->get_last_error();
   QVERIFY2(error.has_value(), "A2 must carry an error");
