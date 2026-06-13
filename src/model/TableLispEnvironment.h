@@ -55,16 +55,8 @@ public:
     return {};
   }
 
-  /**
-   * This is called before function arguments are evaluated.
-   *
-   * @param function_name Function name
-   * @param args Function arguments about to be evaluated
-   * @param context_param Context specific parameter from Evaluator
-   */
-  void on_pre_function_eval_args(const std::string &function_name,
-                                 const lisp::LispObjectPtr &args,
-                                 const std::any &context_param) override;
+  [[nodiscard]] lisp::LispObjectPtr
+  lookup(const std::string &name, const std::any &context_param) override;
 
 private:
   void dfs(const std::string &cell, pdtools::StringSet &visited,
@@ -77,6 +69,8 @@ private:
 
   void signal_environment_update(const std::string &name,
                                  lisp::LispObjectPtr value);
+
+  bool is_cell_name(const std::string &name) const;
 
   /**
    * This map stores all cells which are referenced by the key cell

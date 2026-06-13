@@ -53,5 +53,5 @@ const lisp::NativeFn FnTableCell =
         throw lisp::ArgumentError("Cell value must be defined.");
       }
 
-      return env->lookup(cell_symbol);
+      return env->lookup(cell_symbol, context);
     }};

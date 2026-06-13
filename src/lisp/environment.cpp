@@ -40,14 +40,15 @@ bool Environment::is_defined(const std::string &name) const {
   return definitions_.contains(name);
 }
 
-LispObjectPtr Environment::lookup(const std::string &name) {
+LispObjectPtr Environment::lookup(const std::string &name,
+                                  const std::any &context) {
   auto iterator = definitions_.find(name);
   if (iterator != definitions_.end()) {
     return iterator->second;
   }
 
   if (parent_) {
-    return parent_->lookup(name);
+    return parent_->lookup(name, context);
   }
 
   throw UnknownSymbolError(name);

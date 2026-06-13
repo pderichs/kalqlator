@@ -55,16 +55,11 @@ public:
    * Looks a symbol up.
    *
    * @param name Name to lookup
+   * @param context Application defined context of the current lookup
    * @return Value of the found symbol or Nil
    */
-  LispObjectPtr lookup(const std::string &name);
-
-  /**
-   * This is called before function arguments are evaluated.
-   */
-  virtual void on_pre_function_eval_args(const std::string & /*unused*/,
-                                         const LispObjectPtr & /*unused*/,
-                                         const std::any & /*unused*/) {}
+  [[nodiscard]] virtual LispObjectPtr lookup(const std::string &name,
+                                             const std::any &context);
 
 private:
   /**

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.31.6)
 
-find_package(Qt6 REQUIRED COMPONENTS Test)
+find_package(Qt6 REQUIRED COMPONENTS Test Gui)
 
 find_library(GMP_LIB gmp REQUIRED)
 find_library(GMPXX_LIB gmpxx REQUIRED)
@@ -36,6 +36,8 @@ set(ADDITIONAL_DEPS
         ../src/lisp/ArgumentError.h
         ../src/lisp/NotImplementedError.h
         TestBase.h
+        ../src/model/TableLispEnvironment.cpp
+        ../src/model/TableLispEnvironment.h
 )
 
 set(TESTS
@@ -51,10 +53,11 @@ set(TESTS
         test_lisp_tokenizer
         test_lisp_parser
         test_location
+        test_table_lisp_environment
 )
 
 foreach(test ${TESTS})
     add_executable(${test} ${test}.cpp ${ADDITIONAL_DEPS})
-    target_link_libraries(${test} PRIVATE Qt6::Test Qt6::Core ${GMP_LIB} ${GMPXX_LIB})
+    target_link_libraries(${test} PRIVATE Qt6::Test Qt6::Core Qt6::Gui ${GMP_LIB} ${GMPXX_LIB})
     add_test(NAME ${test} COMMAND ${test})
 endforeach()

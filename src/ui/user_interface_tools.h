@@ -50,7 +50,7 @@ inline Location get_cell_location_by_name(const std::string &name) {
     throw std::runtime_error("incompatible name");
   }
 
-  std::regex pattern(R"(([A-Z]*)(\d+))");
+  static const std::regex pattern(R"(([A-Z]+)(\d+))");
   std::smatch match;
 
   if (!std::regex_match(name, match, pattern)) {

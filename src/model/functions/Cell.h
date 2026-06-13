@@ -20,6 +20,8 @@
 #include "../../lisp/object.h"
 #include "../../lisp/tools.h"
 
+// Just here for downward compatibility: References are now also working
+// without that marker function.
 const lisp::NativeFn FnCell =
     lisp::NativeFn{[](const lisp::LispObjectPtr &args,
                       const std::any &) -> lisp::LispObjectPtr {

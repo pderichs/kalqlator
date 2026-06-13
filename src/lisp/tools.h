@@ -30,7 +30,7 @@ inline mpq_class to_numeric(const LispObjectPtr &value,
   if (value->is_number()) {
     return mpq_class(value->as_number());
   }
-  if (value->is_nil()) {
+  if (value->is_nil() || (value->is_string() && value->as_string().empty())) {
     return default_value;
   }
   throw TypeError("Only numbers are allowed.");

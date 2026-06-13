@@ -18,6 +18,7 @@
 
 #include <algorithm>
 #include <ranges>
+#include <regex>
 #include <unordered_set>
 #include <utility>
 
@@ -96,6 +97,19 @@ void TableLispEnvironment::signal_environment_update(
       .dependencies_in_topological_order = dependencies});
 }
 
+bool TableLispEnvironment::is_cell_name(const std::string &name) const {
+  if (name.length() >= 2) {
+    static const std::regex pattern(R"(([A-Z]+)(\d+))");
+    std::smatch match;
+
+    if (std::regex_match(name, match, pattern)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 void TableLispEnvironment::define(const std::string &name,
                                   lisp::LispObjectPtr value) {
   DefaultEnvironment::define(name, value);
@@ -156,30 +170,16 @@ void TableLispEnvironment::update_references(const std::string &from_cell,
   referenced_by_[to_cell].insert(from_cell);
 }
 
-void TableLispEnvironment::on_pre_function_eval_args(
-    const std::string &function_name, const lisp::LispObjectPtr &args,
-    const std::any &context_param) {
-  // TODO: Simple symbols are somewhat functional as well - but only with the
-  // cell function we support an updatable reference for now. Can be changed if
-  // required in future.
-  // TODO: Evaluate: Auto update of "table_cell" function as well. Not required
-  // atm though - tables are updated on sheet selection.
-  if (function_name == "cell") {
-    if (args->is_cons() && args->car()->is_symbol()) {
-      const std::string symbol_name = args->car()->as_symbol_name();
+lisp::LispObjectPtr TableLispEnvironment::lookup(const std::string &name,
+                                                 const std::any &context) {
+  const auto *table_context = std::any_cast<TableContext>(&context);
+  if (table_context != nullptr) {
+    const std::string &from_cell = table_context->source_cell;
 
-      // Retrieve cell as source for reference update from context
-      const auto table_context = std::any_cast<TableContext>(context_param);
-      const std::string from_cell = table_context.source_cell;
-
-      // If the currently active cell is the cell which is reference, no
-      // reference update is required.
-      if (from_cell == symbol_name) {
-        return;
-      }
-
-      // Update dependency graphs
-      update_references(from_cell, symbol_name);
+    if (!from_cell.empty() && from_cell != name && is_cell_name(name)) {
+      update_references(from_cell, name);
     }
   }
+
+  return DefaultEnvironment::lookup(name, context);
 }

@@ -89,13 +89,12 @@ LispObjectPtr Evaluator::eval_function(const LispObjectPtr &list) {
   // Native function
   const std::string function_name = function->as_symbol_name();
 
-  const auto fn_definition = env_->lookup(function_name);
+  const auto fn_definition = env_->lookup(function_name, context_param_);
 
   if (fn_definition) {
     if (fn_definition->is_native_fn()) {
       const auto function_impl = fn_definition->as_native_fn();
       const auto args = list->cdr();
-      env_->on_pre_function_eval_args(function_name, args, context_param_);
       const LispObjectPtr evaluated_args =
           evaluate_list(args); // eval all arguments
       return function_impl(evaluated_args, context_param_);
@@ -125,7 +124,7 @@ LispObjectPtr Evaluator::evaluate_object(const LispObjectPtr &obj) {
   }
 
   if (obj->is_symbol()) {
-    return env_->lookup(obj->as_symbol_name());
+    return env_->lookup(obj->as_symbol_name(), context_param_);
   }
 
   if (obj->is_atom()) {
