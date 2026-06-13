@@ -4,4 +4,5 @@ run-clang-tidy \
   -p build \
   -header-filter='.*' \
   -fix \
+  -j"$(nproc)" \
   '(src|tests)/.*\.cpp$'
