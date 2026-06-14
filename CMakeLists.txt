@@ -33,7 +33,6 @@ add_executable(kalqlator src/main.cpp
         src/lisp/tokenizer/tokenizer.cpp
         src/lisp/types.h
         src/tools/tools.cpp
-        src/tools/rectangle.h
         src/lisp/tokenizer/syntax_checker.cpp
         src/lisp/Evaluator.cpp
         src/lisp/Evaluator.h

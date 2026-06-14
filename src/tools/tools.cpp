@@ -45,10 +45,7 @@ std::string rtrim(const std::string &string) {
 }
 
 std::string trim(const std::string &string) {
-  std::string result(string);
-  ltrim(result);
-  rtrim(result);
-  return result;
+  return ltrim(rtrim(string));
 }
 
 StringVector split(const std::string &string, char delimiter) {

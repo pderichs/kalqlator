@@ -19,7 +19,6 @@ set(ADDITIONAL_DEPS
         ../src/lisp/types.h
         ../src/tools/tools.cpp
         ../src/tools/location.h
-        ../src/tools/rectangle.h
         ../src/lisp/tokenizer/syntax_checker.cpp
         ../src/lisp/LispObjectStringConverter.h
         ../src/lisp/LispObjectStringConverter.cpp
@@ -58,6 +57,8 @@ set(TESTS
         test_lisp_tokenizer
         test_lisp_parser
         test_location
+        test_flagscope
+        test_tools
         test_table_lisp_environment
         test_document_integration
 )
