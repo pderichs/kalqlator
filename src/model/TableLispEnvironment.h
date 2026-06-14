@@ -18,6 +18,9 @@
 
 #include "../lisp/DefaultEnvironment.h"
 #include "../tools/tools.h"
+#include "QualifiedCellRef.h"
+
+class SheetRegistry;
 
 using NameReferencesMap = std::map<std::string, pdtools::StringSet>;
 
@@ -30,6 +33,11 @@ public:
 
   TableLispEnvironment() = default;
 
+  void set_sheet_id(std::string sheet_id) { sheet_id_ = std::move(sheet_id); }
+  void set_sheet_registry(SheetRegistry *sheet_registry) {
+    sheet_registry_ = sheet_registry;
+  }
+
   void define(const std::string &name, lisp::LispObjectPtr value) override;
 
   void remove_references(const std::string &name);
@@ -38,6 +46,12 @@ public:
 
   void update_references(const std::string &from_cell,
                          const std::string &to_cell);
+
+  void record_external_reference(const std::string &from_cell,
+                                 const QualifiedCellRef &to_cell);
+
+  void record_external_dependent(const QualifiedCellRef &from_cell,
+                                 const std::string &to_cell);
 
   pdtools::StringSet get_references(const std::string &name) {
     if (references_.contains(name)) {
@@ -62,10 +76,20 @@ private:
   void dfs(const std::string &cell, pdtools::StringSet &visited,
            pdtools::StringVector &result);
 
+  [[nodiscard]] TableLispEnvironment *
+  resolve_environment(const std::string &sheet_id) const;
+
+  bool would_create_cycle(const QualifiedCellRef &source_ref,
+                          const QualifiedCellRef &candidate_ref);
+
   pdtools::StringVector
   dependency_chain_in_topological_order(const std::string &cell);
 
-  bool is_reachable(const std::string &start, const std::string &target);
+  [[nodiscard]] QualifiedCellRefVector
+  direct_external_dependents(const std::string &cell) const;
+
+  bool is_reachable(const QualifiedCellRef &start,
+                    const QualifiedCellRef &target);
 
   void signal_environment_update(const std::string &name,
                                  lisp::LispObjectPtr value);
@@ -89,6 +113,12 @@ private:
    * "A2": { "A1" }
    */
   NameReferencesMap referenced_by_;
+
+  std::map<std::string, QualifiedCellRefSet> external_references_;
+  std::map<std::string, QualifiedCellRefSet> external_referenced_by_;
+
+  std::string sheet_id_;
+  SheetRegistry *sheet_registry_{nullptr};
 
   bool initializing_{false};
 };

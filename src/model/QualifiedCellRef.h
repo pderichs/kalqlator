@@ -1,4 +1,4 @@
-// KalQlator - TableContext.h
+// KalQlator - QualifiedCellRef.h
 // Copyright (C) 2026  pderichs
 //
 // This program is free software: you can redistribute it and/or modify
@@ -16,14 +16,24 @@
 
 #pragma once
 
-#include "SheetRegistry.h"
+#include <set>
 #include <string>
+#include <tuple>
+#include <vector>
 
-class TableLispEnvironment;
+struct QualifiedCellRef {
+  std::string sheet_id;
+  std::string cell_name;
 
-struct TableContext {
-  std::string source_cell;
-  std::string source_sheet_id;
-  SheetRegistry *sheet_registry;
-  TableLispEnvironment *source_environment;
+  bool operator==(const QualifiedCellRef &other) const {
+    return sheet_id == other.sheet_id && cell_name == other.cell_name;
+  }
+
+  bool operator<(const QualifiedCellRef &other) const {
+    return std::tie(sheet_id, cell_name) <
+           std::tie(other.sheet_id, other.cell_name);
+  }
 };
+
+using QualifiedCellRefSet = std::set<QualifiedCellRef>;
+using QualifiedCellRefVector = std::vector<QualifiedCellRef>;

@@ -18,13 +18,16 @@
 
 #include "../../lisp/object.h"
 #include "../../tools/tools.h"
+#include "../QualifiedCellRef.h"
 #include <string>
 
 struct TableEnvironmentUpdateEvent {
   static constexpr std::string_view event_name =
       "model:table_environment_update";
 
+  std::string source_sheet_id;
   std::string name;
   lisp::LispObjectPtr value;
   pdtools::StringVector dependencies_in_topological_order;
+  QualifiedCellRefVector external_dependencies;
 };

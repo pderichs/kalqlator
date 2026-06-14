@@ -24,6 +24,7 @@
 #include "../src/model/CellErrorType.h"
 #include "../src/model/Document.h"
 #include "../src/model/events/TableEnvironmentUpdateEvent.h"
+#include "../src/model/search/SearchOptions.h"
 #include "TestBase.h"
 
 namespace {
@@ -51,8 +52,9 @@ public:
     if (name == TableEnvironmentUpdateEvent::event_name) {
       const auto &event =
           std::any_cast<const TableEnvironmentUpdateEvent &>(payload);
-      document_->refresh_cells(event.name, event.value,
-                               event.dependencies_in_topological_order);
+      document_->refresh_cells(event.source_sheet_id, event.name, event.value,
+                               event.dependencies_in_topological_order,
+                               event.external_dependencies);
     }
   }
 
@@ -101,6 +103,37 @@ private slots:
   // Changing a source cell must propagate to dependent formula cells via the
   // table environment update event (reactive recalculation).
   static void dependentCellRecalculatesOnSourceChange();
+
+  // A dependency chain A1 -> A2 -> A3 must recompute in topological order when
+  // A1 changes.
+  static void transitiveDependenciesRecalculateInOrder();
+
+  // Replacing a formula must remove stale dependencies so later edits only
+  // affect currently referenced cells.
+  static void changingFormulaRemovesStaleDependencies();
+
+  // A direct self reference must be rejected as a circular reference.
+  static void directSelfReferenceProducesCircRefError();
+
+  // Cross-sheet references via table_cell must evaluate and recalculate when
+  // the source cell changes.
+  static void crossSheetTableCellReferenceRecalculates();
+
+  // A mutual table_cell cycle across two sheets must be rejected as a circular
+  // reference instead of recursing indefinitely.
+  static void crossSheetTableCellCycleProducesCircRefError();
+
+  // Replacing a cross-sheet formula must remove the external dependency so
+  // later changes in the source sheet no longer trigger recalculation.
+  static void changingCrossSheetFormulaRemovesStaleDependencies();
+
+  // Selecting a cell on another sheet must switch both the active sheet and
+  // the current cell on that sheet.
+  static void selectSheetAndCellSwitchesSheetAndCell();
+
+  // Search must respect content/formula scope and case sensitivity across the
+  // whole document.
+  static void searchRespectsScopeAndCaseSensitivity();
 };
 
 void DocumentIntegrationTests::formulaSumsReferencedCells() {
@@ -218,6 +251,234 @@ void DocumentIntegrationTests::dependentCellRecalculatesOnSourceChange() {
   // Changing A1 must recalculate the dependent formula in C19.
   document.set_cell_content(kA1Row, kA1Col, "10");
   QCOMPARE(cell_c19->visible_content_, std::string("16"));
+}
+
+void DocumentIntegrationTests::transitiveDependenciesRecalculateInOrder() {
+  Document document;
+  document.initialize();
+
+  const RecalculatingSink sink(&document);
+
+  document.set_cell_content(kA1Row, kA1Col, "1");
+  document.set_cell_content(kA2Row, kA2Col, "=(+ A1 1)");
+  document.set_cell_content(kB4Row, kB4Col, "=(+ A2 1)");
+
+  const Cell *cell_a2 = document.get_cell(kA2Row, kA2Col);
+  const Cell *cell_b4 = document.get_cell(kB4Row, kB4Col);
+  if (cell_a2 == nullptr || cell_b4 == nullptr) {
+    QFAIL("dependent cells must exist after input");
+  }
+
+  QCOMPARE(cell_a2->visible_content_, std::string("2"));
+  QCOMPARE(cell_b4->visible_content_, std::string("3"));
+
+  document.set_cell_content(kA1Row, kA1Col, "10");
+
+  QCOMPARE(cell_a2->visible_content_, std::string("11"));
+  QCOMPARE(cell_b4->visible_content_, std::string("12"));
+}
+
+void DocumentIntegrationTests::changingFormulaRemovesStaleDependencies() {
+  Document document;
+  document.initialize();
+
+  const RecalculatingSink sink(&document);
+
+  document.set_cell_content(kA1Row, kA1Col, "1");
+  document.set_cell_content(kA2Row, kA2Col, "2");
+  document.set_cell_content(kB4Row, kB4Col, "=(+ A1 10)");
+
+  const Cell *cell_b4 = document.get_cell(kB4Row, kB4Col);
+  if (cell_b4 == nullptr) {
+    QFAIL("B4 must exist after input");
+  }
+  QCOMPARE(cell_b4->visible_content_, std::string("11"));
+
+  document.set_cell_content(kB4Row, kB4Col, "=(+ A2 10)");
+  QCOMPARE(cell_b4->visible_content_, std::string("12"));
+
+  document.set_cell_content(kA1Row, kA1Col, "100");
+  QCOMPARE(cell_b4->visible_content_, std::string("12"));
+
+  document.set_cell_content(kA2Row, kA2Col, "20");
+  QCOMPARE(cell_b4->visible_content_, std::string("30"));
+}
+
+void DocumentIntegrationTests::directSelfReferenceProducesCircRefError() {
+  Document document;
+  document.initialize();
+
+  document.set_cell_content(kA1Row, kA1Col, "=(+ A1 1)");
+
+  const Cell *cell_a1 = document.get_cell(kA1Row, kA1Col);
+  if (cell_a1 == nullptr) {
+    QFAIL("A1 must exist after input");
+  }
+
+  QVERIFY2(cell_a1->has_errors(), "a direct self reference must be rejected");
+  const auto error = cell_a1->get_last_error();
+  QVERIFY2(error.has_value(), "A1 must carry a circular reference error");
+  QCOMPARE(error->error_type, ERROR_CIRCREF);
+  QVERIFY2(cell_a1->raw_formula_.empty(),
+           "a rejected self-referential formula must not stay active");
+}
+
+void DocumentIntegrationTests::crossSheetTableCellReferenceRecalculates() {
+  Document document;
+  document.initialize();
+
+  const RecalculatingSink sink(&document);
+
+  document.set_cell_content(kA1Row, kA1Col, "5");
+  const int second_sheet_index = document.add_next_sheet();
+  QCOMPARE(second_sheet_index, 1);
+
+  const auto *const second_sheet = document.sheet_by_index(1);
+  if (second_sheet == nullptr) {
+    QFAIL("the second sheet must exist");
+  }
+
+  document.set_active_sheet(1);
+  document.set_cell_content(kB4Row, kB4Col, R"(=(table_cell "Table 1" "A1"))");
+
+  const Cell *cell_b4 = document.get_cell(kB4Row, kB4Col);
+  if (cell_b4 == nullptr) {
+    QFAIL("B4 on the second sheet must exist after input");
+  }
+  QCOMPARE(cell_b4->visible_content_, std::string("5"));
+
+  document.set_active_sheet(0);
+  document.set_cell_content(kA1Row, kA1Col, "8");
+
+  QCOMPARE(cell_b4->visible_content_, std::string("8"));
+}
+
+void DocumentIntegrationTests::crossSheetTableCellCycleProducesCircRefError() {
+  Document document;
+  document.initialize();
+
+  const int second_sheet_index = document.add_next_sheet();
+  QCOMPARE(second_sheet_index, 1);
+
+  document.set_active_sheet(0);
+  document.set_cell_content(kA1Row, kA1Col, R"(=(table_cell "Table 2" "B2"))");
+
+  document.set_active_sheet(1);
+  document.set_cell_content(1, 1, R"(=(table_cell "Table 1" "A1"))");
+
+  const Cell *cell_b2 = document.get_cell(1, 1);
+  if (cell_b2 == nullptr) {
+    QFAIL("B2 on the second sheet must exist after input");
+  }
+
+  QVERIFY2(cell_b2->has_errors(),
+           "the second leg of a cross-sheet cycle must be rejected");
+  const auto error = cell_b2->get_last_error();
+  QVERIFY2(error.has_value(), "B2 must carry a circular reference error");
+  QCOMPARE(error->error_type, ERROR_CIRCREF);
+  QVERIFY2(cell_b2->raw_formula_.empty(),
+           "a rejected cross-sheet circular formula must not stay active");
+}
+
+void DocumentIntegrationTests::
+    changingCrossSheetFormulaRemovesStaleDependencies() {
+  Document document;
+  document.initialize();
+
+  const RecalculatingSink sink(&document);
+
+  const int second_sheet_index = document.add_next_sheet();
+  QCOMPARE(second_sheet_index, 1);
+
+  document.set_active_sheet(1);
+  document.set_cell_content(1, 1, "5");
+
+  document.set_active_sheet(0);
+  document.set_cell_content(kA1Row, kA1Col, R"(=(table_cell "Table 2" "B2"))");
+
+  const Cell *cell_a1 = document.get_cell(kA1Row, kA1Col);
+  if (cell_a1 == nullptr) {
+    QFAIL("A1 on the first sheet must exist after input");
+  }
+  QCOMPARE(cell_a1->visible_content_, std::string("5"));
+
+  document.set_cell_content(kA1Row, kA1Col, "7");
+  QCOMPARE(cell_a1->visible_content_, std::string("7"));
+
+  document.set_active_sheet(1);
+  document.set_cell_content(1, 1, "9");
+
+  document.set_active_sheet(0);
+  QCOMPARE(cell_a1->visible_content_, std::string("7"));
+}
+
+void DocumentIntegrationTests::selectSheetAndCellSwitchesSheetAndCell() {
+  Document document;
+  document.initialize();
+
+  QCOMPARE(document.get_active_sheet(), size_t{0});
+
+  const int second_sheet_index = document.add_next_sheet();
+  QCOMPARE(second_sheet_index, 1);
+
+  auto *second_sheet = document.sheet_by_index(1);
+  if (second_sheet == nullptr) {
+    QFAIL("the second sheet must exist");
+  }
+
+  const Location target_cell(4, 7);
+  document.select_sheet_and_cell(second_sheet->name(), target_cell);
+
+  QCOMPARE(document.get_active_sheet(), size_t{1});
+  QCOMPARE(document.get_current_selected_cell(), target_cell);
+}
+
+void DocumentIntegrationTests::searchRespectsScopeAndCaseSensitivity() {
+  Document document;
+  document.initialize();
+
+  document.set_cell_content(kA1Row, kA1Col, "Hello World");
+  document.set_cell_content(kA2Row, kA2Col, "1");
+  document.set_cell_content(kB4Row, kB4Col, "=(+ A2 1)");
+
+  const SearchOptions case_insensitive_content{
+      .searchString = "hello",
+      .scope = SearchScope::OnlyContent,
+      .caseSensitive = false,
+      .useRegularExpression = false,
+  };
+  const auto content_matches = document.search(case_insensitive_content);
+  QCOMPARE(content_matches.size(), size_t{1});
+  QCOMPARE(content_matches.front()->table_name, std::string("Table 1"));
+  QCOMPARE(content_matches.front()->cell, Location(kA1Col, kA1Row));
+  QCOMPARE(content_matches.front()->complete_match, std::string("Hello World"));
+
+  const SearchOptions case_sensitive_content{
+      .searchString = "hello",
+      .scope = SearchScope::OnlyContent,
+      .caseSensitive = true,
+      .useRegularExpression = false,
+  };
+  QVERIFY(document.search(case_sensitive_content).empty());
+
+  const SearchOptions formula_only{
+      .searchString = "A2",
+      .scope = SearchScope::OnlyFormula,
+      .caseSensitive = true,
+      .useRegularExpression = false,
+  };
+  const auto formula_matches = document.search(formula_only);
+  QCOMPARE(formula_matches.size(), size_t{1});
+  QCOMPARE(formula_matches.front()->cell, Location(kB4Col, kB4Row));
+  QCOMPARE(formula_matches.front()->complete_match, std::string("=(+ A2 1)"));
+
+  const SearchOptions content_only_for_formula_reference{
+      .searchString = "A2",
+      .scope = SearchScope::OnlyContent,
+      .caseSensitive = true,
+      .useRegularExpression = false,
+  };
+  QVERIFY(document.search(content_only_for_formula_reference).empty());
 }
 
 QTEST_MAIN(DocumentIntegrationTests)

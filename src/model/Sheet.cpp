@@ -38,6 +38,8 @@ Sheet::Sheet(std::string identifier, std::string name,
       table_lisp_environment_(std::make_shared<TableLispEnvironment>()),
       sheet_registry_(sheet_registry) {
   table_lisp_environment_->initialize();
+  table_lisp_environment_->set_sheet_id(id_);
+  table_lisp_environment_->set_sheet_registry(sheet_registry_);
 
   set_current_cell(Location(0, 0));
   selected_cells_.insert(current_selected_cell_);
@@ -213,9 +215,11 @@ FormulaResult Sheet::evaluate_formula(const std::string &formula_text,
   auto tokens = tokenizer.scan();
   lisp::Parser parser(tokens);
   auto formula = parser.parse_all();
-  lisp::Evaluator evaluator(env,
-                            TableContext{.source_cell = cell_name,
-                                         .sheet_registry = sheet_registry_});
+  lisp::Evaluator evaluator(
+      env, TableContext{.source_cell = cell_name,
+                        .source_sheet_id = id_,
+                        .sheet_registry = sheet_registry_,
+                        .source_environment = table_lisp_environment_.get()});
   auto result = evaluator.evaluate(formula);
 
   return {.tokens = std::move(tokens),
@@ -237,6 +241,14 @@ void Sheet::refresh_cell(Cell *cell) const {
 
   table_lisp_environment_->define(
       cell->name_, evaluation.result); // TODO Fires event in model - required?
+}
+
+void Sheet::refresh_cell_by_name(const std::string &cell_name) const {
+  auto location = get_cell_location_by_name(cell_name);
+  auto *cell = get_cell(location.y(), location.x());
+  if (cell != nullptr) {
+    refresh_cell(cell);
+  }
 }
 
 void Sheet::update_cell_contents(const std::string &content, const bool is_func,

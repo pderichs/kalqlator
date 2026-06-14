@@ -152,6 +152,8 @@ bool DocumentJsonSerializer::save() const {
   }
 
   workbookObj["sheets"] = sheetsArray;
+  workbookObj["active_sheet_index"] =
+      static_cast<int>(document_->get_active_sheet());
 
   MacroMap macros = document_->macro_map();
   if (!macros.empty()) {
@@ -209,10 +211,9 @@ void DocumentJsonSerializer::applySizes(Sheet *sheet,
 
 void DocumentJsonSerializer::add_sheets(const QJsonObject &workbook) const {
   // Apply values in order - first we set value cells then formulas.
-  std::vector<CellValueTask> values;
-  std::vector<CellValueTask> formulas;
+  std::vector<std::pair<Sheet *, CellValueTask>> values;
+  std::vector<std::pair<Sheet *, CellValueTask>> formulas;
 
-  int index = 0;
   QJsonArray sheets = workbook["sheets"].toArray();
   for (const auto &item : sheets) {
     QJsonObject jsonSheet = item.toObject();
@@ -241,9 +242,9 @@ void DocumentJsonSerializer::add_sheets(const QJsonObject &workbook) const {
                                 .formula = formula};
 
       if (formula.empty()) {
-        values.push_back(task);
+        values.emplace_back(sheet, task);
       } else {
-        formulas.push_back(task);
+        formulas.emplace_back(sheet, task);
       }
     }
 
@@ -261,17 +262,13 @@ void DocumentJsonSerializer::add_sheets(const QJsonObject &workbook) const {
 
     // TODO Sizes
     applySizes(sheet, jsonSheet);
+  }
 
-    document_->set_active_sheet(index);
-
-    for (const auto &task : values) {
-      create_cell_by_task(sheet, task);
-    }
-    for (const auto &task : formulas) {
-      create_cell_by_task(sheet, task);
-    }
-
-    index++;
+  for (const auto &[sheet, task] : values) {
+    create_cell_by_task(sheet, task);
+  }
+  for (const auto &[sheet, task] : formulas) {
+    create_cell_by_task(sheet, task);
   }
 }
 
@@ -291,8 +288,6 @@ void DocumentJsonSerializer::add_macros(const QJsonObject &workbook) const {
 }
 
 bool DocumentJsonSerializer::open() const {
-  document_->clear(false); // Do not initialize with sheet
-
   std::ifstream file(filename_, std::ifstream::in);
 
   if (!file) {
@@ -322,6 +317,7 @@ bool DocumentJsonSerializer::open() const {
     return false;
   }
 
+  document_->clear(false); // Do not initialize with sheet
   document_->set_file_name(filename_);
 
   QJsonObject workbook = rootObj["workbook"].toObject();
@@ -331,7 +327,14 @@ bool DocumentJsonSerializer::open() const {
   add_macros(workbook);
 
   int active_sheet_index = workbook["active_sheet_index"].toInt();
-  document_->set_active_sheet(active_sheet_index);
+  if (active_sheet_index < 0 ||
+      static_cast<size_t>(active_sheet_index) >= document_->sheet_count()) {
+    active_sheet_index = 0;
+  }
+
+  if (document_->sheet_count() > 0) {
+    document_->set_active_sheet(static_cast<size_t>(active_sheet_index));
+  }
 
   return true;
 }

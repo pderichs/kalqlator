@@ -107,8 +107,9 @@ void MainWindow::registerEventHandlers() {
   });
 
   on<TableEnvironmentUpdateEvent>([this](const auto &event) {
-    document_->refresh_cells(event.name, event.value,
-                             event.dependencies_in_topological_order);
+    document_->refresh_cells(event.source_sheet_id, event.name, event.value,
+                             event.dependencies_in_topological_order,
+                             event.external_dependencies);
   });
 
   on<UISheetAddEvent>([this](const auto &) {

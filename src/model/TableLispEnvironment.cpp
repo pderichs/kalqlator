@@ -19,6 +19,7 @@
 #include <algorithm>
 #include <ranges>
 #include <regex>
+#include <stack>
 #include <unordered_set>
 #include <utility>
 
@@ -28,6 +29,7 @@
 #include "../tools/FlagScope.h"
 #include "../ui/user_interface_tools.h"
 #include "CircularReferenceError.h"
+#include "Sheet.h"
 #include "TableContext.h"
 #include "events/TableEnvironmentUpdateEvent.h"
 #include "functions/Cell.h"
@@ -67,6 +69,29 @@ void TableLispEnvironment::dfs(const std::string &cell,
   result.push_back(cell); // Post order
 }
 
+TableLispEnvironment *
+TableLispEnvironment::resolve_environment(const std::string &sheet_id) const {
+  if (sheet_id == sheet_id_ || sheet_id.empty()) {
+    return const_cast<TableLispEnvironment *>(this);
+  }
+
+  if (sheet_registry_ == nullptr) {
+    return nullptr;
+  }
+
+  const auto *const sheet = sheet_registry_->sheet_by_id(sheet_id);
+  if (sheet == nullptr) {
+    return nullptr;
+  }
+
+  return sheet->table_environment();
+}
+
+bool TableLispEnvironment::would_create_cycle(
+    const QualifiedCellRef &source_ref, const QualifiedCellRef &candidate_ref) {
+  return is_reachable(candidate_ref, source_ref);
+}
+
 pdtools::StringVector
 TableLispEnvironment::dependency_chain_in_topological_order(
     const std::string &cell) {
@@ -82,6 +107,23 @@ TableLispEnvironment::dependency_chain_in_topological_order(
   return result;
 }
 
+QualifiedCellRefVector TableLispEnvironment::direct_external_dependents(
+    const std::string &cell) const {
+  QualifiedCellRefVector result;
+
+  const auto iterator = external_referenced_by_.find(cell);
+  if (iterator == external_referenced_by_.end()) {
+    return result;
+  }
+
+  result.reserve(iterator->second.size());
+  for (const auto &dependency : iterator->second) {
+    result.push_back(dependency);
+  }
+
+  return result;
+}
+
 void TableLispEnvironment::signal_environment_update(
     const std::string &name, lisp::LispObjectPtr value) {
   if (initializing_) {
@@ -90,11 +132,15 @@ void TableLispEnvironment::signal_environment_update(
 
   const pdtools::StringVector dependencies =
       dependency_chain_in_topological_order(name);
+  const QualifiedCellRefVector external_dependencies =
+      direct_external_dependents(name);
 
   EventDispatcher::dispatch(TableEnvironmentUpdateEvent{
+      .source_sheet_id = sheet_id_,
       .name = name,
       .value = std::move(value),
-      .dependencies_in_topological_order = dependencies});
+      .dependencies_in_topological_order = dependencies,
+      .external_dependencies = external_dependencies});
 }
 
 bool TableLispEnvironment::is_cell_name(const std::string &name) {
@@ -133,12 +179,43 @@ void TableLispEnvironment::remove_references(const std::string &name) {
       cells.erase(name);
     }
   }
+
+  const auto iterator = external_references_.find(name);
+  if (iterator == external_references_.end()) {
+    return;
+  }
+
+  const QualifiedCellRef from_cell{.sheet_id = sheet_id_, .cell_name = name};
+  for (const auto &target : iterator->second) {
+    if (sheet_registry_ == nullptr) {
+      continue;
+    }
+
+    auto *sheet = sheet_registry_->sheet_by_id(target.sheet_id);
+    if (sheet == nullptr) {
+      continue;
+    }
+
+    auto *env = sheet->table_environment();
+    auto referenced_by_iterator =
+        env->external_referenced_by_.find(target.cell_name);
+    if (referenced_by_iterator == env->external_referenced_by_.end()) {
+      continue;
+    }
+
+    referenced_by_iterator->second.erase(from_cell);
+    if (referenced_by_iterator->second.empty()) {
+      env->external_referenced_by_.erase(referenced_by_iterator);
+    }
+  }
+
+  external_references_.erase(iterator);
 }
 
-bool TableLispEnvironment::is_reachable(const std::string &start,
-                                        const std::string &target) {
-  std::unordered_set<std::string> visited;
-  std::stack<std::string> stack;
+bool TableLispEnvironment::is_reachable(const QualifiedCellRef &start,
+                                        const QualifiedCellRef &target) {
+  QualifiedCellRefSet visited;
+  std::stack<QualifiedCellRef> stack;
   stack.push(start);
 
   while (!stack.empty()) {
@@ -151,8 +228,24 @@ bool TableLispEnvironment::is_reachable(const std::string &start,
       continue;
     }
     visited.insert(current);
-    for (const auto &neighbor : references_[current]) {
-      stack.push(neighbor);
+
+    auto *env = resolve_environment(current.sheet_id);
+    if (env == nullptr) {
+      continue;
+    }
+
+    if (env->references_.contains(current.cell_name)) {
+      for (const auto &neighbor : env->references_.at(current.cell_name)) {
+        stack.push(QualifiedCellRef{.sheet_id = current.sheet_id,
+                                    .cell_name = neighbor});
+      }
+    }
+
+    if (env->external_references_.contains(current.cell_name)) {
+      for (const auto &neighbor :
+           env->external_references_.at(current.cell_name)) {
+        stack.push(neighbor);
+      }
     }
   }
 
@@ -161,7 +254,12 @@ bool TableLispEnvironment::is_reachable(const std::string &start,
 
 void TableLispEnvironment::update_references(const std::string &from_cell,
                                              const std::string &to_cell) {
-  if (is_reachable(to_cell, from_cell)) {
+  const QualifiedCellRef source_ref{.sheet_id = sheet_id_,
+                                    .cell_name = from_cell};
+  const QualifiedCellRef target_ref{.sheet_id = sheet_id_,
+                                    .cell_name = to_cell};
+
+  if (would_create_cycle(source_ref, target_ref)) {
     throw CircularReferenceError("Circular reference detected", from_cell,
                                  to_cell);
   }
@@ -170,13 +268,30 @@ void TableLispEnvironment::update_references(const std::string &from_cell,
   referenced_by_[to_cell].insert(from_cell);
 }
 
+void TableLispEnvironment::record_external_reference(
+    const std::string &from_cell, const QualifiedCellRef &to_cell) {
+  const QualifiedCellRef source_ref{.sheet_id = sheet_id_,
+                                    .cell_name = from_cell};
+  if (would_create_cycle(source_ref, to_cell)) {
+    throw CircularReferenceError("Circular reference detected", from_cell,
+                                 to_cell.cell_name);
+  }
+
+  external_references_[from_cell].insert(to_cell);
+}
+
+void TableLispEnvironment::record_external_dependent(
+    const QualifiedCellRef &from_cell, const std::string &to_cell) {
+  external_referenced_by_[to_cell].insert(from_cell);
+}
+
 lisp::LispObjectPtr TableLispEnvironment::lookup(const std::string &name,
                                                  const std::any &context) {
   const auto *table_context = std::any_cast<TableContext>(&context);
   if (table_context != nullptr) {
     const std::string &from_cell = table_context->source_cell;
 
-    if (!from_cell.empty() && from_cell != name && is_cell_name(name)) {
+    if (!from_cell.empty() && is_cell_name(name)) {
       update_references(from_cell, name);
     }
   }

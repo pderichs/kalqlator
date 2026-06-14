@@ -96,11 +96,21 @@ void Document::update_all_cells() const {
   sheet->update_all_cells();
 }
 
-void Document::refresh_cells(const std::string &name,
-                             const lisp::LispObjectPtr &value,
-                             const pdtools::StringVector &dependencies) const {
-  Sheet *sheet = current_sheet();
-  sheet->refresh_cells(name, value, dependencies);
+void Document::refresh_cells(
+    const std::string &source_sheet_id, const std::string &name,
+    const lisp::LispObjectPtr &value, const pdtools::StringVector &dependencies,
+    const QualifiedCellRefVector &external_dependencies) const {
+  auto *source_sheet = get_sheet_by_id(source_sheet_id);
+  if (source_sheet != nullptr) {
+    source_sheet->refresh_cells(name, value, dependencies);
+  }
+
+  for (const auto &dependency : external_dependencies) {
+    const auto *const sheet = get_sheet_by_id(dependency.sheet_id);
+    if (sheet != nullptr) {
+      sheet->refresh_cell_by_name(dependency.cell_name);
+    }
+  }
 }
 
 int Document::add_next_sheet() {

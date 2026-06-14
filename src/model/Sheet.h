@@ -102,6 +102,10 @@ public:
     return table_lisp_environment_;
   }
 
+  [[nodiscard]] TableLispEnvironment *table_environment() const {
+    return table_lisp_environment_.get();
+  }
+
   Location get_max_cell_locations() const;
 
   void set_row_height(size_t row_index, size_t height) {
@@ -133,6 +137,8 @@ public:
                              std::string *out_complete_match);
 
   SearchResultItems search(const SearchOptions &options) const;
+
+  void refresh_cell_by_name(const std::string &cell_name) const;
 
 private:
   LocationSet collect_reference_cells(const std::string &cell_name);

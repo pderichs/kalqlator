@@ -42,6 +42,8 @@ set(ADDITIONAL_DEPS
         ../src/model/Sheet.cpp
         ../src/model/Sheet.h
         ../src/model/Cell.h
+        ../src/file/DocumentJsonSerializer.cpp
+        ../src/file/DocumentJsonSerializer.h
 )
 
 set(TESTS
@@ -61,6 +63,7 @@ set(TESTS
         test_tools
         test_table_lisp_environment
         test_document_integration
+        test_document_json_serializer
 )
 
 foreach(test ${TESTS})

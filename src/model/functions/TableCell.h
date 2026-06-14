@@ -20,7 +20,11 @@
 #include "../../lisp/factories.h"
 #include "../../lisp/object.h"
 #include "../../lisp/tools.h"
+#include "../QualifiedCellRef.h"
 #include "../SheetRegistry.h"
+#include "../TableLispEnvironment.h"
+
+#include <any>
 
 const lisp::NativeFn FnTableCell =
     lisp::NativeFn{[](const lisp::LispObjectPtr &args,
@@ -49,9 +53,28 @@ const lisp::NativeFn FnTableCell =
       auto *const sheet = context.sheet_registry->sheet_by_name(table_ref);
       const auto &cell_symbol = cell_ref->as_string();
       const auto &env = sheet->environment();
+      auto *const target_environment = sheet->table_environment();
       if (!env->is_defined(cell_symbol)) {
         throw lisp::ArgumentError("Cell value must be defined.");
       }
 
-      return env->lookup(cell_symbol, context);
+      if (context.source_sheet_id == sheet->id()) {
+        return env->lookup(cell_symbol, context);
+      }
+
+      const QualifiedCellRef from_cell{.sheet_id = context.source_sheet_id,
+                                       .cell_name = context.source_cell};
+      const QualifiedCellRef to_cell{.sheet_id = sheet->id(),
+                                     .cell_name = cell_symbol};
+
+      if (context.source_environment != nullptr &&
+          !context.source_cell.empty() && !context.source_sheet_id.empty()) {
+        context.source_environment->record_external_reference(
+            context.source_cell, to_cell);
+        target_environment->record_external_dependent(from_cell, cell_symbol);
+      }
+
+      // Intentionally do not forward the source context here: the target sheet
+      // must not create a local dependency edge using the foreign source cell.
+      return env->lookup(cell_symbol, std::any{});
     }};

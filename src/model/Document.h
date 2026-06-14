@@ -21,6 +21,7 @@
 #include <vector>
 
 #include "MoveSheetDirection.h"
+#include "QualifiedCellRef.h"
 #include "Sheet.h"
 #include "SheetRegistry.h"
 #include "search/SearchResultItem.h"
@@ -63,8 +64,10 @@ public:
 
   void update_all_cells() const;
 
-  void refresh_cells(const std::string &name, const lisp::LispObjectPtr &value,
-                     const pdtools::StringVector &dependencies) const;
+  void refresh_cells(const std::string &source_sheet_id,
+                     const std::string &name, const lisp::LispObjectPtr &value,
+                     const pdtools::StringVector &dependencies,
+                     const QualifiedCellRefVector &external_dependencies) const;
 
   std::weak_ptr<SheetRegistry> get_sheet_registry_weak_ptr();
 
