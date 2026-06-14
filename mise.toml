@@ -31,3 +31,31 @@ depends = ["lint", "cppcheck"]
 [tasks.fmt]
 run = "find src tests -name '*.cpp' -o -name '*.h' | xargs clang-format -i"
 description = "Format source files"
+
+[tasks.configure]
+description = "Configure cmake with compile_commands export"
+run = "cmake -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=ON"
+
+[tasks.build]
+description = "Build all targets"
+depends = ["configure"]
+run = "cmake --build build --parallel $(nproc)"
+
+[tasks.fmt-check]
+description = "Check formatting without modifying files"
+run = "find src tests -type f \\( -name '*.cpp' -o -name '*.h' \\) -print0 | xargs -0 clang-format --dry-run --Werror"
+
+[tasks.test]
+description = "Run all tests with offscreen Qt"
+depends = ["build"]
+run = "cd build && QT_QPA_PLATFORM=offscreen ctest --output-on-failure --parallel $(nproc)"
+
+[tasks.ci]
+description = "Run the full CI pipeline locally (configure → build → lint → cppcheck → fmt-check → test)"
+run = [
+  "mise run build",
+  "mise run lint",
+  "mise run cppcheck",
+  "mise run fmt-check",
+  "mise run test",
+]
