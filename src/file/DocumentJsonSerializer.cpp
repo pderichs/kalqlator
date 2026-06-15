@@ -167,7 +167,12 @@ bool DocumentJsonSerializer::save() const {
   QJsonDocument doc(rootObj);
   QString json = doc.toJson(QJsonDocument::Indented);
 
-  return write_to_file(json);
+  if (!write_to_file(json)) {
+    return false;
+  }
+
+  document_->set_changed_flag(false);
+  return true;
 }
 
 void DocumentJsonSerializer::create_cell_by_task(Sheet *sheet,
@@ -336,5 +341,6 @@ bool DocumentJsonSerializer::open() const {
     document_->set_active_sheet(static_cast<size_t>(active_sheet_index));
   }
 
+  document_->set_changed_flag(false);
   return true;
 }

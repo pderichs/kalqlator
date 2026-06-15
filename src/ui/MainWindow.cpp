@@ -32,6 +32,7 @@
 #include <QListWidget>
 #include <QMenuBar>
 #include <QMessageBox>
+#include <QSignalBlocker>
 #include <QStatusBar>
 #include <QTableWidget>
 #include <QToolBar>
@@ -44,6 +45,7 @@
 #include "../model/events/ModelSheetSelectionChangedEvent.h"
 #include "../model/events/TableEnvironmentUpdateEvent.h"
 #include "../model/triggers.h"
+#include "../tools/FlagScope.h"
 #include "../viewmodel/events/CellChangedEvent.h"
 #include "CellChangeCommand.h"
 #include "MacroEditorDialog.h"
@@ -480,6 +482,10 @@ void MainWindow::onFormulaCancelled() {
 }
 
 void MainWindow::updateSheetSizesByDocument() {
+  const QSignalBlocker horizontal_header_blocker(
+      m_tableWidget->horizontalHeader());
+  const QSignalBlocker vertical_header_blocker(m_tableWidget->verticalHeader());
+
   for (const auto &item : document_->sheet_row_heights()) {
     m_tableWidget->setRowHeight(item.first, item.second);
   }
@@ -699,10 +705,8 @@ void MainWindow::updateCellSelectionByDocument() {
   Location current_selected_cell = document_->get_current_selected_cell();
   LocationSet selected_cells = document_->get_selected_cells();
 
-  // FlagScope scope(&model_cell_selection_update_);
-  // m_tableWidget->blockSignals(true);
+  FlagScope scope(&model_cell_selection_update_);
   m_tableWidget->setSelectedCells(selected_cells, current_selected_cell);
-  // m_tableWidget->blockSignals(false);
 }
 
 void MainWindow::onEvent(const std::string &name, const std::any &param) {

@@ -45,6 +45,8 @@ private:
 private slots:
   static void roundTripPreservesSheetsAndPerSheetState();
 
+  static void openAndSaveClearChangedFlag();
+
   static void failedOpenLeavesExistingDocumentUntouched();
 };
 
@@ -147,6 +149,39 @@ void DocumentJsonSerializerTests::roundTripPreservesSheetsAndPerSheetState() {
   QCOMPARE(first_c19->visible_content_, std::string("6"));
   QCOMPARE(second_b4->visible_content_, std::string("second sheet"));
   QCOMPARE(third_a1->visible_content_, std::string("third sheet"));
+}
+
+void DocumentJsonSerializerTests::openAndSaveClearChangedFlag() {
+  auto document = std::make_shared<Document>();
+  document->initialize();
+  QVERIFY2(!document->changed(), "newly initialized documents start clean");
+
+  document->set_cell_content(kA1Row, kA1Col, "42");
+  QVERIFY2(document->changed(),
+           "editing a cell must mark the document changed");
+
+  QTemporaryDir temp_dir;
+  QVERIFY2(temp_dir.isValid(), "temporary directory must be created");
+  const auto filename = temp_dir.filePath("document.json").toStdString();
+
+  DocumentJsonSerializer serializer(document, filename);
+  QVERIFY2(serializer.save(), "saving the document must succeed");
+  QVERIFY2(!document->changed(), "saving must clear the changed flag");
+
+  auto opened_document = std::make_shared<Document>();
+  opened_document->initialize();
+  opened_document->set_cell_content(kA1Row, kA1Col, "dirty before open");
+  QVERIFY2(opened_document->changed(),
+           "test precondition: target document is dirty before opening");
+
+  DocumentJsonSerializer opened_serializer(opened_document, filename);
+  QVERIFY2(opened_serializer.open(), "opening the saved document must work");
+  QVERIFY2(!opened_document->changed(),
+           "opening a document must leave the changed flag clear");
+
+  opened_document->set_cell_content(kA2Row, kA2Col, "new edit");
+  QVERIFY2(opened_document->changed(),
+           "editing after opening must mark the document changed again");
 }
 
 void DocumentJsonSerializerTests::failedOpenLeavesExistingDocumentUntouched() {
