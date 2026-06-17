@@ -95,8 +95,13 @@ void CellFormatDialog::setupUi() {
           &CellFormatDialog::onSpecifierChanged);
   connect(m_roundingCombo, qOverload<int>(&QComboBox::currentIndexChanged),
           this, [this](int /*index*/) { updatePreview(); });
+#if QT_VERSION >= QT_VERSION_CHECK(6, 7, 0)
   connect(m_wordWrapCheck, &QCheckBox::checkStateChanged, this,
           [this](Qt::CheckState /*state*/) { updatePreview(); });
+#else
+  connect(m_wordWrapCheck, &QCheckBox::stateChanged, this,
+          [this](int /*state*/) { updatePreview(); });
+#endif
   connect(clearButton, &QPushButton::clicked, this,
           &CellFormatDialog::onClearClicked);
   connect(buttonBox, &QDialogButtonBox::accepted, this, [this]() {
