@@ -16,6 +16,8 @@
 
 #include "CellFormatDialog.h"
 
+#include <QCheckBox>
+#include <QDialogButtonBox>
 #include <QFormLayout>
 #include <QGroupBox>
 #include <QMessageBox>
