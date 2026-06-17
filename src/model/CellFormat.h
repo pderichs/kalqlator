@@ -1,4 +1,4 @@
-// KalQlator - TableCellTypes.h
+// KalQlator - CellFormat.h
 // Copyright (C) 2026  pderichs
 //
 // This program is free software: you can redistribute it and/or modify
@@ -16,8 +16,15 @@
 
 #pragma once
 
-constexpr int FormulaRole = Qt::UserRole + 1;
-constexpr int ErrorRole = Qt::UserRole + 2;
-constexpr int UnformattedValueRole = Qt::UserRole + 3;
-constexpr int WordWrapRole = Qt::UserRole + 4;
-constexpr int CellFormatRole = Qt::UserRole + 5;
+#include <string>
+
+enum class RoundingMode { Nearest, Floor, Ceil, Truncate };
+
+struct CellFormat {
+  std::string specifier;
+  RoundingMode rounding_mode = RoundingMode::Nearest;
+  bool word_wrap = false;
+
+  [[nodiscard]] bool has_specifier() const { return !specifier.empty(); }
+  [[nodiscard]] bool empty() const { return !has_specifier() && !word_wrap; }
+};

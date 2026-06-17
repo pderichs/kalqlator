@@ -21,6 +21,8 @@ find_library(GMPXX_LIB gmpxx REQUIRED)
 add_executable(kalqlator src/main.cpp
         src/ui/MainWindow.h
         src/ui/MainWindow.cpp
+        src/ui/ClipboardCellsMime.h
+        src/ui/ClipboardCellsMime.cpp
         src/lisp/object.h
         src/lisp/parser/parser.h
         src/lisp/parser/parser.cpp
@@ -58,6 +60,9 @@ add_executable(kalqlator src/main.cpp
         src/model/Sheet.cpp
         src/model/Sheet.h
         src/model/Cell.h
+        src/model/CellFormat.h
+        src/model/CellDisplayFormatter.h
+        src/model/CellDisplayFormatter.cpp
         src/model/TableLispEnvironment.cpp
         src/model/TableLispEnvironment.h
         src/ui/user_interface_tools.h
@@ -108,6 +113,10 @@ add_executable(kalqlator src/main.cpp
         src/ui/events/SelectSheetAndCellEvent.h
         src/ui/CellChangeCommand.cpp
         src/ui/CellChangeCommand.h
+        src/ui/CellFormatChangeCommand.cpp
+        src/ui/CellFormatChangeCommand.h
+        src/ui/CellFormatDialog.cpp
+        src/ui/CellFormatDialog.h
         src/ui/MacroEditorDialog.cpp
         src/ui/MacroEditorDialog.h
         src/model/triggers.h
@@ -117,6 +126,8 @@ add_executable(kalqlator src/main.cpp
         src/viewmodel/SpreadsheetModel.cpp
         src/viewmodel/SpreadsheetModel.h
         src/ui/events/SheetListUpdateRequestEvent.h
+        src/file/CellFormatJson.h
+        src/file/CellFormatJson.cpp
 )
 
 target_link_libraries(kalqlator

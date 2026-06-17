@@ -21,6 +21,7 @@
 #include "../src/messagebus/event_dispatcher.h"
 #include "../src/messagebus/event_sink.h"
 #include "../src/model/Cell.h"
+#include "../src/model/CellDisplayFormatter.h"
 #include "../src/model/CellErrorType.h"
 #include "../src/model/Document.h"
 #include "../src/model/events/TableEnvironmentUpdateEvent.h"
@@ -134,6 +135,14 @@ private slots:
   // Search must respect content/formula scope and case sensitivity across the
   // whole document.
   static void searchRespectsScopeAndCaseSensitivity();
+
+  // Literal number with format specifier must be formattable via
+  // CellDisplayFormatter using the cached evaluated value.
+  static void literalWithFormatIsFormattedCorrectly();
+
+  // Formula result (= / 1 3) is an exact mpq (1/3), formatting must
+  // round correctly via the arbitrary-precision pipeline.
+  static void formulaDivisionWithFormatRoundsExactly();
 };
 
 void DocumentIntegrationTests::formulaSumsReferencedCells() {
@@ -479,6 +488,78 @@ void DocumentIntegrationTests::searchRespectsScopeAndCaseSensitivity() {
       .useRegularExpression = false,
   };
   QVERIFY(document.search(content_only_for_formula_reference).empty());
+}
+
+void DocumentIntegrationTests::literalWithFormatIsFormattedCorrectly() {
+  Document document;
+  document.initialize();
+
+  document.set_cell_content(kA1Row, kA1Col, "42.5678");
+
+  CellFormat fmt;
+  fmt.specifier = "###.##";
+  fmt.rounding_mode = RoundingMode::Nearest;
+  document.set_cell_format(kA1Row, kA1Col, fmt);
+
+  document.update_all_cells();
+
+  const Cell *cell = document.get_cell(kA1Row, kA1Col);
+  QVERIFY2(cell != nullptr, "cell must exist after input");
+
+  QCOMPARE(cell->raw_content_, std::string("42.5678"));
+  QCOMPARE(cell->visible_content_, std::string("42.5678"));
+
+  QVERIFY2(cell->evaluated_value_ != nullptr,
+           "evaluated_value_ must be set for plain literal");
+  QVERIFY2(cell->evaluated_value_->is_number(),
+           "evaluated_value_ must be a number for numeric literal");
+
+  std::string formatted = CellDisplayFormatter::format_number(
+      cell->evaluated_value_, cell->format_);
+
+  QCOMPARE(formatted, std::string("42.57"));
+}
+
+void DocumentIntegrationTests::formulaDivisionWithFormatRoundsExactly() {
+  Document document;
+  document.initialize();
+
+  // Formula (= / 1 3) produces the exact rational mpq(1/3) via the
+  // Lisp evaluator, not a finite decimal approximation.
+  document.set_cell_content(kA1Row, kA1Col, "=(/ 1 3)");
+
+  CellFormat fmt;
+  fmt.specifier = "###.##";
+  fmt.rounding_mode = RoundingMode::Nearest;
+  document.set_cell_format(kA1Row, kA1Col, fmt);
+
+  document.update_all_cells();
+
+  const Cell *cell = document.get_cell(kA1Row, kA1Col);
+  QVERIFY2(cell != nullptr, "cell must exist after evaluation");
+  if (cell == nullptr) {
+    return;
+  }
+  QVERIFY2(!cell->has_errors(), "formula must evaluate without errors");
+
+  QCOMPARE(cell->raw_content_, std::string("=(/ 1 3)"));
+  QCOMPARE(cell->visible_content_, std::string("0.3333333333"));
+
+  // The cached evaluated value is the exact mpq 1/3, not a decimal string.
+  QVERIFY2(cell->evaluated_value_ != nullptr,
+           "evaluated_value_ must be set after evaluation");
+  QVERIFY2(cell->evaluated_value_->is_number(),
+           "evaluated_value_ must be a number");
+
+  mpq_class exact = cell->evaluated_value_->as_number();
+  QCOMPARE(exact.get_num(), mpz_class(1));
+  QCOMPARE(exact.get_den(), mpz_class(3));
+
+  std::string formatted = CellDisplayFormatter::format_number(
+      cell->evaluated_value_, cell->format_);
+
+  // 1/3 with ###.## and Nearest → 0.33 (rounds down since 0.00333 < 0.005)
+  QCOMPARE(formatted, std::string("0.33"));
 }
 
 QTEST_MAIN(DocumentIntegrationTests)

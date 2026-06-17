@@ -16,11 +16,13 @@
 
 #include <QtTest/QtTest>
 
+#include <QJsonObject>
 #include <QTemporaryDir>
 
 #include <memory>
 
 #include "../src/file/DocumentJsonSerializer.h"
+#include "../src/model/CellFormat.h"
 
 class DocumentJsonSerializerTests : public QObject {
   Q_OBJECT
@@ -48,6 +50,10 @@ private slots:
   static void openAndSaveClearChangedFlag();
 
   static void failedOpenLeavesExistingDocumentUntouched();
+
+  static void formatRoundtripPreservesSpecifierRoundingAndWrap();
+  static void formatJsonRejectsInvalidSpecifier();
+  static void formatJsonRejectsInvalidRoundingMode();
 };
 
 void DocumentJsonSerializerTests::roundTripPreservesSheetsAndPerSheetState() {
@@ -217,6 +223,63 @@ void DocumentJsonSerializerTests::failedOpenLeavesExistingDocumentUntouched() {
     QFAIL("the original second-sheet cell must still exist after failed open");
   }
   QCOMPARE(second_sheet_cell->raw_content_, std::string("keep me"));
+}
+
+void DocumentJsonSerializerTests::
+    formatRoundtripPreservesSpecifierRoundingAndWrap() {
+  auto document = std::make_shared<Document>();
+  document->initialize();
+
+  CellFormat fmt;
+  fmt.specifier = "####.## EUR";
+  fmt.rounding_mode = RoundingMode::Floor;
+  fmt.word_wrap = true;
+
+  document->set_cell_content(kA1Row, kA1Col, "42.5678");
+  document->set_cell_format(kA1Row, kA1Col, fmt);
+
+  QTemporaryDir temp_dir;
+  QVERIFY2(temp_dir.isValid(), "temporary directory must be created");
+  const auto filename = temp_dir.filePath("document.json").toStdString();
+
+  DocumentJsonSerializer serializer(document, filename);
+  QVERIFY2(serializer.save(), "saving the document must succeed");
+
+  auto opened_document = std::make_shared<Document>();
+  opened_document->initialize();
+  DocumentJsonSerializer opened_serializer(opened_document, filename);
+  QVERIFY2(opened_serializer.open(), "opening the saved document must work");
+
+  opened_document->set_active_sheet(0);
+  opened_document->update_all_cells();
+
+  const auto *const cell = opened_document->get_cell(kA1Row, kA1Col);
+  QVERIFY2(cell != nullptr, "formatted cell must exist after reload");
+
+  QCOMPARE(cell->format_.specifier, std::string("####.## EUR"));
+  QCOMPARE(cell->format_.rounding_mode, RoundingMode::Floor);
+  QCOMPARE(cell->format_.word_wrap, true);
+  QCOMPARE(cell->raw_content_, std::string("42.5678"));
+}
+
+void DocumentJsonSerializerTests::formatJsonRejectsInvalidSpecifier() {
+  QJsonObject json;
+  json["specifier"] = QStringLiteral("###.##.##");
+  json["rounding_mode"] = QStringLiteral("nearest");
+  json["word_wrap"] = true;
+
+  const auto format = DocumentJsonSerializer::format_from_json(json);
+  QVERIFY2(!format.has_value(), "invalid specifier must be rejected");
+}
+
+void DocumentJsonSerializerTests::formatJsonRejectsInvalidRoundingMode() {
+  QJsonObject json;
+  json["specifier"] = QStringLiteral("###.##");
+  json["rounding_mode"] = QStringLiteral("bankers");
+  json["word_wrap"] = true;
+
+  const auto format = DocumentJsonSerializer::format_from_json(json);
+  QVERIFY2(!format.has_value(), "invalid rounding mode must be rejected");
 }
 
 QTEST_MAIN(DocumentJsonSerializerTests)

@@ -303,3 +303,16 @@ Cell *Document::get_cell(int row, int column) const {
   const auto *const sheet = current_sheet();
   return sheet->get_cell(row, column);
 }
+
+void Document::set_cell_format(int row, int column, const CellFormat &format) {
+  Sheet *sheet = current_sheet();
+  sheet->set_cell_format(row, column, format);
+  set_changed_flag(true);
+}
+
+void Document::set_cell_format(const LocationSet &locations,
+                               const CellFormat &format) {
+  Sheet *sheet = current_sheet();
+  sheet->set_cell_format(locations, format);
+  set_changed_flag(true);
+}

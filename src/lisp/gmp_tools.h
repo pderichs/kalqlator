@@ -5,7 +5,7 @@
 inline mpq_class mpq_class_from_decimal_or_int(const std::string &number) {
   auto dot = number.find('.');
   if (dot == std::string::npos) {
-    return mpq_class(number); // int
+    return mpq_class(number, 10); // int
   }
 
   std::string digits = number.substr(0, dot) + number.substr(dot + 1);
@@ -16,7 +16,7 @@ inline mpq_class mpq_class_from_decimal_or_int(const std::string &number) {
     denom *= 10;
   }
 
-  mpq_class result(mpz_class(digits), denom);
+  mpq_class result(mpz_class(digits, 10), denom);
   result.canonicalize();
 
   return result;

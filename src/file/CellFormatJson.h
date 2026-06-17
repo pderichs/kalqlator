@@ -1,4 +1,4 @@
-// KalQlator - TableCellTypes.h
+// KalQlator - CellFormatJson.h
 // Copyright (C) 2026  pderichs
 //
 // This program is free software: you can redistribute it and/or modify
@@ -16,8 +16,12 @@
 
 #pragma once
 
-constexpr int FormulaRole = Qt::UserRole + 1;
-constexpr int ErrorRole = Qt::UserRole + 2;
-constexpr int UnformattedValueRole = Qt::UserRole + 3;
-constexpr int WordWrapRole = Qt::UserRole + 4;
-constexpr int CellFormatRole = Qt::UserRole + 5;
+#include <QJsonObject>
+#include <optional>
+
+#include "../model/CellFormat.h"
+
+namespace cell_format_json {
+QJsonObject to_json(const CellFormat &format);
+std::optional<CellFormat> from_json(const QJsonObject &json);
+} // namespace cell_format_json

@@ -16,9 +16,12 @@
 
 #pragma once
 
+#include <algorithm>
+
 #include <QLineEdit>
 #include <QPainter>
 #include <QStyledItemDelegate>
+#include <QTableView>
 
 #include "TableCellTypes.h"
 
@@ -28,9 +31,17 @@ public:
 
   void paint(QPainter *painter, const QStyleOptionViewItem &option,
              const QModelIndex &index) const override {
-    QStyledItemDelegate::paint(painter, option, index);
-
     bool hasError = index.data(ErrorRole).toBool();
+    bool wrap = index.data(WordWrapRole).toBool();
+
+    QStyleOptionViewItem opt(option);
+    if (wrap) {
+      opt.features |= QStyleOptionViewItem::WrapText;
+      opt.textElideMode = Qt::ElideNone;
+    }
+
+    QStyledItemDelegate::paint(painter, opt, index);
+
     if (hasError) {
       painter->save();
       painter->setPen(QPen(Qt::red, 2));
@@ -41,7 +52,11 @@ public:
 
   void setEditorData(QWidget *editor, const QModelIndex &index) const override {
     if (auto *lineEdit = qobject_cast<QLineEdit *>(editor)) {
-      lineEdit->setText(index.data(FormulaRole).toString());
+      QString text = index.data(FormulaRole).toString();
+      if (text.isEmpty()) {
+        text = index.data(Qt::EditRole).toString();
+      }
+      lineEdit->setText(text);
     } else {
       QStyledItemDelegate::setEditorData(editor, index);
     }
@@ -54,5 +69,33 @@ public:
     } else {
       QStyledItemDelegate::setModelData(editor, model, index);
     }
+  }
+
+  [[nodiscard]] QSize sizeHint(const QStyleOptionViewItem &option,
+                               const QModelIndex &index) const override {
+    QSize base = QStyledItemDelegate::sizeHint(option, index);
+    if (!index.data(WordWrapRole).toBool()) {
+      return base;
+    }
+
+    QStyleOptionViewItem opt(option);
+    initStyleOption(&opt, index);
+
+    int text_width = option.rect.width() - 4;
+    if (text_width <= 0) {
+      const auto *table_view = qobject_cast<const QTableView *>(option.widget);
+      if (table_view != nullptr) {
+        text_width = table_view->columnWidth(index.column()) - 4;
+      }
+    }
+
+    if (text_width <= 0) {
+      return base;
+    }
+
+    const QRect wrapped_bounds = opt.fontMetrics.boundingRect(
+        QRect(0, 0, text_width, 1000000), Qt::TextWordWrap, opt.text);
+
+    return {base.width(), std::max(base.height(), wrapped_bounds.height() + 4)};
   }
 };

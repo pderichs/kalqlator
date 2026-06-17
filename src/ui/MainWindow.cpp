@@ -32,6 +32,7 @@
 #include <QListWidget>
 #include <QMenuBar>
 #include <QMessageBox>
+#include <QMimeData>
 #include <QSignalBlocker>
 #include <QStatusBar>
 #include <QTableWidget>
@@ -48,6 +49,9 @@
 #include "../tools/FlagScope.h"
 #include "../viewmodel/events/CellChangedEvent.h"
 #include "CellChangeCommand.h"
+#include "CellFormatChangeCommand.h"
+#include "CellFormatDialog.h"
+#include "ClipboardCellsMime.h"
 #include "MacroEditorDialog.h"
 #include "events/DocumentLoadedEvent.h"
 #include "events/MacroEditorErrorEvent.h"
@@ -276,6 +280,13 @@ void MainWindow::createActions() {
   connect(m_editMacros, &QAction::triggered, this,
           &MainWindow::openMacroEditor);
 
+  m_cellFormatAction = new QAction(tr("Cell Format..."), this);
+  m_cellFormatAction->setShortcut(
+      QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_F));
+  m_cellFormatAction->setStatusTip(tr("Set formatting for selected cells"));
+  connect(m_cellFormatAction, &QAction::triggered, this,
+          &MainWindow::openCellFormatDialog);
+
   m_exitAction = new QAction(tr("&Quit"), this);
   m_exitAction->setShortcut(QKeySequence::Quit);
   m_exitAction->setIcon(iconFromFont(exit_icon));
@@ -338,6 +349,8 @@ void MainWindow::createMenus() {
   m_editMenu->addAction(m_pasteAction);
   m_editMenu->addSeparator();
   m_editMenu->addAction(m_editMacros);
+  m_editMenu->addSeparator();
+  m_editMenu->addAction(m_cellFormatAction);
 
   // View
   m_viewMenu = menuBar()->addMenu(tr("&View"));
@@ -359,6 +372,8 @@ void MainWindow::createToolBar() {
   m_toolBar->addAction(m_cutAction);
   m_toolBar->addAction(m_copyAction);
   m_toolBar->addAction(m_pasteAction);
+  m_toolBar->addSeparator();
+  m_toolBar->addAction(m_cellFormatAction);
 }
 
 void MainWindow::createFormulaBar() {
@@ -595,11 +610,26 @@ void MainWindow::copy() const {
   }
 
   QString result;
+  ClipboardCellsPayload payload;
+  payload.rows = maxRow - minRow + 1;
+  payload.cols = maxCol - minCol + 1;
+  payload.cells.reserve(static_cast<size_t>(payload.rows * payload.cols));
+
   for (int row = minRow; row <= maxRow; ++row) {
     for (int col = minCol; col <= maxCol; ++col) {
       const auto index = m_sheetModel->index(row, col);
       QVariant value = m_sheetModel->data(index, Qt::DisplayRole);
       result += value.toString();
+
+      ClipboardCellData cell_data;
+      const Cell *cell = document_->get_cell(row, col);
+      if (cell != nullptr) {
+        cell_data.content = cell->raw_content_;
+        if (!cell->format_.empty()) {
+          cell_data.format = cell->format_;
+        }
+      }
+      payload.cells.push_back(cell_data);
 
       if (col < maxCol) {
         result += "\t";
@@ -611,17 +641,16 @@ void MainWindow::copy() const {
     }
   }
 
-  QApplication::clipboard()->setText(result);
+  auto *mime_data = new QMimeData();
+  mime_data->setText(result);
+  mime_data->setData(KALQLATOR_CLIPBOARD_MIME_TYPE,
+                     serialize_clipboard_cells_payload(payload));
+  QApplication::clipboard()->setMimeData(mime_data);
 
   statusBar()->showMessage(tr("Successfully copied cells."), 2000);
 }
 
 void MainWindow::paste() const {
-  QString text = QApplication::clipboard()->text();
-  if (text.isEmpty()) {
-    return;
-  }
-
   QModelIndex current = m_tableWidget->currentIndex();
   if (!current.isValid()) {
     return;
@@ -629,6 +658,46 @@ void MainWindow::paste() const {
 
   int startRow = current.row();
   int startCol = current.column();
+
+  const QMimeData *mime_data = QApplication::clipboard()->mimeData();
+
+  const auto payload = parse_clipboard_cells_payload(mime_data);
+  if (payload.has_value()) {
+    int flat_index = 0;
+    for (int row_index = 0; row_index < payload->rows; ++row_index) {
+      for (int col_index = 0; col_index < payload->cols; ++col_index) {
+        const int target_row = startRow + row_index;
+        const int target_col = startCol + col_index;
+
+        QModelIndex index = m_sheetModel->index(target_row, target_col);
+        const ClipboardCellData &cell =
+            payload->cells[static_cast<size_t>(flat_index)];
+        ++flat_index;
+
+        if (!index.isValid()) {
+          continue;
+        }
+
+        CellFormat format;
+        if (cell.format.has_value()) {
+          format = cell.format.value();
+        }
+
+        document_->set_cell_format(target_row, target_col, format);
+        m_sheetModel->setData(index, QString::fromStdString(cell.content),
+                              Qt::EditRole);
+      }
+    }
+
+    m_sheetModel->resetFromDocument();
+    statusBar()->showMessage(tr("Successfully pasted content."), 2000);
+    return;
+  }
+
+  QString text = QApplication::clipboard()->text();
+  if (text.isEmpty()) {
+    return;
+  }
 
   QStringList rows = text.split("\n");
   for (int rowIndex = 0; rowIndex < rows.size(); ++rowIndex) {
@@ -657,6 +726,49 @@ void MainWindow::openMacroEditor() {
     document_->set_macro_map(map);
     document_->set_changed_flag(true);
   }
+}
+
+void MainWindow::openCellFormatDialog() {
+  LocationSet selected_cells = document_->get_selected_cells();
+  if (selected_cells.empty()) {
+    QMessageBox::information(this, tr("Cell Format"),
+                             tr("Please select one or more cells first."));
+    return;
+  }
+
+  Location current = document_->get_current_selected_cell();
+  const Cell *cell = document_->get_cell(current.y(), current.x());
+  CellFormat initial_format;
+  if (cell != nullptr) {
+    initial_format = cell->format_;
+  }
+
+  CellFormatDialog dlg(initial_format, this);
+  if (dlg.exec() != QDialog::Accepted) {
+    return;
+  }
+
+  CellFormat new_format = dlg.selectedFormat();
+
+  std::vector<CellFormatEntry> entries;
+  for (const auto &loc : selected_cells) {
+    int row = loc.y();
+    int col = loc.x();
+    const Cell *tmp_cell = document_->get_cell(row, col);
+    CellFormat old_fmt;
+    if (tmp_cell != nullptr) {
+      old_fmt = tmp_cell->format_;
+    }
+    entries.push_back(CellFormatEntry{.row = row,
+                                      .col = col,
+                                      .old_format = old_fmt,
+                                      .new_format = new_format});
+  }
+
+  m_undoStack->push(new CellFormatChangeCommand(document_, std::move(entries),
+                                                m_sheetModel.get()));
+
+  document_->set_changed_flag(true);
 }
 
 void MainWindow::about() {

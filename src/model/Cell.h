@@ -22,6 +22,7 @@
 #include "../lisp/object.h"
 #include "../lisp/tokenizer/tokens.h"
 #include "CellError.h"
+#include "CellFormat.h"
 
 struct Cell;
 
@@ -72,10 +73,21 @@ struct Cell {
    */
   CellErrorVector errors_;
 
+  /**
+   * Per-cell formatting
+   */
+  CellFormat format_;
+
+  /**
+   * Cached evaluated value for formatting without re-evaluation.
+   */
+  lisp::LispObjectPtr evaluated_value_;
+
   [[nodiscard]] bool contains_formula() const { return !raw_formula_.empty(); }
 
   [[nodiscard]] bool empty() const {
-    return raw_content_.empty() && !contains_formula();
+    return raw_content_.empty() && !contains_formula() &&
+           !format_.has_specifier() && !format_.word_wrap;
   }
 
   void add_error(const CellError &error) { errors_.push_back(error); }

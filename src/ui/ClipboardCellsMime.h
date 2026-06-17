@@ -1,4 +1,4 @@
-// KalQlator - TableCellTypes.h
+// KalQlator - ClipboardCellsMime.h
 // Copyright (C) 2026  pderichs
 //
 // This program is free software: you can redistribute it and/or modify
@@ -16,8 +16,31 @@
 
 #pragma once
 
-constexpr int FormulaRole = Qt::UserRole + 1;
-constexpr int ErrorRole = Qt::UserRole + 2;
-constexpr int UnformattedValueRole = Qt::UserRole + 3;
-constexpr int WordWrapRole = Qt::UserRole + 4;
-constexpr int CellFormatRole = Qt::UserRole + 5;
+#include <QMimeData>
+
+#include <optional>
+#include <string>
+#include <vector>
+
+#include "../model/CellFormat.h"
+
+constexpr auto KALQLATOR_CLIPBOARD_MIME_TYPE =
+    "application/x-kalqlator-cells+json";
+constexpr int KALQLATOR_CLIPBOARD_FORMAT_VERSION = 1;
+
+struct ClipboardCellData {
+  std::string content;
+  std::optional<CellFormat> format;
+};
+
+struct ClipboardCellsPayload {
+  int rows = 0;
+  int cols = 0;
+  std::vector<ClipboardCellData> cells;
+};
+
+QByteArray
+serialize_clipboard_cells_payload(const ClipboardCellsPayload &payload);
+
+std::optional<ClipboardCellsPayload>
+parse_clipboard_cells_payload(const QMimeData *mime_data);

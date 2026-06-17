@@ -67,6 +67,7 @@ private slots:
   void paste() const;
 
   void openMacroEditor();
+  void openCellFormatDialog();
 
   void about();
 
@@ -132,6 +133,7 @@ private:
   QAction *m_toggleDockAction{};
   QAction *m_aboutAction{};
   QAction *m_editMacros{};
+  QAction *m_cellFormatAction{};
 
   // Event handling
   using EventHandler = std::function<void(const std::any &)>;

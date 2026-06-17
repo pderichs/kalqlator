@@ -16,10 +16,12 @@
 
 #include "DocumentJsonSerializer.h"
 
+#include <QDebug>
 #include <QJsonDocument>
-#include <QJsonObject>
 #include <QStringLiteral>
 #include <fstream>
+
+#include "CellFormatJson.h"
 
 #define KALQLATOR_VERSION "0.0.1"
 
@@ -32,6 +34,10 @@ QJsonArray DocumentJsonSerializer::create_cells_array(Sheet *sheet) {
 
       cell1["name"] = QString::fromStdString(cell->name_);
       cell1["content"] = QString::fromStdString(cell->raw_content_);
+
+      if (!cell->format_.empty()) {
+        cell1["format"] = format_to_json(cell->format_);
+      }
 
       cellsArray.append(cell1);
     }
@@ -181,6 +187,7 @@ void DocumentJsonSerializer::create_cell_by_task(Sheet *sheet,
   cell->name_ = task.name;
   cell->raw_content_ = task.content;
   cell->raw_formula_ = task.formula;
+  cell->format_ = task.format;
 }
 
 void DocumentJsonSerializer::setSheetSizes(
@@ -234,6 +241,18 @@ void DocumentJsonSerializer::add_sheets(const QJsonObject &workbook) const {
 
       std::string content = jsonCell["content"].toString().toStdString();
 
+      CellFormat format;
+      if (jsonCell.contains("format")) {
+        const auto parsed_format =
+            format_from_json(jsonCell["format"].toObject());
+        if (parsed_format.has_value()) {
+          format = parsed_format.value();
+        } else {
+          qWarning() << "Ignoring invalid format for cell"
+                     << QString::fromStdString(name);
+        }
+      }
+
       std::string formula;
       if (is_function(content)) {
         formula = content;
@@ -244,7 +263,8 @@ void DocumentJsonSerializer::add_sheets(const QJsonObject &workbook) const {
       auto task = CellValueTask{.location = cell_location,
                                 .name = name,
                                 .content = content,
-                                .formula = formula};
+                                .formula = formula,
+                                .format = format};
 
       if (formula.empty()) {
         values.emplace_back(sheet, task);
@@ -343,4 +363,13 @@ bool DocumentJsonSerializer::open() const {
 
   document_->set_changed_flag(false);
   return true;
+}
+
+QJsonObject DocumentJsonSerializer::format_to_json(const CellFormat &format) {
+  return cell_format_json::to_json(format);
+}
+
+std::optional<CellFormat>
+DocumentJsonSerializer::format_from_json(const QJsonObject &json) {
+  return cell_format_json::from_json(json);
 }

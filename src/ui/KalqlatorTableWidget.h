@@ -42,10 +42,14 @@ private slots:
 
   void onSelectionChanged() const;
 
-  static void onCurrentChanged(const QModelIndex &current,
-                               const QModelIndex & /*previous*/);
+  void onCurrentChanged(const QModelIndex &current,
+                        const QModelIndex &previous);
 
-  static void onColumnResized(int logicalIndex, int oldSize, int newSize);
+  void onModelDataChanged(const QModelIndex &topLeft,
+                          const QModelIndex &bottomRight,
+                          const QList<int> &roles);
+
+  void onColumnResized(int logicalIndex, int oldSize, int newSize);
 
   static void onRowResized(int logicalIndex, int oldSize, int newSize);
 

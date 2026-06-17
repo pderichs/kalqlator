@@ -17,9 +17,12 @@
 #pragma once
 
 #include <QJsonArray>
+
+#include <optional>
 #include <string>
 #include <utility>
 
+#include "../model/CellFormat.h"
 #include "../model/Document.h"
 
 struct CellValueTask {
@@ -27,6 +30,7 @@ struct CellValueTask {
   std::string name;
   std::string content;
   std::string formula;
+  CellFormat format;
 };
 
 class DocumentJsonSerializer {
@@ -60,6 +64,9 @@ public:
   static void setSheetColumnWidths(Sheet *sheet, const QJsonArray &widths);
 
   static void applySizes(Sheet *sheet, const QJsonObject &json_values);
+
+  static QJsonObject format_to_json(const CellFormat &format);
+  static std::optional<CellFormat> format_from_json(const QJsonObject &json);
 
   void add_sheets(const QJsonObject &workbook) const;
 

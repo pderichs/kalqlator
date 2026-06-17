@@ -22,6 +22,7 @@
 
 #include "../messagebus/event_dispatcher.h"
 #include "../tools/location.h"
+#include "TableCellTypes.h"
 #include "TableErrorDelegate.h"
 #include "events/SelectionChangedEvent.h"
 #include "events/TableColumnResizedEvent.h"
@@ -33,6 +34,7 @@ KalqlatorTableWidget::KalqlatorTableWidget(QWidget *parent)
   internal_cell_update_flag_ = false;
 
   setItemDelegate(new KalqlatorTableCellItemDelegate(this));
+  setWordWrap(true);
 
   setSelectionBehavior(QAbstractItemView::SelectItems);
   setSelectionMode(QAbstractItemView::ExtendedSelection);
@@ -52,6 +54,13 @@ void KalqlatorTableWidget::setModel(QAbstractItemModel *model) {
 
   connect(selectionModel(), &QItemSelectionModel::currentChanged, this,
           &KalqlatorTableWidget::onCurrentChanged);
+
+  connect(model, &QAbstractItemModel::dataChanged, this,
+          &KalqlatorTableWidget::onModelDataChanged);
+  connect(model, &QAbstractItemModel::modelReset, this,
+          [this]() { resizeRowsToContents(); });
+
+  resizeRowsToContents();
 }
 
 void KalqlatorTableWidget::clearCell(const QModelIndex &index) {
@@ -120,8 +129,32 @@ void KalqlatorTableWidget::onCurrentChanged(const QModelIndex &current,
 
   const Location current_cell(current.column(), current.row());
 
-  EventDispatcher::dispatch(
-      SelectionChangedEvent{.selection = {}, .current_cell = current_cell});
+  LocationSet selected_cells;
+  if (selectionModel() != nullptr) {
+    for (const QModelIndex &idx : selectionModel()->selectedIndexes()) {
+      selected_cells.insert(Location{idx.column(), idx.row()});
+    }
+  }
+
+  EventDispatcher::dispatch(SelectionChangedEvent{
+      .selection = selected_cells, .current_cell = current_cell});
+}
+
+void KalqlatorTableWidget::onModelDataChanged(const QModelIndex &topLeft,
+                                              const QModelIndex &bottomRight,
+                                              const QList<int> &roles) {
+  if (!topLeft.isValid() || !bottomRight.isValid()) {
+    return;
+  }
+
+  if (!roles.isEmpty() && !roles.contains(Qt::DisplayRole) &&
+      !roles.contains(WordWrapRole)) {
+    return;
+  }
+
+  for (int row = topLeft.row(); row <= bottomRight.row(); ++row) {
+    resizeRowToContents(row);
+  }
 }
 
 void KalqlatorTableWidget::onColumnResized(int logicalIndex, int oldSize,
@@ -130,6 +163,8 @@ void KalqlatorTableWidget::onColumnResized(int logicalIndex, int oldSize,
       TablePropertyResizedEvent{.logical_index = logicalIndex,
                                 .old_size = oldSize,
                                 .new_size = newSize}});
+
+  resizeRowsToContents();
 }
 
 void KalqlatorTableWidget::onRowResized(int logicalIndex, int oldSize,

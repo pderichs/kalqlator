@@ -1,4 +1,4 @@
-// KalQlator - TableCellTypes.h
+// KalQlator - CellDisplayFormatter.h
 // Copyright (C) 2026  pderichs
 //
 // This program is free software: you can redistribute it and/or modify
@@ -16,8 +16,23 @@
 
 #pragma once
 
-constexpr int FormulaRole = Qt::UserRole + 1;
-constexpr int ErrorRole = Qt::UserRole + 2;
-constexpr int UnformattedValueRole = Qt::UserRole + 3;
-constexpr int WordWrapRole = Qt::UserRole + 4;
-constexpr int CellFormatRole = Qt::UserRole + 5;
+#include <string>
+
+#include "../lisp/types.h"
+#include "CellFormat.h"
+
+struct ParsedFormatSpecifier {
+  std::string prefix;
+  int decimal_places = 0;
+  std::string postfix;
+  bool valid = false;
+};
+
+class CellDisplayFormatter {
+public:
+  static ParsedFormatSpecifier parse_specifier(const std::string &specifier);
+  static bool is_valid_specifier(const std::string &specifier);
+  static std::string format(const std::string &value, const CellFormat &format);
+  static std::string format_number(const lisp::LispObjectPtr &evaluated_value,
+                                   const CellFormat &format);
+};

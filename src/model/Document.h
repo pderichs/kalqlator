@@ -137,6 +137,9 @@ public:
 
   Cell *get_cell(int row, int column) const;
 
+  void set_cell_format(int row, int column, const CellFormat &format);
+  void set_cell_format(const LocationSet &locations, const CellFormat &format);
+
 private:
   std::string filename_;
   SheetVector sheets_;

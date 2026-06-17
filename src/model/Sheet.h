@@ -69,6 +69,9 @@ public:
 
   LocationSet set_cell_content(int row, int column, const std::string &content);
 
+  void set_cell_format(int row, int column, const CellFormat &format);
+  void set_cell_format(const LocationSet &locations, const CellFormat &format);
+
   void set_current_cell(const Location &location);
 
   template <typename Func> void for_each_cell(Func &&func) {

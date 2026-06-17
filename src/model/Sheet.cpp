@@ -260,6 +260,7 @@ void Sheet::update_cell_contents(const std::string &content, const bool is_func,
       is_func ? lisp::LispObjectStringConverter(evaluation.result).to_str()
               : content;
   cell_p->raw_formula_ = is_func ? content : "";
+  cell_p->evaluated_value_ = evaluation.result;
 }
 
 std::string modify_user_entry(const std::string &content, bool is_func,
@@ -300,6 +301,7 @@ void Sheet::update_cell(int row, int column, const std::string &cell_name,
                                 .message = circular_reference_error.what()});
     cell_p->raw_formula_ = "";
     cell_p->visible_content_ = content;
+    cell_p->evaluated_value_ = nullptr;
 
     EventDispatcher::dispatch(
         CellUpdateErrorEvent{.cell = cell_p,
@@ -313,6 +315,7 @@ void Sheet::update_cell(int row, int column, const std::string &cell_name,
         CellError{.error_type = ERROR_GENERAL, .message = e.what()});
     cell_p->raw_formula_ = "";
     cell_p->visible_content_ = content;
+    cell_p->evaluated_value_ = nullptr;
 
     EventDispatcher::dispatch(
         CellUpdateErrorEvent{.cell = cell_p,
@@ -351,6 +354,18 @@ LocationSet Sheet::set_cell_content(int row, int column,
   update_cell(row, column, cell_name, content);
 
   return collect_reference_cells(cell_name);
+}
+
+void Sheet::set_cell_format(int row, int column, const CellFormat &format) {
+  auto *cell = get_or_create_cell_by_pos(row, column);
+  cell->format_ = format;
+}
+
+void Sheet::set_cell_format(const LocationSet &locations,
+                            const CellFormat &format) {
+  for (const auto &loc : locations) {
+    set_cell_format(loc.y(), loc.x(), format);
+  }
 }
 
 void Sheet::set_current_cell(const Location &location) {

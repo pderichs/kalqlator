@@ -1,4 +1,4 @@
-// KalQlator - TableCellTypes.h
+// KalQlator - CellFormatDialog.h
 // Copyright (C) 2026  pderichs
 //
 // This program is free software: you can redistribute it and/or modify
@@ -16,8 +16,33 @@
 
 #pragma once
 
-constexpr int FormulaRole = Qt::UserRole + 1;
-constexpr int ErrorRole = Qt::UserRole + 2;
-constexpr int UnformattedValueRole = Qt::UserRole + 3;
-constexpr int WordWrapRole = Qt::UserRole + 4;
-constexpr int CellFormatRole = Qt::UserRole + 5;
+#include <QCheckBox>
+#include <QComboBox>
+#include <QDialog>
+#include <QLabel>
+#include <QLineEdit>
+
+#include "../model/CellFormat.h"
+
+class CellFormatDialog : public QDialog {
+  Q_OBJECT
+
+public:
+  explicit CellFormatDialog(const CellFormat &initial_format,
+                            QWidget *parent = nullptr);
+
+  [[nodiscard]] CellFormat selectedFormat() const;
+
+private slots:
+  void onSpecifierChanged(const QString &text);
+  void onClearClicked();
+
+private:
+  void setupUi();
+  void updatePreview();
+
+  QLineEdit *m_specifierEdit;
+  QComboBox *m_roundingCombo;
+  QCheckBox *m_wordWrapCheck;
+  QLabel *m_previewLabel;
+};

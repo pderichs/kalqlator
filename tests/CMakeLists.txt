@@ -15,9 +15,9 @@ set(ADDITIONAL_DEPS
         ../src/lisp/tokenizer/tokenizer.h
         ../src/lisp/tokenizer/tokenizer.cpp
         ../src/lisp/parser/parser_error.h
-        ../src/lisp/tokenizer/tokenizer.cpp
         ../src/lisp/types.h
         ../src/tools/tools.cpp
+        ../src/tools/tools.h
         ../src/tools/location.h
         ../src/lisp/tokenizer/syntax_checker.cpp
         ../src/lisp/LispObjectStringConverter.h
@@ -42,11 +42,19 @@ set(ADDITIONAL_DEPS
         ../src/model/Sheet.cpp
         ../src/model/Sheet.h
         ../src/model/Cell.h
+        ../src/model/CellFormat.h
+        ../src/model/CellDisplayFormatter.h
+        ../src/model/CellDisplayFormatter.cpp
         ../src/file/DocumentJsonSerializer.cpp
         ../src/file/DocumentJsonSerializer.h
+        ../src/ui/ClipboardCellsMime.h
+        ../src/ui/ClipboardCellsMime.cpp
+        ../src/file/CellFormatJson.cpp
+        ../src/file/CellFormatJson.h
 )
 
 set(TESTS
+        test_cell_display_formatter
         test_lisp_object_string_converter
         test_lisp_comparison
         test_lisp_lambda
@@ -64,6 +72,7 @@ set(TESTS
         test_table_lisp_environment
         test_document_integration
         test_document_json_serializer
+        test_clipboard_cells_mime
 )
 
 foreach(test ${TESTS})
