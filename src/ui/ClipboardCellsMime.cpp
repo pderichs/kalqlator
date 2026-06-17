@@ -15,6 +15,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "ClipboardCellsMime.h"
+#include "../file/CellFormatJson.h"
 
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -22,26 +23,11 @@
 
 namespace {
 QJsonObject cell_format_to_json(const CellFormat &format) {
-  QJsonObject obj;
-  obj[QStringLiteral("specifier")] = QString::fromStdString(format.specifier);
-  obj[QStringLiteral("rounding_mode")] = static_cast<int>(format.rounding_mode);
-  obj[QStringLiteral("word_wrap")] = format.word_wrap;
-  return obj;
+  return cell_format_json::to_json(format);
 }
 
 std::optional<CellFormat> cell_format_from_json(const QJsonObject &json) {
-  CellFormat format;
-  format.specifier = json[QStringLiteral("specifier")].toString().toStdString();
-  int rounding_mode = json[QStringLiteral("rounding_mode")].toInt(
-      static_cast<int>(RoundingMode::Nearest));
-  if (rounding_mode < static_cast<int>(RoundingMode::Nearest) ||
-      rounding_mode > static_cast<int>(RoundingMode::Truncate)) {
-    return std::nullopt;
-  }
-
-  format.rounding_mode = static_cast<RoundingMode>(rounding_mode);
-  format.word_wrap = json[QStringLiteral("word_wrap")].toBool(false);
-  return format;
+  return cell_format_json::from_json(json);
 }
 } // namespace
 
