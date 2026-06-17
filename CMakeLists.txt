@@ -1,13 +1,12 @@
-cmake_minimum_required(VERSION 3.31.6)
+cmake_minimum_required(VERSION 3.21)
 project(kalqlator)
 
 set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
-
-enable_testing()
-add_subdirectory(tests)
 
 find_package(Qt6 COMPONENTS
         Core
@@ -17,6 +16,9 @@ find_package(Qt6 COMPONENTS
 
 find_library(GMP_LIB gmp REQUIRED)
 find_library(GMPXX_LIB gmpxx REQUIRED)
+
+enable_testing()
+add_subdirectory(tests)
 
 add_executable(kalqlator src/main.cpp
         src/ui/MainWindow.h
@@ -32,7 +34,6 @@ add_executable(kalqlator src/main.cpp
         src/lisp/tokenizer/tokenizer.h
         src/lisp/tokenizer/tokenizer.cpp
         src/lisp/parser/parser_error.h
-        src/lisp/tokenizer/tokenizer.cpp
         src/lisp/types.h
         src/tools/tools.cpp
         src/lisp/tokenizer/syntax_checker.cpp
