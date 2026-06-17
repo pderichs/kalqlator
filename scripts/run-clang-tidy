@@ -2,6 +2,6 @@
 
 run-clang-tidy \
   -p build \
-  -header-filter='.*' \
+  -header-filter='.*/kalqlator/(src|tests)/.*' \
   -j"$(nproc)" \
   'src/.*\.cpp$' 'tests/.*\.cpp$'

@@ -12,7 +12,7 @@ Checks: >
 
 WarningsAsErrors: '*'
 
-HeaderFilterRegex: '.*'
+HeaderFilterRegex: '.*/kalqlator/(src|tests)/.*'
 
 CheckOptions:
   - key: readability-identifier-length.IgnoredParameterNames
